@@ -89,7 +89,7 @@ public struct Dirent: CustomStringConvertible {
     
     public init(d: dirent) {
         var dirent = d
-        self.name = String(cString: UnsafeMutablePointer<CChar>(pointer(of: &(dirent.d_name))), encoding: .utf8)!
+        self.name = String(cString: pointer(of: &(dirent.d_name)).castTo(CChar.self, NItems: Int(MAXNAMLEN + 1)))
         self.size = Int(dirent.d_reclen)
         self.type = POSIXFileTypes(rawValue: Int32(dirent.d_type))
         self.ino = dirent.d_ino

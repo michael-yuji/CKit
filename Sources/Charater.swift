@@ -72,11 +72,11 @@ public func stderr(_ string: String) {
     write(STDERR_FILENO, &msg, msg.characters.count)
 }
 
-extension String : CustomStringConvertible {
-    public var description: String {
-        return self
-    }
-}
+//extension String : CustomStringConvertible {
+//    public var description: String {
+//        return self
+//    }
+//}
 
 public extension String {
     public static func alignedText(strings: String..., spaces: [Int]) -> String {

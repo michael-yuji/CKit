@@ -35,16 +35,32 @@ import Foundation
 @inline(__always)
 public func pointer<T>(of obj: inout T, advancedBy distance: Int = 0) -> UnsafePointer<T> {
     let ghost: (UnsafePointer<T>) -> UnsafePointer<T> = {$0}
-    return withUnsafePointer(&obj, {ghost($0)}).advanced(by: distance)
+    return withUnsafePointer(to: &obj, {ghost($0)}).advanced(by: distance)
 }
 
 @inline(__always)
 public func mutablePointer<T>(of obj: inout T, advancedBy distance: Int = 0) -> UnsafeMutablePointer<T> {
     let ghost: (UnsafeMutablePointer<T>) -> UnsafeMutablePointer<T> = {$0}
-    return withUnsafeMutablePointer(&obj, {ghost($0)}).advanced(by: distance)
+    return withUnsafeMutablePointer(to: &obj, {ghost($0)}).advanced(by: distance)
 }
 
 public struct ConvenientPointer<T> {
     public var pointer: UnsafeMutablePointer<T>
     public var size: size_t
+}
+
+public extension UnsafeMutablePointer {
+    func castTo<T>(_ type: T.Type, NItems count: Int = 1) -> UnsafeMutablePointer<T> {
+        return withMemoryRebound(to: type, capacity: count, { (ptr) -> UnsafeMutablePointer<T> in
+            return ptr
+        })
+    }
+}
+
+public extension UnsafePointer {
+    func castTo<T>(_ type: T.Type, NItems count: Int = 1) -> UnsafePointer<T> {
+        return self.withMemoryRebound(to: type, capacity: count) {
+            UnsafePointer<T>($0)
+        }
+    }
 }
