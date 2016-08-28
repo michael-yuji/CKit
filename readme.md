@@ -35,7 +35,7 @@ import CKit
 
 public struct TLSConfig: OpaqueBridged {
   
-    internal var opaqueObj: OpaqueObject 
+    public var opaqueObj: OpaqueObject 
     
     public init() {
         /* tls_config_new returns 'struct tls_config *' and 
@@ -43,6 +43,15 @@ public struct TLSConfig: OpaqueBridged {
          * C. 
          */
         opaqueObj = OpaqueObject(tls_config_new(), free: tls_config_free)
+    }
+    
+    public var certificateFile: String? {
+        didSet {
+            if let file = certificateFile {
+            // since OpaqueBridged is confirms to RawRepresentable, and the getter of rawValue returns the OpaquePointer
+                tls_config_set_ca_file(rawValue, file)
+            }
+        }
     }
 }
 ```
