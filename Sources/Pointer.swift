@@ -50,17 +50,25 @@ public struct ConvenientPointer<T> {
 }
 
 public extension UnsafeMutablePointer {
-    func castTo<T>(_ type: T.Type, NItems count: Int = 1) -> UnsafeMutablePointer<T> {
-        return withMemoryRebound(to: type, capacity: count, { (ptr) -> UnsafeMutablePointer<T> in
-            return ptr
-        })
+    func cast<T>(to type: T.Type, NItems count: Int = 1) -> UnsafeMutablePointer<T> {
+        return UnsafeMutableRawPointer(self).assumingMemoryBound(to: type)
+//        return withMemoryRebound(to: type, capacity: count, { (ptr) -> UnsafeMutablePointer<T> in
+//            return ptr
+//        })
     }
 }
 
 public extension UnsafePointer {
-    func castTo<T>(_ type: T.Type, NItems count: Int = 1) -> UnsafePointer<T> {
-        return self.withMemoryRebound(to: type, capacity: count) {
-            UnsafePointer<T>($0)
-        }
+    func cast<T>(to type: T.Type) -> UnsafePointer<T> {
+        return UnsafeRawPointer(self).assumingMemoryBound(to: type)
+//        return self.withMemoryRebound(to: type, capacity: count) {
+//            UnsafePointer<T>($0)
+//        }
+    }
+}
+
+public extension UnsafeMutableRawPointer {
+    func cast<T>(to type: T.Type) -> UnsafeMutablePointer<T> {
+        return self.assumingMemoryBound(to: type)
     }
 }
