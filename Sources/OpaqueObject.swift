@@ -26,21 +26,51 @@
 //  of the authors and should not be interpreted as representing official policies,
 //  either expressed or implied, of the FreeBSD Project.
 //
-//  Created by yuuji on 8/26/16.
+//  Created by yuuji on 8/27/16.
 //
 //
 
-import Foundation
-
-#if os(FreeBSD) || os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
-@inline(__always)
-public func EV_SET(kevent _ke: inout kevent, ident: Int32, filter: Int32, flags: Int32, fflags: Int32, data: Int32, udata: UnsafeMutablePointer<Void>!) {
-    let event: UnsafeMutablePointer<kevent> = mutablePointer(of: &_ke)
-    event.pointee.ident = UInt(ident)
-    event.pointee.filter = Int16(filter)
-    event.pointee.flags = UInt16(flags)
-    event.pointee.fflags = UInt32(fflags)
-    event.pointee.data = Int(data)
-    event.pointee.udata = udata
+public protocol OpaqueBridged: RawRepresentable {
+    var opaqueObj: OpaqueObject { get set }
 }
-#endif
+
+extension OpaqueBridged {
+    public typealias Raw = OpaquePointer
+    public var rawValue: OpaquePointer {
+        get {
+            return opaqueObj.opaquePtr
+        } set {
+            self.opaqueObj.opaquePtr = newValue
+        }
+    }
+}
+
+public final class OpaqueObject {
+    public var opaquePtr: OpaquePointer
+    public var free: (OpaquePointer) -> ()
+    
+    public init(_ ptr: OpaquePointer, free: (OpaquePointer) -> ()) {
+        self.opaquePtr = ptr
+        self.free = free
+    }
+    
+    public init<T>(_ ptr: UnsafePointer<T>, free: (OpaquePointer) -> ()) {
+        self.opaquePtr = OpaquePointer(ptr)
+        self.free = free
+    }
+    
+    public init<T>(_ ptr: UnsafeMutablePointer<T>, free: (OpaquePointer) -> ()) {
+        self.opaquePtr = OpaquePointer(ptr)
+        self.free = free
+    }
+    
+    deinit {
+        free(opaquePtr)
+    }
+}
+
+public extension OpaqueObject {
+    public func underlayMemory<T>(as _: T.Type) -> T {
+        return UnsafeMutablePointer<T>(self.opaquePtr).pointee
+    }
+}
