@@ -32,6 +32,7 @@
 
 import Foundation
 
+/* incomplete
 #if os(FreeBSD) || os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
     @inline(__always)
     public func EV_SET(kevent _ke: inout kevent,
@@ -215,7 +216,6 @@ import Foundation
 //        var filter: Int32 = EVFILT_SIGNAL
 //        var flags: Int32
 //        var fflags: Int32
-//    }
 //    
     public struct KEVFileEvents: OptionSet, RawRepresentable {
         public typealias RawValue = UInt32
@@ -252,8 +252,8 @@ import Foundation
             }
         }
         
-        public init(path: String, flag: Int32 = O_RDWR, for events: KEVFileEvents, perform action: @escaping (KEVFileEvents) -> ()) {
-            identifier = open(path, flag)
+        public init(path: String, flags: Int32 = O_RDWR, for events: KEVFileEvents, perform action: @escaping (KEVFileEvents) -> ()) {
+            identifier = open(path, flags)
             self.events = events
             self.action = action
         }
@@ -271,6 +271,5 @@ import Foundation
 #endif
 
 
-
-
+*/
 

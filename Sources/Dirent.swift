@@ -32,8 +32,14 @@
 
 import Foundation
 
+#if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
+public typealias DirentRawType = Int32
+#elseif os(Linux)
+public typealias DirentRawType = Int
+#endif
+
 public struct POSIXFileTypes : RawRepresentable, CustomStringConvertible {
-    public var rawValue: Int32
+    public var rawValue: DirentRawType
     public static let unknown = POSIXFileTypes(rawValue: DT_UNKNOWN)
     public static let namedPipe = POSIXFileTypes(rawValue: DT_FIFO)
     public static let characterDevice = POSIXFileTypes(rawValue: DT_CHR)
@@ -76,7 +82,7 @@ public struct POSIXFileTypes : RawRepresentable, CustomStringConvertible {
         #endif
     }
     
-    public init(rawValue: Int32) {
+    public init(rawValue: DirentRawType) {
         self.rawValue = rawValue
     }
 }
@@ -90,9 +96,8 @@ public struct Dirent: CustomStringConvertible {
     public init(d: dirent) {
         var dirent = d
         self.name = String(cString: pointer(of: &(dirent.d_name)).cast(to: CChar.self))
-        //        self.name = String(cString: pointer(of: &(dirent.d_name)).cast(to: CChar.self, NItems: Int(MAXNAMLEN + 1)))
         self.size = Int(dirent.d_reclen)
-        self.type = POSIXFileTypes(rawValue: Int32(dirent.d_type))
+        self.type = POSIXFileTypes(rawValue: DirentRawType(dirent.d_type))
         self.ino = dirent.d_ino
     }
     
