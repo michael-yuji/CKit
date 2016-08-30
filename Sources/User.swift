@@ -54,6 +54,7 @@ public struct User {
         return String(cString: pw.pointee.pw_shell)
     }
     
+    #if os(FreeBSD) || os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
     public var expiration: Date {
         return Date(timeIntervalSince1970: TimeInterval(pw.pointee.pw_expire))
     }
@@ -65,7 +66,7 @@ public struct User {
     public var `class`: String {
         return String(cString: pw.pointee.pw_class)
     }
-    
+    #endif
 }
 
 public extension User {

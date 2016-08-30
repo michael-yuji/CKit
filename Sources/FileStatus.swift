@@ -76,13 +76,31 @@ public extension FileStatus {
         return Int(stat_.pointee.st_blocks)
     }
     public var lastAccessDate: Date {
+        #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
         return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_atimespec.tv_sec))
+        #elseif os(FreeBSD)
+        return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_atime.tv_sec))
+        #elseif os(Linux)
+        return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_atime))
+        #endif
     }
     public var modificationDate: Date {
-        return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_mtimespec.tv_sec))
+        #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
+            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_mtimespec.tv_sec))
+        #elseif os(FreeBSD)
+            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_mtime.tv_sec))
+        #elseif os(Linux)
+            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_mtime))
+        #endif
     }
     public var lastStatusChange: Date {
-        return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_ctimespec.tv_sec))
+        #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
+            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_ctimespec.tv_sec))
+        #elseif os(FreeBSD)
+            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_ctime.tv_sec))
+        #elseif os(Linux)
+            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_ctime))
+        #endif
     }
 }
 
