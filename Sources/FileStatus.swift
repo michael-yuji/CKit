@@ -79,27 +79,27 @@ public extension FileStatus {
         #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
         return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_atimespec.tv_sec))
         #elseif os(FreeBSD)
-        return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_atime.tv_sec))
+        return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_atim.tv_sec))
         #elseif os(Linux)
-        return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_atime))
+        return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_atim))
         #endif
     }
     public var modificationDate: Date {
         #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
             return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_mtimespec.tv_sec))
         #elseif os(FreeBSD)
-            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_mtime.tv_sec))
+            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_mtim.tv_sec))
         #elseif os(Linux)
-            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_mtime))
+            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_mtim))
         #endif
     }
     public var lastStatusChange: Date {
         #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
             return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_ctimespec.tv_sec))
         #elseif os(FreeBSD)
-            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_ctime.tv_sec))
+            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_ctim.tv_sec))
         #elseif os(Linux)
-            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_ctime))
+            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_ctim))
         #endif
     }
 }
