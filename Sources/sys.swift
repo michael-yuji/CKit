@@ -35,7 +35,7 @@ import Foundation
 #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
 public typealias sys_conf_arg_t = Int32
 #elseif os(Linux)
-public typealias sys_conf_arg_t = Int
+public typealias sys_conf_arg_t = Int32
 #endif
 
 public struct Sysconf {
