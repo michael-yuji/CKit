@@ -43,61 +43,64 @@ public enum FileStatusError: Error {
     case componentOfPathIsNotDirectory
     case overflow
 }
+
+public typealias cstat = Foundation.stat
 public struct FileStatus {
-    public var stat_: UnsafeMutablePointer<stat>!
+    public var stat_ = cstat()
 }
 
 public extension FileStatus {
     public var deviceId: dev_t {
-        return stat_.pointee.st_dev
+        return stat_.st_dev
     }
     public var inodeNumber: ino_t {
-        return stat_.pointee.st_ino
+        return stat_.st_ino
     }
     public var mode: mode_t {
-        return stat_.pointee.st_mode
+        return stat_.st_mode
     }
     public var hardlinkCount: Int {
-        return Int(stat_.pointee.st_nlink)
+        return Int(stat_.st_nlink)
     }
     public var owner: User {
-        return User(uid: stat_.pointee.st_uid)
+        return User(uid: stat_.st_uid)
     }
     public var deviceId_s: dev_t {
-        return stat_.pointee.st_rdev
+        return stat_.st_rdev
     }
     public var size: size_t {
-        return size_t(stat_.pointee.st_size)
+//        let a = stat_.pointee
+        return size_t(stat_.st_size)
     }
     public var blockSize: Int {
-        return Int(stat_.pointee.st_blksize)
+        return Int(stat_.st_blksize)
     }
     public var blocksCount: Int {
-        return Int(stat_.pointee.st_blocks)
+        return Int(stat_.st_blocks)
     }
     public var lastAccessDate: Date {
         #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
-        return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_atimespec.tv_sec))
+        return Date(timeIntervalSince1970: TimeInterval(stat_.st_atimespec.tv_sec))
         #elseif os(FreeBSD) || os(Linux)
-        return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_atim.tv_sec))
+        return Date(timeIntervalSince1970: TimeInterval(stat_.st_atim.tv_sec))
 //        #elseif os(Linux)
 //        return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_atim))
         #endif
     }
     public var modificationDate: Date {
         #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
-            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_mtimespec.tv_sec))
+            return Date(timeIntervalSince1970: TimeInterval(stat_.st_mtimespec.tv_sec))
         #elseif os(FreeBSD) || os(Linux)
-            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_mtim.tv_sec))
+            return Date(timeIntervalSince1970: TimeInterval(stat_.st_mtim.tv_sec))
 //        #elseif os(Linux)
 //            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_mtim))
         #endif
     }
     public var lastStatusChange: Date {
         #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
-            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_ctimespec.tv_sec))
+            return Date(timeIntervalSince1970: TimeInterval(stat_.st_ctimespec.tv_sec))
         #elseif os(FreeBSD) || os(Linux)
-            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_ctim.tv_sec))
+            return Date(timeIntervalSince1970: TimeInterval(stat_.st_ctim.tv_sec))
 //        #elseif os(Linux)
 //            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_ctim))
         #endif
@@ -135,14 +138,15 @@ public extension FileStatus {
 
 public extension FileStatus {
     public init(path: String) throws {
-        try verify(err: stat(path, stat_))
+        try verify(err: stat(path, &stat_))
     }
     
     public init(fd: Int32) throws {
-        try verify(err: fstat(fd, stat_))
+        try verify(err: fstat(fd, &stat_))
     }
     
     internal func verify(err: Int32) throws {
+        
         switch err {
         case EACCES:
             throw FileStatusError.searchPermissionDenied
@@ -162,6 +166,9 @@ public extension FileStatus {
             throw FileStatusError.componentOfPathIsNotDirectory
         case EOVERFLOW:
             throw FileStatusError.overflow
+        case -1:
+            perror("stat")
+            throw FileStatusError.badAddress
         default:
             break
         }
