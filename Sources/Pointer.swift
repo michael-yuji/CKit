@@ -69,3 +69,19 @@ public extension UnsafeMutableRawPointer {
         return self.assumingMemoryBound(to: type)
     }
 }
+
+extension PointerType {
+    var numerialValue: Int {
+        var s = self
+        return pointer(of: &s).cast(to: Int.self).pointee
+    }
+}
+
+protocol PointerType {}
+protocol MutablePointerType : PointerType {}
+extension UnsafePointer: PointerType {}
+extension UnsafeRawPointer: PointerType {}
+extension UnsafeBufferPointer: PointerType {}
+extension UnsafeMutablePointer: MutablePointerType {}
+extension UnsafeMutableRawPointer: MutablePointerType {}
+extension UnsafeMutableBufferPointer: MutablePointerType {}
