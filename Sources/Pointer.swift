@@ -71,14 +71,14 @@ public extension UnsafeMutableRawPointer {
 }
 
 extension PointerType {
-    var numerialValue: Int {
+    public var numerialValue: Int {
         var s = self
         return pointer(of: &s).cast(to: Int.self).pointee
     }
 }
 
-protocol PointerType {}
-protocol MutablePointerType : PointerType {}
+public protocol PointerType {}
+public protocol MutablePointerType : PointerType {}
 extension UnsafePointer: PointerType {}
 extension UnsafeRawPointer: PointerType {}
 extension UnsafeBufferPointer: PointerType {}
