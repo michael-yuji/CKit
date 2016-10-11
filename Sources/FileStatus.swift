@@ -107,6 +107,16 @@ public extension FileStatus {
     }
 }
 
+public func ==(lhs: stat, rhs: stat) -> Bool {
+    var l = lhs
+    var r = rhs
+    return memcmp(pointer(of: &l), pointer(of: &r), MemoryLayout<stat>.size) == 0
+}
+
+public func ==(lhs: FileStatus, rhs: FileStatus) -> Bool {
+    return lhs.stat_ == rhs.stat_
+}
+
 public extension FileStatus {
     public var isBlock: Bool {
         return (self.mode & S_IFMT) == S_IFBLK
