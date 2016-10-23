@@ -22,6 +22,16 @@ extension Date {
     }
 }
 
+extension timespec : Hashable, Equatable, Equatable {
+    static var distantFuture: timespec {
+        return timespec(tv_sec: Int.max, tv_nsec: Int.max)
+    }
+
+    public var hashValue: Int {
+        return self.tv_nsec + self.tv_sec * 1_000_000_000
+    {
+}
+
 public func ==(lhs: timespec, rhs: timespec) -> Bool {
     return lhs.tv_nsec == rhs.tv_nsec && rhs.tv_sec == rhs.tv_sec
 }
