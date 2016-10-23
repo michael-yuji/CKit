@@ -30,7 +30,16 @@
 //
 //
 
-import Foundation
+import struct Foundation.Date
+import typealias Foundation.TimeInterval
+
+#if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
+import Darwin
+public typealias cstat = Darwin.stat
+#else
+import Glibc
+public typealias cstat = Glibc.stat
+#endif
 
 public enum FileStatusError: Error {
     case searchPermissionDenied
@@ -44,7 +53,6 @@ public enum FileStatusError: Error {
     case overflow
 }
 
-public typealias cstat = Foundation.stat
 public struct FileStatus {
     public var stat_ = cstat()
 }
@@ -69,7 +77,6 @@ public extension FileStatus {
         return stat_.st_rdev
     }
     public var size: size_t {
-//        let a = stat_.pointee
         return size_t(stat_.st_size)
     }
     public var blockSize: Int {
@@ -83,8 +90,6 @@ public extension FileStatus {
         return Date(timeIntervalSince1970: TimeInterval(stat_.st_atimespec.tv_sec))
         #elseif os(FreeBSD) || os(Linux)
         return Date(timeIntervalSince1970: TimeInterval(stat_.st_atim.tv_sec))
-//        #elseif os(Linux)
-//        return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_atim))
         #endif
     }
     public var modificationDate: Date {
@@ -92,8 +97,6 @@ public extension FileStatus {
             return Date(timeIntervalSince1970: TimeInterval(stat_.st_mtimespec.tv_sec))
         #elseif os(FreeBSD) || os(Linux)
             return Date(timeIntervalSince1970: TimeInterval(stat_.st_mtim.tv_sec))
-//        #elseif os(Linux)
-//            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_mtim))
         #endif
     }
     public var lastStatusChange: Date {
@@ -101,8 +104,6 @@ public extension FileStatus {
             return Date(timeIntervalSince1970: TimeInterval(stat_.st_ctimespec.tv_sec))
         #elseif os(FreeBSD) || os(Linux)
             return Date(timeIntervalSince1970: TimeInterval(stat_.st_ctim.tv_sec))
-//        #elseif os(Linux)
-//            return Date(timeIntervalSince1970: TimeInterval(stat_.pointee.st_ctim))
         #endif
     }
 }

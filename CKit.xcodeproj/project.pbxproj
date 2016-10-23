@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CE6B9B621DBCE8A7000AD7F8 /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE6B9B611DBCE8A7000AD7F8 /* Date.swift */; };
 		CE71EEBF1D7275BD0052A09A /* OpaqueObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE71EEBE1D7275BD0052A09A /* OpaqueObject.swift */; };
 		_LinkFileRef_CKit_via_CKitTestSuite /* CKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "_____Product_CKit" /* CKit.framework */; };
 		__src_cc_ref_Sources/CKit.swift /* CKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = __PBXFileRef_Sources/CKit.swift /* CKit.swift */; };
 		__src_cc_ref_Sources/Charater.swift /* Charater.swift in Sources */ = {isa = PBXBuildFile; fileRef = __PBXFileRef_Sources/Charater.swift /* Charater.swift */; };
 		__src_cc_ref_Sources/Dirent.swift /* Dirent.swift in Sources */ = {isa = PBXBuildFile; fileRef = __PBXFileRef_Sources/Dirent.swift /* Dirent.swift */; };
 		__src_cc_ref_Sources/FileStatus.swift /* FileStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = __PBXFileRef_Sources/FileStatus.swift /* FileStatus.swift */; };
-		__src_cc_ref_Sources/Kevent.swift /* Kevent.swift in Sources */ = {isa = PBXBuildFile; fileRef = __PBXFileRef_Sources/Kevent.swift /* Kevent.swift */; };
 		__src_cc_ref_Sources/Pointer.swift /* Pointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = __PBXFileRef_Sources/Pointer.swift /* Pointer.swift */; };
 		__src_cc_ref_Sources/User.swift /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = __PBXFileRef_Sources/User.swift /* User.swift */; };
 		__src_cc_ref_Sources/sys.swift /* sys.swift in Sources */ = {isa = PBXBuildFile; fileRef = __PBXFileRef_Sources/sys.swift /* sys.swift */; };
@@ -31,6 +31,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CE6B9B611DBCE8A7000AD7F8 /* Date.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
 		CE71EEBE1D7275BD0052A09A /* OpaqueObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpaqueObject.swift; sourceTree = "<group>"; };
 		__PBXFileRef_CKit.xcodeproj/Configs/Project.xcconfig /* CKit.xcodeproj/Configs/Project.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = CKit.xcodeproj/Configs/Project.xcconfig; sourceTree = "<group>"; };
 		__PBXFileRef_CKitTestSuite_Info.plist /* CKit.xcodeproj/CKitTestSuite_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = CKit.xcodeproj/CKitTestSuite_Info.plist; sourceTree = SOURCE_ROOT; };
@@ -40,7 +41,6 @@
 		__PBXFileRef_Sources/Charater.swift /* Charater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Charater.swift; sourceTree = "<group>"; };
 		__PBXFileRef_Sources/Dirent.swift /* Dirent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dirent.swift; sourceTree = "<group>"; };
 		__PBXFileRef_Sources/FileStatus.swift /* FileStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileStatus.swift; sourceTree = "<group>"; };
-		__PBXFileRef_Sources/Kevent.swift /* Kevent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Kevent.swift; sourceTree = "<group>"; };
 		__PBXFileRef_Sources/Pointer.swift /* Pointer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pointer.swift; sourceTree = "<group>"; };
 		__PBXFileRef_Sources/User.swift /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		__PBXFileRef_Sources/sys.swift /* sys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = sys.swift; sourceTree = "<group>"; };
@@ -119,12 +119,12 @@
 				__PBXFileRef_Sources/CKit.swift /* CKit.swift */,
 				__PBXFileRef_Sources/Dirent.swift /* Dirent.swift */,
 				__PBXFileRef_Sources/FileStatus.swift /* FileStatus.swift */,
-				__PBXFileRef_Sources/Kevent.swift /* Kevent.swift */,
 				__PBXFileRef_Sources/Pointer.swift /* Pointer.swift */,
 				__PBXFileRef_Sources/sys.swift /* sys.swift */,
 				__PBXFileRef_Sources/User.swift /* User.swift */,
 				__PBXFileRef_CKit_Info.plist /* CKit.xcodeproj/CKit_Info.plist */,
 				CE71EEBE1D7275BD0052A09A /* OpaqueObject.swift */,
+				CE6B9B611DBCE8A7000AD7F8 /* Date.swift */,
 			);
 			name = CKit;
 			path = Sources;
@@ -219,10 +219,10 @@
 				__src_cc_ref_Sources/CKit.swift /* CKit.swift in Sources */,
 				__src_cc_ref_Sources/Dirent.swift /* Dirent.swift in Sources */,
 				__src_cc_ref_Sources/FileStatus.swift /* FileStatus.swift in Sources */,
-				__src_cc_ref_Sources/Kevent.swift /* Kevent.swift in Sources */,
 				__src_cc_ref_Sources/Pointer.swift /* Pointer.swift in Sources */,
 				CE71EEBF1D7275BD0052A09A /* OpaqueObject.swift in Sources */,
 				__src_cc_ref_Sources/sys.swift /* sys.swift in Sources */,
+				CE6B9B621DBCE8A7000AD7F8 /* Date.swift in Sources */,
 				__src_cc_ref_Sources/User.swift /* User.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

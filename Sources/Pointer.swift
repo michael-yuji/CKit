@@ -30,8 +30,6 @@
 //  Copyright © 2016 yuuji. All rights reserved.
 //
 
-import Foundation
-
 @inline(__always)
 public func pointer<T>(of obj: inout T, advancedBy distance: Int = 0) -> UnsafePointer<T> {
     let ghost: (UnsafePointer<T>) -> UnsafePointer<T> = {$0}
@@ -46,7 +44,7 @@ public func mutablePointer<T>(of obj: inout T, advancedBy distance: Int = 0) -> 
 
 public struct ConvenientPointer<T> {
     public var pointer: UnsafeMutablePointer<T>
-    public var size: size_t
+    public var size: Int
 }
 
 public extension UnsafeMutablePointer {
