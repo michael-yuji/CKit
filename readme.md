@@ -2,9 +2,11 @@
 
 ## Description
 
+CKit is a small helper to make using C APIs in swift easier. Also come with some swifty C struct wrappers (dirent, stat, pwd, timespec, etc). It also provides painless function to get pointer and cast pointer around. 
+
+## Pointer
+
 A lot of pointer is used in C. Although swift can call C API directly, swift doesn't provide a easy-clean way to access pointer of non-Foundation object.
-Which CKit provides you.
-CKit is a small helper to make using C APIs in swift easier. Also come with some C struct wrappers (dirent, stat, pwd)
 
 The core of CKit is really only two global functions, some extension to pointer type, one protocol and one class:
 
@@ -17,7 +19,6 @@ public extension Unsafe[Mutable]Pointer {
 public protocol OpaqueBridged //To create struct that manage 'OpaqueObject'`,
 public final class OpaqueObject //Manage life cycle of any OpaquePointer object
 ```
-Other parts of the Library are just for fun.
 
 ## Example
 socket: bind()
@@ -61,5 +62,3 @@ public struct TLSConfig: OpaqueBridged {
     }
 }
 ```
-
-
