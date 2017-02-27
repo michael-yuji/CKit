@@ -51,7 +51,7 @@ public struct POSIXFileTypes : RawRepresentable, CustomStringConvertible {
     #if os(OSX) || os(FreeBSD)
     public static let whiteOut = POSIXFileTypes(rawValue: DT_WHT)
     #endif
-    
+
     public var description: String {
         #if os(OSX) || os(FreeBSD)
             switch self.rawValue {
@@ -67,7 +67,7 @@ public struct POSIXFileTypes : RawRepresentable, CustomStringConvertible {
             default: return "Invalid val"
             }
         #else
-            
+
             switch self.rawValue {
             case POSIXFileTypes.unknown.rawValue: return "unknown"
             case POSIXFileTypes.namedPipe.rawValue: return "namedPipe"
@@ -81,7 +81,7 @@ public struct POSIXFileTypes : RawRepresentable, CustomStringConvertible {
             }
         #endif
     }
-    
+
     public init(rawValue: DirentRawType) {
         self.rawValue = rawValue
     }
@@ -92,7 +92,7 @@ public struct Dirent: CustomStringConvertible {
     public var ino: ino_t
     public var size: Int
     public var type: POSIXFileTypes
-    
+
     public init(d: dirent) {
         var dirent = d
         self.name = String(cString: pointer(of: &(dirent.d_name)).cast(to: CChar.self))
@@ -100,7 +100,7 @@ public struct Dirent: CustomStringConvertible {
         self.type = POSIXFileTypes(rawValue: DirentRawType(dirent.d_type))
         self.ino = dirent.d_ino
     }
-    
+
     public var description: String {
         get {
             return String.alignedText( strings: name, "\(ino)", "\(size)", "\(type)", spaces: [25, 10, 7, 15])
@@ -113,24 +113,24 @@ public func files(at path: String) -> [Dirent] {
     defer {
         closedir(dfd)
     }
-    
+
     var dirents = [Dirent]()
     var dir: dirent = dirent()
     var resloved: UnsafeMutablePointer<dirent>? = nil
-    
+
     repeat {
         if readdir_r(dfd, &dir, &resloved) != 0 {
             break
         }
-        
+
         if resloved == nil {
             break
         }
 
         dirents.append(Dirent(d: resloved!.pointee))
-        
+
     } while (resloved != nil)
-    
+
     return dirents
 }
 
@@ -138,18 +138,18 @@ public func findFile_r(atDirPath path: String, file: String) -> Dirent? {
     guard let dfd = opendir(path.cString(using: .utf8)!) else {return nil}
     var dir: dirent = dirent()
     var result: UnsafeMutablePointer<dirent>? = nil
-    
-    
+
+
     repeat {
         if readdir_r(dfd, &dir, &result) != 0 {break}
-        
+
         if result == nil { break }
-        
+
         if Dirent(d: result!.pointee).name == file {
             closedir(dfd)
             return Dirent(d: result!.pointee)
         }
-        
+
     } while (result != nil)
     closedir(dfd)
     return nil

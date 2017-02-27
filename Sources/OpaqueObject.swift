@@ -48,22 +48,22 @@ extension OpaqueBridged {
 public final class OpaqueObject {
     public var opaquePtr: OpaquePointer
     public var free: (OpaquePointer) -> ()
-    
+
     public init(_ ptr: OpaquePointer, free: @escaping (OpaquePointer) -> ()) {
         self.opaquePtr = ptr
         self.free = free
     }
-    
+
     public init<T>(_ ptr: UnsafePointer<T>, free: @escaping (OpaquePointer) -> ()) {
         self.opaquePtr = OpaquePointer(ptr)
         self.free = free
     }
-    
+
     public init<T>(_ ptr: UnsafeMutablePointer<T>, free: @escaping (OpaquePointer) -> ()) {
         self.opaquePtr = OpaquePointer(ptr)
         self.free = free
     }
-    
+
     deinit {
         free(opaquePtr)
     }

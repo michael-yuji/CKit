@@ -26,7 +26,7 @@ extension timespec : Hashable, Equatable, Comparable {
     static var distantFuture: timespec {
         return timespec(tv_sec: Int.max, tv_nsec: Int.max)
     }
-    
+
     public static func now() -> timespec {
         var time = timespec()
         #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
@@ -61,13 +61,13 @@ public func >(lhs: timespec, rhs: timespec) -> Bool {
     if lhs.tv_sec > rhs.tv_sec {
         return true
     }
-    
+
     if lhs.tv_sec == rhs.tv_sec {
         if lhs.tv_nsec > rhs.tv_nsec {
             return true
         }
     }
-    
+
     return false
 }
 
@@ -75,13 +75,13 @@ public func >=(lhs: timespec, rhs: timespec) -> Bool {
     if lhs.tv_sec > rhs.tv_sec {
         return true
     }
-    
+
     if lhs.tv_sec == rhs.tv_sec {
         if lhs.tv_nsec >= rhs.tv_nsec {
             return true
         }
     }
-    
+
     return false
 }
 
@@ -89,13 +89,13 @@ public func <(lhs: timespec, rhs: timespec) -> Bool {
     if lhs.tv_sec < rhs.tv_sec {
         return true
     }
-    
+
     if lhs.tv_sec == rhs.tv_sec {
         if lhs.tv_nsec < rhs.tv_nsec {
             return true
         }
     }
-    
+
     return false
 }
 
@@ -103,13 +103,13 @@ public func <=(lhs: timespec, rhs: timespec) -> Bool {
     if lhs.tv_sec < rhs.tv_sec {
         return true
     }
-    
+
     if lhs.tv_sec == rhs.tv_sec {
         if lhs.tv_nsec <= rhs.tv_nsec {
             return true
         }
     }
-    
+
     return false
 }
 

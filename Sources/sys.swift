@@ -43,47 +43,47 @@ public typealias sys_conf_arg_t = Int32
 #endif
 
 public struct Sysconf {
-    
+
     public static var pagesize: Int {
         return sysconf(sys_conf_arg_t(_SC_PAGESIZE))
     }
-    
+
     public static var hostnameMaxLength: Int {
         return sysconf(sys_conf_arg_t(_SC_HOST_NAME_MAX))
     }
-    
+
     public static var loginnameMaxLength: Int {
         return sysconf(sys_conf_arg_t(_SC_LOGIN_NAME_MAX))
     }
-    
+
     public static var ttynameMaxLength: Int {
         return sysconf(sys_conf_arg_t(_SC_TTY_NAME_MAX))
     }
-    
+
     public static var maxFilesCount: Int {
         return sysconf(sys_conf_arg_t(_SC_OPEN_MAX))
     }
-    
+
     public static var maxChildProcCount: Int {
         return sysconf(sys_conf_arg_t(_SC_CHILD_MAX))
     }
-    
+
     public static var maxArgsCount: Int {
         return sysconf(sys_conf_arg_t(_SC_ARG_MAX))
     }
-    
+
     public static var  physicalPagesize: Int {
         return sysconf(sys_conf_arg_t(_SC_PHYS_PAGES))
     }
-    
+
     public static var cpusConfigured: Int {
         return sysconf(sys_conf_arg_t(_SC_NPROCESSORS_CONF))
     }
-    
+
     public static var cpusOnline: Int {
         return sysconf(sys_conf_arg_t(_SC_NPROCESSORS_ONLN))
     }
-    
+
     public static var clockTricks: Int {
         return sysconf(sys_conf_arg_t(_SC_CLK_TCK))
     }

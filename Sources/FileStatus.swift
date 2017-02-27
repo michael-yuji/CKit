@@ -151,13 +151,13 @@ public extension FileStatus {
     public init(path: String) throws {
         try verify(err: stat(path, &stat_))
     }
-    
+
     public init(fd: Int32) throws {
         try verify(err: fstat(fd, &stat_))
     }
-    
+
     internal func verify(err: Int32) throws {
-        
+
         switch err {
         case EACCES:
             throw FileStatusError.searchPermissionDenied

@@ -79,7 +79,7 @@ extension Array: PointerType {
     private static func toPointer<T>(_ p: UnsafePointer<T>) -> UnsafePointer<T> {
         return p
     }
-    
+
     public var rawPointer: UnsafeRawPointer {
         return Array.toPointer(self).rawPointer}
 }
@@ -113,7 +113,7 @@ extension UnsafeMutablePointer: MutablePointerType {
     public var mutableRawPointer: UnsafeMutableRawPointer {
         return UnsafeMutableRawPointer(self)
     }
-    
+
     public var rawPointer: UnsafeRawPointer {
         return UnsafeRawPointer(self)
     }
@@ -123,7 +123,7 @@ extension UnsafeMutableRawPointer: MutablePointerType {
     public var mutableRawPointer: UnsafeMutableRawPointer {
         return self
     }
-    
+
     public var rawPointer: UnsafeRawPointer {
         return UnsafeRawPointer(self)
     }
