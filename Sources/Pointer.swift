@@ -75,11 +75,55 @@ extension PointerType {
     }
 }
 
-public protocol PointerType {}
-public protocol MutablePointerType : PointerType {}
-extension UnsafePointer: PointerType {}
-extension UnsafeRawPointer: PointerType {}
-extension UnsafeBufferPointer: PointerType {}
-extension UnsafeMutablePointer: MutablePointerType {}
-extension UnsafeMutableRawPointer: MutablePointerType {}
-extension UnsafeMutableBufferPointer: MutablePointerType {}
+public protocol PointerType {
+    var rawPointer: UnsafeRawPointer {get}
+}
+public protocol MutablePointerType : PointerType {
+    var mutableRawPointer: UnsafeMutableRawPointer {get}
+}
+extension UnsafePointer: PointerType {
+    public var rawPointer: UnsafeRawPointer {
+        return UnsafeRawPointer(self)
+    }
+}
+
+extension UnsafeRawPointer: PointerType {
+    public var rawPointer: UnsafeRawPointer {
+        return self
+    }
+}
+extension UnsafeBufferPointer: PointerType {
+    public var rawPointer: UnsafeRawPointer {
+        return unsafeBitCast(self, to: UnsafeRawPointer.self)
+    }
+}
+
+extension UnsafeMutablePointer: MutablePointerType {
+    public var mutableRawPointer: UnsafeMutableRawPointer {
+        return UnsafeMutableRawPointer(self)
+    }
+    
+    public var rawPointer: UnsafeRawPointer {
+        return UnsafeRawPointer(self)
+    }
+}
+
+extension UnsafeMutableRawPointer: MutablePointerType {
+    public var mutableRawPointer: UnsafeMutableRawPointer {
+        return self
+    }
+    
+    public var rawPointer: UnsafeRawPointer {
+        return UnsafeRawPointer(self)
+    }
+}
+
+extension UnsafeMutableBufferPointer: MutablePointerType {
+    public var mutableRawPointer: UnsafeMutableRawPointer {
+        return unsafeBitCast(self, to: UnsafeMutableRawPointer.self)
+    }
+
+    public var rawPointer: UnsafeRawPointer {
+        return unsafeBitCast(self, to: UnsafeRawPointer.self)
+    }
+}

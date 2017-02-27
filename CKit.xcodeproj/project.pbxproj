@@ -7,156 +7,138 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		CE6B9B621DBCE8A7000AD7F8 /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE6B9B611DBCE8A7000AD7F8 /* Date.swift */; };
-		CE71EEBF1D7275BD0052A09A /* OpaqueObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE71EEBE1D7275BD0052A09A /* OpaqueObject.swift */; };
-		_LinkFileRef_CKit_via_CKitTestSuite /* CKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "_____Product_CKit" /* CKit.framework */; };
-		__src_cc_ref_Sources/CKit.swift /* CKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = __PBXFileRef_Sources/CKit.swift /* CKit.swift */; };
-		__src_cc_ref_Sources/Charater.swift /* Charater.swift in Sources */ = {isa = PBXBuildFile; fileRef = __PBXFileRef_Sources/Charater.swift /* Charater.swift */; };
-		__src_cc_ref_Sources/Dirent.swift /* Dirent.swift in Sources */ = {isa = PBXBuildFile; fileRef = __PBXFileRef_Sources/Dirent.swift /* Dirent.swift */; };
-		__src_cc_ref_Sources/FileStatus.swift /* FileStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = __PBXFileRef_Sources/FileStatus.swift /* FileStatus.swift */; };
-		__src_cc_ref_Sources/Pointer.swift /* Pointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = __PBXFileRef_Sources/Pointer.swift /* Pointer.swift */; };
-		__src_cc_ref_Sources/User.swift /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = __PBXFileRef_Sources/User.swift /* User.swift */; };
-		__src_cc_ref_Sources/sys.swift /* sys.swift in Sources */ = {isa = PBXBuildFile; fileRef = __PBXFileRef_Sources/sys.swift /* sys.swift */; };
-		__src_cc_ref_Tests/CKit/CKitTests.swift /* CKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = __PBXFileRef_Tests/CKit/CKitTests.swift /* CKitTests.swift */; };
+		OBJ_30 /* Charater.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_9 /* Charater.swift */; };
+		OBJ_31 /* CKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_10 /* CKit.swift */; };
+		OBJ_32 /* Date.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* Date.swift */; };
+		OBJ_33 /* Dirent.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_12 /* Dirent.swift */; };
+		OBJ_34 /* errno.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_13 /* errno.swift */; };
+		OBJ_35 /* FileStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_14 /* FileStatus.swift */; };
+		OBJ_36 /* OpaqueObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* OpaqueObject.swift */; };
+		OBJ_37 /* Pointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_16 /* Pointer.swift */; };
+		OBJ_38 /* sys.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_17 /* sys.swift */; };
+		OBJ_39 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_18 /* User.swift */; };
+		OBJ_46 /* CKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_21 /* CKitTests.swift */; };
+		OBJ_48 /* CKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = OBJ_23 /* CKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		CE1834E71D7220C6009340D0 /* PBXContainerItemProxy */ = {
+		CE31646E1E63BA9D00428846 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = __RootObject_ /* Project object */;
+			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = "______Target_CKit";
+			remoteGlobalIDString = OBJ_25;
 			remoteInfo = CKit;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		CE6B9B611DBCE8A7000AD7F8 /* Date.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
-		CE71EEBE1D7275BD0052A09A /* OpaqueObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpaqueObject.swift; sourceTree = "<group>"; };
-		__PBXFileRef_CKit.xcodeproj/Configs/Project.xcconfig /* CKit.xcodeproj/Configs/Project.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = CKit.xcodeproj/Configs/Project.xcconfig; sourceTree = "<group>"; };
-		__PBXFileRef_CKitTestSuite_Info.plist /* CKit.xcodeproj/CKitTestSuite_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = CKit.xcodeproj/CKitTestSuite_Info.plist; sourceTree = SOURCE_ROOT; };
-		__PBXFileRef_CKit_Info.plist /* CKit.xcodeproj/CKit_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = CKit.xcodeproj/CKit_Info.plist; sourceTree = SOURCE_ROOT; };
-		__PBXFileRef_Package.swift /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
-		__PBXFileRef_Sources/CKit.swift /* CKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CKit.swift; sourceTree = "<group>"; };
-		__PBXFileRef_Sources/Charater.swift /* Charater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Charater.swift; sourceTree = "<group>"; };
-		__PBXFileRef_Sources/Dirent.swift /* Dirent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dirent.swift; sourceTree = "<group>"; };
-		__PBXFileRef_Sources/FileStatus.swift /* FileStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileStatus.swift; sourceTree = "<group>"; };
-		__PBXFileRef_Sources/Pointer.swift /* Pointer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pointer.swift; sourceTree = "<group>"; };
-		__PBXFileRef_Sources/User.swift /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
-		__PBXFileRef_Sources/sys.swift /* sys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = sys.swift; sourceTree = "<group>"; };
-		__PBXFileRef_Tests/CKit/CKitTests.swift /* CKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CKitTests.swift; sourceTree = "<group>"; };
-		"_____Product_CKit" /* CKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = CKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		"_____Product_CKitTestSuite" /* RelativePath(_impl: Basic.(PathImpl in _F37600050464D58680C1E5753557C388)(string: "CKitTestSuite.xctest")) */ = {isa = PBXFileReference; lastKnownFileType = file; name = "RelativePath(_impl: Basic.(PathImpl in _F37600050464D58680C1E5753557C388)(string: \"CKitTestSuite.xctest\"))"; path = CKitTestSuite.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		OBJ_10 /* CKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CKit.swift; sourceTree = "<group>"; };
+		OBJ_11 /* Date.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Date.swift; sourceTree = "<group>"; };
+		OBJ_12 /* Dirent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dirent.swift; sourceTree = "<group>"; };
+		OBJ_13 /* errno.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = errno.swift; sourceTree = "<group>"; };
+		OBJ_14 /* FileStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileStatus.swift; sourceTree = "<group>"; };
+		OBJ_15 /* OpaqueObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpaqueObject.swift; sourceTree = "<group>"; };
+		OBJ_16 /* Pointer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pointer.swift; sourceTree = "<group>"; };
+		OBJ_17 /* sys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = sys.swift; sourceTree = "<group>"; };
+		OBJ_18 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		OBJ_21 /* CKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CKitTests.swift; sourceTree = "<group>"; };
+		OBJ_23 /* CKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = CKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		OBJ_24 /* CKitTests.xctest */ = {isa = PBXFileReference; lastKnownFileType = file; path = CKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
+		OBJ_9 /* Charater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Charater.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		"___LinkPhase_CKit" /* Frameworks */ = {
+		OBJ_40 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 0;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		"___LinkPhase_CKitTestSuite" /* Frameworks */ = {
+		OBJ_47 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 0;
 			files = (
-				_LinkFileRef_CKit_via_CKitTestSuite /* CKit.framework in Frameworks */,
+				OBJ_48 /* CKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		TestProducts_ /* Tests */ = {
+		OBJ_19 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				"_____Product_CKitTestSuite" /* RelativePath(_impl: Basic.(PathImpl in _F37600050464D58680C1E5753557C388)(string: "CKitTestSuite.xctest")) */,
+				OBJ_20 /* CKitTests */,
 			);
-			name = Tests;
+			path = Tests;
 			sourceTree = "<group>";
 		};
-		"___RootGroup_" = {
+		OBJ_20 /* CKitTests */ = {
 			isa = PBXGroup;
 			children = (
-				__PBXFileRef_Package.swift /* Package.swift */,
-				"_____Configs_" /* Configs */,
-				"_____Sources_" /* Sources */,
-				"_______Tests_" /* Tests */,
-				"____Products_" /* Products */,
+				OBJ_21 /* CKitTests.swift */,
 			);
-			sourceTree = "<group>";
+			name = CKitTests;
+			path = Tests/CKitTests;
+			sourceTree = SOURCE_ROOT;
 		};
-		"____Products_" /* Products */ = {
+		OBJ_22 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				TestProducts_ /* Tests */,
-				"_____Product_CKit" /* CKit.framework */,
+				OBJ_23 /* CKit.framework */,
+				OBJ_24 /* CKitTests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
+			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		"_____Configs_" /* Configs */ = {
+		OBJ_5 /*  */ = {
 			isa = PBXGroup;
 			children = (
-				__PBXFileRef_CKit.xcodeproj/Configs/Project.xcconfig /* CKit.xcodeproj/Configs/Project.xcconfig */,
+				OBJ_6 /* Package.swift */,
+				OBJ_7 /* Sources */,
+				OBJ_19 /* Tests */,
+				OBJ_22 /* Products */,
 			);
-			name = Configs;
+			name = "";
 			sourceTree = "<group>";
 		};
-		"_____Sources_" /* Sources */ = {
+		OBJ_7 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				"_______Group_CKit" /* CKit */,
+				OBJ_8 /* CKit */,
 			);
-			name = Sources;
-			sourceTree = "<group>";
-		};
-		"_______Group_CKit" /* CKit */ = {
-			isa = PBXGroup;
-			children = (
-				__PBXFileRef_Sources/Charater.swift /* Charater.swift */,
-				__PBXFileRef_Sources/CKit.swift /* CKit.swift */,
-				__PBXFileRef_Sources/Dirent.swift /* Dirent.swift */,
-				__PBXFileRef_Sources/FileStatus.swift /* FileStatus.swift */,
-				__PBXFileRef_Sources/Pointer.swift /* Pointer.swift */,
-				__PBXFileRef_Sources/sys.swift /* sys.swift */,
-				__PBXFileRef_Sources/User.swift /* User.swift */,
-				__PBXFileRef_CKit_Info.plist /* CKit.xcodeproj/CKit_Info.plist */,
-				CE71EEBE1D7275BD0052A09A /* OpaqueObject.swift */,
-				CE6B9B611DBCE8A7000AD7F8 /* Date.swift */,
-			);
-			name = CKit;
 			path = Sources;
 			sourceTree = "<group>";
 		};
-		"_______Group_CKitTestSuite" /* CKitTestSuite */ = {
+		OBJ_8 /* CKit */ = {
 			isa = PBXGroup;
 			children = (
-				__PBXFileRef_Tests/CKit/CKitTests.swift /* CKitTests.swift */,
-				__PBXFileRef_CKitTestSuite_Info.plist /* CKit.xcodeproj/CKitTestSuite_Info.plist */,
+				OBJ_9 /* Charater.swift */,
+				OBJ_10 /* CKit.swift */,
+				OBJ_11 /* Date.swift */,
+				OBJ_12 /* Dirent.swift */,
+				OBJ_13 /* errno.swift */,
+				OBJ_14 /* FileStatus.swift */,
+				OBJ_15 /* OpaqueObject.swift */,
+				OBJ_16 /* Pointer.swift */,
+				OBJ_17 /* sys.swift */,
+				OBJ_18 /* User.swift */,
 			);
-			name = CKitTestSuite;
-			path = Tests/CKit;
-			sourceTree = "<group>";
-		};
-		"_______Tests_" /* Tests */ = {
-			isa = PBXGroup;
-			children = (
-				"_______Group_CKitTestSuite" /* CKitTestSuite */,
-			);
-			name = Tests;
-			sourceTree = "<group>";
+			name = CKit;
+			path = Sources;
+			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		"______Target_CKit" /* CKit */ = {
+		OBJ_25 /* CKit */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = "_______Confs_CKit" /* Build configuration list for PBXNativeTarget "CKit" */;
+			buildConfigurationList = OBJ_26 /* Build configuration list for PBXNativeTarget "CKit" */;
 			buildPhases = (
-				CompilePhase_CKit /* Sources */,
-				"___LinkPhase_CKit" /* Frameworks */,
+				OBJ_29 /* Sources */,
+				OBJ_40 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -164,93 +146,98 @@
 			);
 			name = CKit;
 			productName = CKit;
-			productReference = "_____Product_CKit" /* CKit.framework */;
+			productReference = OBJ_23 /* CKit.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		"______Target_CKitTestSuite" /* CKitTestSuite */ = {
+		OBJ_41 /* CKitTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = "_______Confs_CKitTestSuite" /* Build configuration list for PBXNativeTarget "CKitTestSuite" */;
+			buildConfigurationList = OBJ_42 /* Build configuration list for PBXNativeTarget "CKitTests" */;
 			buildPhases = (
-				CompilePhase_CKitTestSuite /* Sources */,
-				"___LinkPhase_CKitTestSuite" /* Frameworks */,
+				OBJ_45 /* Sources */,
+				OBJ_47 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				__Dependency_CKit /* PBXTargetDependency */,
+				OBJ_49 /* PBXTargetDependency */,
 			);
-			name = CKitTestSuite;
-			productName = CKitTestSuite;
-			productReference = "_____Product_CKitTestSuite" /* RelativePath(_impl: Basic.(PathImpl in _F37600050464D58680C1E5753557C388)(string: "CKitTestSuite.xctest")) */;
+			name = CKitTests;
+			productName = CKitTests;
+			productReference = OBJ_24 /* CKitTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		__RootObject_ /* Project object */ = {
+		OBJ_1 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 9999;
 			};
-			buildConfigurationList = "___RootConfs_" /* Build configuration list for PBXProject "CKit" */;
+			buildConfigurationList = OBJ_2 /* Build configuration list for PBXProject "CKit" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 			);
-			mainGroup = "___RootGroup_";
-			productRefGroup = "____Products_" /* Products */;
+			mainGroup = OBJ_5 /*  */;
+			productRefGroup = OBJ_22 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				"______Target_CKit" /* CKit */,
-				"______Target_CKitTestSuite" /* CKitTestSuite */,
+				OBJ_25 /* CKit */,
+				OBJ_41 /* CKitTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		CompilePhase_CKit /* Sources */ = {
+		OBJ_29 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
-				__src_cc_ref_Sources/Charater.swift /* Charater.swift in Sources */,
-				__src_cc_ref_Sources/CKit.swift /* CKit.swift in Sources */,
-				__src_cc_ref_Sources/Dirent.swift /* Dirent.swift in Sources */,
-				__src_cc_ref_Sources/FileStatus.swift /* FileStatus.swift in Sources */,
-				__src_cc_ref_Sources/Pointer.swift /* Pointer.swift in Sources */,
-				CE71EEBF1D7275BD0052A09A /* OpaqueObject.swift in Sources */,
-				__src_cc_ref_Sources/sys.swift /* sys.swift in Sources */,
-				CE6B9B621DBCE8A7000AD7F8 /* Date.swift in Sources */,
-				__src_cc_ref_Sources/User.swift /* User.swift in Sources */,
+				OBJ_30 /* Charater.swift in Sources */,
+				OBJ_31 /* CKit.swift in Sources */,
+				OBJ_32 /* Date.swift in Sources */,
+				OBJ_33 /* Dirent.swift in Sources */,
+				OBJ_34 /* errno.swift in Sources */,
+				OBJ_35 /* FileStatus.swift in Sources */,
+				OBJ_36 /* OpaqueObject.swift in Sources */,
+				OBJ_37 /* Pointer.swift in Sources */,
+				OBJ_38 /* sys.swift in Sources */,
+				OBJ_39 /* User.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		CompilePhase_CKitTestSuite /* Sources */ = {
+		OBJ_45 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
-				__src_cc_ref_Tests/CKit/CKitTests.swift /* CKitTests.swift in Sources */,
+				OBJ_46 /* CKitTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		__Dependency_CKit /* PBXTargetDependency */ = {
+		OBJ_49 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = "______Target_CKit" /* CKit */;
-			targetProxy = CE1834E71D7220C6009340D0 /* PBXContainerItemProxy */;
+			target = OBJ_25 /* CKit */;
+			targetProxy = CE31646E1E63BA9D00428846 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		_ReleaseConf_CKit /* Release */ = {
+		OBJ_27 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ENABLE_TESTABILITY = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(PLATFORM_DIR)/Developer/Library/Frameworks";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = CKit.xcodeproj/CKit_Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
 				OTHER_LDFLAGS = "$(inherited)";
@@ -258,28 +245,19 @@
 				PRODUCT_BUNDLE_IDENTIFIER = CKit;
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SWIFT_VERSION = 3.0;
+				TARGET_NAME = CKit;
 			};
-			name = Release;
+			name = Debug;
 		};
-		_ReleaseConf_CKitTestSuite /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(PLATFORM_DIR)/Developer/Library/Frameworks";
-				INFOPLIST_FILE = CKit.xcodeproj/CKitTestSuite_Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
-				OTHER_LDFLAGS = "$(inherited)";
-				OTHER_SWIFT_FLAGS = "$(inherited)";
-				SWIFT_VERSION = 3.0;
-			};
-			name = Release;
-		};
-		"___DebugConf_CKit" /* Debug */ = {
+		OBJ_28 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ENABLE_TESTABILITY = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(PLATFORM_DIR)/Developer/Library/Frameworks";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = CKit.xcodeproj/CKit_Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(TOOLCHAIN_DIR)/usr/lib/swift/macosx";
 				OTHER_LDFLAGS = "$(inherited)";
@@ -287,70 +265,117 @@
 				PRODUCT_BUNDLE_IDENTIFIER = CKit;
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
-			};
-			name = Debug;
-		};
-		"___DebugConf_CKitTestSuite" /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
-				FRAMEWORK_SEARCH_PATHS = "$(PLATFORM_DIR)/Developer/Library/Frameworks";
-				INFOPLIST_FILE = CKit.xcodeproj/CKitTestSuite_Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
-				OTHER_LDFLAGS = "$(inherited)";
-				OTHER_SWIFT_FLAGS = "$(inherited)";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 3.0;
-			};
-			name = Debug;
-		};
-		"_____Release_" /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = __PBXFileRef_CKit.xcodeproj/Configs/Project.xcconfig /* CKit.xcodeproj/Configs/Project.xcconfig */;
-			buildSettings = {
+				TARGET_NAME = CKit;
 			};
 			name = Release;
 		};
-		"_______Debug_" /* Debug */ = {
+		OBJ_3 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = __PBXFileRef_CKit.xcodeproj/Configs/Project.xcconfig /* CKit.xcodeproj/Configs/Project.xcconfig */;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_NS_ASSERTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_SWIFT_FLAGS = "-DXcode";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = SWIFT_PACKAGE;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 3.0;
+				USE_HEADERMAP = NO;
 			};
 			name = Debug;
+		};
+		OBJ_4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_OPTIMIZATION_LEVEL = s;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				OTHER_SWIFT_FLAGS = "-DXcode";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = SWIFT_PACKAGE;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 3.0;
+				USE_HEADERMAP = NO;
+			};
+			name = Release;
+		};
+		OBJ_43 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = CKit.xcodeproj/CKitTests_Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				TARGET_NAME = CKitTests;
+			};
+			name = Debug;
+		};
+		OBJ_44 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EMBEDDED_CONTENT_CONTAINS_SWIFT = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = CKit.xcodeproj/CKitTests_Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "@loader_path/../Frameworks";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				TARGET_NAME = CKitTests;
+			};
+			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		"___RootConfs_" /* Build configuration list for PBXProject "CKit" */ = {
+		OBJ_2 /* Build configuration list for PBXProject "CKit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				"_______Debug_" /* Debug */,
-				"_____Release_" /* Release */,
+				OBJ_3 /* Debug */,
+				OBJ_4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		"_______Confs_CKit" /* Build configuration list for PBXNativeTarget "CKit" */ = {
+		OBJ_26 /* Build configuration list for PBXNativeTarget "CKit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				"___DebugConf_CKit" /* Debug */,
-				_ReleaseConf_CKit /* Release */,
+				OBJ_27 /* Debug */,
+				OBJ_28 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		"_______Confs_CKitTestSuite" /* Build configuration list for PBXNativeTarget "CKitTestSuite" */ = {
+		OBJ_42 /* Build configuration list for PBXNativeTarget "CKitTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				"___DebugConf_CKitTestSuite" /* Debug */,
-				_ReleaseConf_CKitTestSuite /* Release */,
+				OBJ_43 /* Debug */,
+				OBJ_44 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = __RootObject_ /* Project object */;
+	rootObject = OBJ_1 /* Project object */;
 }
