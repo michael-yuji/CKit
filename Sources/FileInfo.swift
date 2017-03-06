@@ -33,13 +33,7 @@
 import struct Foundation.Date
 import typealias Foundation.TimeInterval
 
-#if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
-import Darwin
-public typealias cstat = Darwin.stat
-#else
-import Glibc
-public typealias cstat = Glibc.stat
-#endif
+public typealias cstat = CKit.stat
 
 public enum FileStatusError: Error {
     case searchPermissionDenied
@@ -53,11 +47,11 @@ public enum FileStatusError: Error {
     case overflow
 }
 
-public struct FileStatus {
+public struct FileInfo {
     public var stat_ = cstat()
 }
 
-public extension FileStatus {
+public extension FileInfo {
     public var deviceId: dev_t {
         return stat_.st_dev
     }
@@ -114,11 +108,11 @@ public func ==(lhs: stat, rhs: stat) -> Bool {
     return memcmp(pointer(of: &l), pointer(of: &r), MemoryLayout<stat>.size) == 0
 }
 
-public func ==(lhs: FileStatus, rhs: FileStatus) -> Bool {
+public func ==(lhs: FileInfo, rhs: FileInfo) -> Bool {
     return lhs.stat_ == rhs.stat_
 }
 
-public extension FileStatus {
+public extension FileInfo {
     public var isBlock: Bool {
         return (self.mode & S_IFMT) == S_IFBLK
     }
@@ -147,7 +141,7 @@ public extension FileStatus {
     #endif
 }
 
-public extension FileStatus {
+public extension FileInfo {
     public init(path: String) throws {
         try verify(err: stat(path, &stat_))
     }

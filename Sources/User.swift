@@ -30,12 +30,6 @@
 //
 //
 
-#if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
-    import Darwin
-#else
-    import Glibc
-#endif
-
 import struct Foundation.Date
 import typealias Foundation.TimeInterval
 

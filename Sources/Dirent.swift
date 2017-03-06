@@ -87,13 +87,15 @@ public struct POSIXFileTypes : RawRepresentable, CustomStringConvertible {
     }
 }
 
-public struct Dirent: CustomStringConvertible {
+public typealias Dirent = DirectoryEntry
+
+public struct DirectoryEntry: CustomStringConvertible {
     public var name: String
     public var ino: ino_t
     public var size: Int
     public var type: POSIXFileTypes
 
-    public init(d: dirent) {
+    public init(dirent d: dirent) {
         var dirent = d
         self.name = String(cString: pointer(of: &(dirent.d_name)).cast(to: CChar.self))
         self.size = Int(dirent.d_reclen)
@@ -108,49 +110,51 @@ public struct Dirent: CustomStringConvertible {
     }
 }
 
-public func files(at path: String) -> [Dirent] {
-    guard let dfd = opendir(path.cString(using: .utf8)!) else {return []}
-    defer {
-        closedir(dfd)
+extension DirectoryEntry {
+    public static func files(at path: String) -> [DirectoryEntry] {
+        guard let dfd = opendir(path.cString(using: .utf8)!) else {return []}
+        
+        defer {
+            closedir(dfd)
+        }
+
+        var dirents = [DirectoryEntry]()
+        var dir: dirent = dirent()
+        var resloved: UnsafeMutablePointer<dirent>? = nil
+
+        repeat {
+            if readdir_r(dfd, &dir, &resloved) != 0 {
+                break
+            }
+
+            if resloved == nil {
+                break
+            }
+
+            dirents.append(DirectoryEntry(dirent: resloved!.pointee))
+
+        } while (resloved != nil)
+
+        return dirents
     }
 
-    var dirents = [Dirent]()
-    var dir: dirent = dirent()
-    var resloved: UnsafeMutablePointer<dirent>? = nil
+    public static func find(file: String, in path: String) -> DirectoryEntry? {
+        guard let dfd = opendir(path.cString(using: .utf8)!) else {return nil}
+        var dir: dirent = dirent()
+        var result: UnsafeMutablePointer<dirent>? = nil
 
-    repeat {
-        if readdir_r(dfd, &dir, &resloved) != 0 {
-            break
-        }
+        repeat {
+            if readdir_r(dfd, &dir, &result) != 0 {break}
 
-        if resloved == nil {
-            break
-        }
+            if result == nil { break }
 
-        dirents.append(Dirent(d: resloved!.pointee))
+            if DirectoryEntry(dirent: result!.pointee).name == file {
+                closedir(dfd)
+                return DirectoryEntry(dirent: result!.pointee)
+            }
 
-    } while (resloved != nil)
-
-    return dirents
-}
-
-public func findFile_r(atDirPath path: String, file: String) -> Dirent? {
-    guard let dfd = opendir(path.cString(using: .utf8)!) else {return nil}
-    var dir: dirent = dirent()
-    var result: UnsafeMutablePointer<dirent>? = nil
-
-
-    repeat {
-        if readdir_r(dfd, &dir, &result) != 0 {break}
-
-        if result == nil { break }
-
-        if Dirent(d: result!.pointee).name == file {
-            closedir(dfd)
-            return Dirent(d: result!.pointee)
-        }
-
-    } while (result != nil)
-    closedir(dfd)
-    return nil
+        } while (result != nil)
+        closedir(dfd)
+        return nil
+    }
 }
