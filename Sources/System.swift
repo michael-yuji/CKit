@@ -30,12 +30,6 @@
 //
 //
 
-#if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
-import Darwin
-#else
-import Glibc
-#endif
-
 #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
 public typealias sys_conf_arg_t = Int32
 #elseif os(Linux)

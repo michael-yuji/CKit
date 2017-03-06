@@ -35,7 +35,7 @@ import typealias Foundation.TimeInterval
 
 public typealias cstat = CKit.stat
 
-public enum FileStatusError: Error {
+public enum FileInfoError: Error {
     case searchPermissionDenied
     case badFileDescriptor
     case badAddress
@@ -154,26 +154,26 @@ public extension FileInfo {
 
         switch err {
         case EACCES:
-            throw FileStatusError.searchPermissionDenied
+            throw FileInfoError.searchPermissionDenied
         case EBADF:
-            throw FileStatusError.badFileDescriptor
+            throw FileInfoError.badFileDescriptor
         case EFAULT:
-            throw FileStatusError.badAddress
+            throw FileInfoError.badAddress
         case ELOOP:
-            throw FileStatusError.tooManySymbolicLinksEncountered
+            throw FileInfoError.tooManySymbolicLinksEncountered
         case ENAMETOOLONG:
-            throw FileStatusError.pathIs2Long
+            throw FileInfoError.pathIs2Long
         case ENOENT:
-            throw FileStatusError.componentOfPathDoesNotExist
+            throw FileInfoError.componentOfPathDoesNotExist
         case ENOMEM:
-            throw FileStatusError.outOfMemory
+            throw FileInfoError.outOfMemory
         case ENOTDIR:
-            throw FileStatusError.componentOfPathIsNotDirectory
+            throw FileInfoError.componentOfPathIsNotDirectory
         case EOVERFLOW:
-            throw FileStatusError.overflow
+            throw FileInfoError.overflow
         case -1:
             perror("stat")
-            throw FileStatusError.badAddress
+            throw FileInfoError.badAddress
         default:
             break
         }
