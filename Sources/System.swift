@@ -68,6 +68,10 @@ public struct System {
         public var args: Int {
             return sysconf(sys_conf_arg_t(_SC_ARG_MAX))
         }
+        
+        public var pathname: Int {
+            return Int(xlibc.PATH_MAX)
+        }
     }
     
     public struct Sizes {
