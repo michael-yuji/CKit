@@ -16,24 +16,24 @@ public struct Epoll: FileDescriptorRepresentable {
         }
         
         /// The associated file is available for `read` operations
-        public static let pollin = EpollEvents(rawValue: EPOLLIN)
+        public static let pollin = EpollEvents(rawValue: EPOLLIN.rawValue)
         
         /// The associated file is available for `write` operations
-        public static let pollout = EpollEvents(rawValue: EPOLLOUT)
+        public static let pollout = EpollEvents(rawValue: EPOLLOUT.rawValue)
         
         /// Stream socket peer closed connection, or shutdown writing
         /// half of connection. (This flag is especially useful for
         /// writing simple code to detect peer shutdown when using 
         /// Edge Triggered monitoring.
-        public static let rdhup = EpollEvents(rawValue: EPOLLRDHUP)
+        public static let rdhup = EpollEvents(rawValue: EPOLLRDHUP.rawValue)
         
         /// There is urgent data available for `read` operations
-        public static let pri = EpollEvents(rawValue: EPOLLPRI)
+        public static let pri = EpollEvents(rawValue: EPOLLPRI.rawValue)
         
         /// Error condition happened on the associated file descriptor.
         /// `epoll_wait` will always wait for this event; it is not 
         /// necessary to set it in `events`
-        public static let err = EpollEvents(rawValue: EPOLLERR)
+        public static let err = EpollEvents(rawValue: EPOLLERR.rawValue)
         
         /// Hang up happened on the associated file descriptor.
         /// `epoll_wait` will always wait for this event; it is not
@@ -43,14 +43,14 @@ public struct Epoll: FileDescriptorRepresentable {
         /// channel. Subsequent reads from the channel will return 
         /// 0 (end of file) only after all outstanding data in the 
         /// channel has been consumed.
-        public static let hup = EpollEvents(rawValue: EPOLLHUP)
+        public static let hup = EpollEvents(rawValue: EPOLLHUP.rawValue)
         
         /// Sets the Edge Triggered behavior for the associated file
         /// descriptor. The default behavior for `epoll` is Level
         /// Triggered. See `epoll` for more detailed information
         /// about Edge and Level Triggered event distribution
         /// architectures.
-        public static let edgeTrigger = EpollEvents(rawValue: EPOLLET)
+        public static let edgeTrigger = EpollEvents(rawValue: EPOLLET.rawValue)
     
         /// Sets the one-shot behavior for the associated file descriptor.
         /// This means that after an event is pulled out with `epoll_wait`
@@ -58,7 +58,7 @@ public struct Epoll: FileDescriptorRepresentable {
         /// no other events will be reported by the `epoll` interface. 
         /// The user much call `epoll_ctl()` with `EPOLL_CTL_MOD` to
         /// rearm the file descriptor with a new event mask.
-        public static let oneshot = EpollEvents(rawValue: EPOLLONESHOT)
+        public static let oneshot = EpollEvents(rawValue: EPOLLONESHOT.rawValue)
         
         /// If `EPOLLONESHOT` and `EPOLLET` are clear and the process
         /// has `CAP_BLOCK_SUSPEND` capability, ensure that the system
@@ -69,7 +69,7 @@ public struct Epoll: FileDescriptorRepresentable {
         /// descriptor, the removal of the event file descriptor with
         /// `EPOLL_CTL_DEL` or the clearing of `EPOLLWAKEUP` for the 
         /// event file descriptor with `EPOLL_CTL_MOD`. See also BUGS.
-        public static let wakeup = EpollEvents(rawValue: EPOLLWAKEUP)
+        public static let wakeup = EpollEvents(rawValue: EPOLLWAKEUP.rawValue)
         
         /// Sets an exclusive wakeup mode for the epoll file descriptor
         /// this is being attached to the target file descriptor, `fd`.
