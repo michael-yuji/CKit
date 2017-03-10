@@ -10,25 +10,24 @@ public struct AccessMode: OptionSet {
         self.rawValue = rawValue
     }
     
-    public init(rawValue: Int32) {
-        self.rawValue = mode_t(rawValue)
+    public init(_ rawValue: mode_t) {
+        self.rawValue = rawValue
     }
     
-    public init(rawValue: UInt32) {
-        self.rawValue = mode_t(rawValue)
-    }
+    public static let user =
+        (r: AccessMode(mode_t(S_IREAD)),
+         w: AccessMode(mode_t(S_IWRITE)),
+         x: AccessMode(mode_t(S_IEXEC)))
     
-    public static let user = (r: AccessMode(rawValue: S_IREAD),
-                              w: AccessMode(rawValue: S_IWRITE),
-                              x: AccessMode(rawValue: S_IEXEC))
+    public static let group =
+        (r: AccessMode(mode_t(S_IRGRP)),
+         w: AccessMode(mode_t(S_IWGRP)),
+         x: AccessMode(mode_t(S_IXGRP)))
     
-    public static let group = (r: AccessMode(rawValue: S_IRGRP),
-                              w: AccessMode(rawValue: S_IWGRP),
-                              x: AccessMode(rawValue: S_IXGRP))
-    
-    public static let other = (r: AccessMode(rawValue: S_IROTH),
-                              w: AccessMode(rawValue: S_IWOTH),
-                              x: AccessMode(rawValue: S_IXOTH))
+    public static let other =
+        (r: AccessMode(mode_t(S_IROTH)),
+         w: AccessMode(mode_t(S_IWOTH)),
+         x: AccessMode(mode_t(S_IXOTH)))
 }
 
 public struct FileControlFlags: OptionSet {
