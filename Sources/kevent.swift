@@ -1,5 +1,5 @@
 
-
+#if !os(Linux)
 typealias _kev = xlibc.kevent
 
 public extension xlibc.kevent {
@@ -450,3 +450,4 @@ public extension xlibc.kevent {
         
     }
 }
+#endif

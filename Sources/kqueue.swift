@@ -1,4 +1,5 @@
 
+#if !os(Linux)
 public struct KQueue: FileDescriptorRepresentable {
     public var fileDescriptor: Int32
 
@@ -48,4 +49,4 @@ public struct KQueue: FileDescriptorRepresentable {
         return Array<_kev>(evs.dropLast(maxevs - Int(nev)))
     }
 }
-
+#endif
