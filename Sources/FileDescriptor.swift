@@ -10,6 +10,14 @@ public struct AccessMode: OptionSet {
         self.rawValue = rawValue
     }
     
+    public init(rawValue: Int32) {
+        self.rawValue = mode_t(rawValue)
+    }
+    
+    public init(rawValue: UInt32) {
+        self.rawValue = mode_t(rawValue)
+    }
+    
     public static let user = (r: AccessMode(rawValue: S_IREAD),
                               w: AccessMode(rawValue: S_IWRITE),
                               x: AccessMode(rawValue: S_IEXEC))
