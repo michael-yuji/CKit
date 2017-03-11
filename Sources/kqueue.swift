@@ -46,7 +46,7 @@ extension KernelQueue {
         pending.append(descriptor.makeEvent(actions))
     }
     
-    public mutating func addEvent(descriptor: KernelEventDescriptor, enable: Bool, oneshot: Bool) {
+    public mutating func add(event descriptor: KernelEventDescriptor, enable: Bool, oneshot: Bool) {
         var alist: KernelEventAction = .add
         if enable {
             alist = alist.union(.enable)
@@ -58,11 +58,11 @@ extension KernelQueue {
         pending.append(descriptor.makeEvent([.add]))
     }
     
-    public mutating func removeEvent(descriptor: KernelEventDescriptor) {
+    public mutating func remove(event descriptor: KernelEventDescriptor) {
         pending.append(descriptor.makeEvent([.delete]))
     }
 
-    public mutating func wait(nevs: Int, timeout: timespec, handler: (KernelEvent) -> ()) throws {
+    public mutating func wait(nevs: Int, timeout: timespec, handler: (KernelEventResult) -> ()) throws {
         var evs = [KernelEvent](repeating: KernelEvent(), count: nevs)
         
         let nev = try throwsys("kevent") { () -> Int32 in
@@ -71,7 +71,7 @@ extension KernelQueue {
         }
         
         for i in 0..<Int(nev) {
-            handler(evs[i])
+            handler(unsafeBitCast(evs[i], to: KernelEventResult.self))
         }
     }
 }
