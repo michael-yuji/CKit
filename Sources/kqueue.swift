@@ -31,15 +31,62 @@
 //
 
 #if !os(Linux)
-public struct KQueue: FileDescriptorRepresentable {
+    
+public struct KernelQueue : FileDescriptorRepresentable {
     public var fileDescriptor: Int32
+    public var pending = [KernelEvent]()
+    public init() {
+        fileDescriptor = kqueue()
+    }
+}
+    
+extension KernelQueue {
+    
+    public mutating func enqueue(event descriptor: KernelEventDescriptor, for actions: KernelEventAction) {
+        pending.append(descriptor.makeEvent(actions))
+    }
+    
+    public mutating func addEvent(descriptor: KernelEventDescriptor, enable: Bool, oneshot: Bool) {
+        var alist: KernelEventAction = .add
+        if enable {
+            alist = alist.union(.enable)
+        }
+        
+        if enable {
+            alist = alist.union(.oneshot)
+        }
+        pending.append(descriptor.makeEvent([.add]))
+    }
+    
+    public mutating func removeEvent(descriptor: KernelEventDescriptor) {
+        pending.append(descriptor.makeEvent([.delete]))
+    }
 
+    public mutating func wait(nevs: Int, timeout: timespec, handler: (KernelEvent) -> ()) throws {
+        var evs = [KernelEvent](repeating: KernelEvent(), count: nevs)
+        
+        let nev = try throwsys("kevent") { () -> Int32 in
+            var t = timeout
+            return kevent(fileDescriptor, pending, Int32(pending.count), &evs, Int32(nevs), &t)
+        }
+        
+        for i in 0..<Int(nev) {
+            handler(evs[i])
+        }
+    }
+}
+    
+    
+/// a c like kqueue
+public struct UnmanagedKernelQueue: FileDescriptorRepresentable {
+    public var fileDescriptor: Int32
+    
     public init() {
         fileDescriptor = xlibc.kqueue()
     }
     
     /// add events to the the queue, but not monitor yet
-    public func push(events: [kevent]) throws {
+    public func add(events: [kevent]) throws {
         _ = try throwsys("kevent") {
             kevent(fileDescriptor, events, Int32(events.count), nil, 0, nil)
         }
@@ -52,8 +99,8 @@ public struct KQueue: FileDescriptorRepresentable {
     ///   - timeout: the timeout, nil if no timeout
     /// - Returns: events triggered
     /// - Throws: if kevent returns error
-    public func monitor(maxevs: Int, timeout: timespec?) throws -> [kevent] {
-        var evs = [_kev](repeating: _kev(), count: maxevs)
+    public func wait(maxevs: Int, timeout: timespec?) throws -> [kevent] {
+        var evs = [KernelEvent](repeating: KernelEvent(), count: maxevs)
         
         let nev = try throwsys("kevent") { () -> Int32 in
             guard var t = timeout else {
@@ -62,13 +109,12 @@ public struct KQueue: FileDescriptorRepresentable {
             return kevent(fileDescriptor, nil, 0, &evs, Int32(maxevs), &t)
         }
         
-        return Array<_kev>(evs.dropLast(maxevs - Int(nev)))
+        return Array<KernelEvent>(evs.dropLast(maxevs - Int(nev)))
     }
     
-    public func poll(moreEv ievs: [kevent], maxevs: Int, timeout: timespec?) throws -> [kevent] {
-        
+    public func wait(moreEv ievs: [kevent], maxevs: Int, timeout: timespec?) throws -> [kevent] {
         let mx = max(maxevs, ievs.count)
-        var evs = [_kev](repeating: _kev(), count: mx)
+        var evs = [KernelEvent](repeating: KernelEvent(), count: mx)
         
         let nev = try throwsys("kevent") { () -> Int32 in
             guard var t = timeout else {
@@ -77,7 +123,8 @@ public struct KQueue: FileDescriptorRepresentable {
             return kevent(fileDescriptor, nil, 0, &evs, Int32(maxevs), &t)
         }
         
-        return Array<_kev>(evs.dropLast(maxevs - Int(nev)))
+        return Array<KernelEvent>(evs.dropLast(maxevs - Int(nev)))
     }
 }
+
 #endif

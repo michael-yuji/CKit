@@ -68,7 +68,22 @@ public extension UnsafeMutableRawPointer {
     }
 }
 
+extension Int {
+    func asPointer() -> UnsafeMutableRawPointer {
+        return UnsafeMutableRawPointer(bitPattern: self)!
+    }
+}
+
 extension PointerType {
+    
+    public var description: String {
+        return "\(self)"
+    }
+    
+    public var integerValue: Int {
+        return numerialValue
+    }
+    
     public var numerialValue: Int {
         var s = self
         return pointer(of: &s).cast(to: Int.self).pointee
@@ -84,7 +99,7 @@ extension Array: PointerType {
         return Array.toPointer(self).rawPointer}
 }
 
-public protocol PointerType {
+public protocol PointerType : IntegerValueConvertiable {
     var rawPointer: UnsafeRawPointer {get}
 }
 
