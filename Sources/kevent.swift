@@ -58,18 +58,22 @@ public struct KernelEventResult {
     public var udata: UnsafeMutableRawPointer!
 }
 
+
 public struct KernelEventDescriptor {
     public var identifier: UInt
     public var type: KernelEventType
     public var flags: KernelEventFlags
     public var userData: KernelEventUserData?
-
+}
+    
+// MARK: Initialization
+extension KernelEventDescriptor {
     public init(event: KernelEvent) {
         self.identifier = event.ident
         self.type = KernelEventType(rawValue: event.filter)
-
+        
         typealias T = KernelEventType
-
+        
         self.type =
             event.filter == T.read.rawValue ? .read :
             event.filter == T.write.rawValue ? .write :
@@ -77,7 +81,7 @@ public struct KernelEventDescriptor {
             event.filter == T.vnode.rawValue ? .vnode :
             event.filter == T.timer.rawValue ? .timer :
             event.filter == T.proc.rawValue ? .proc :
-             .user
+            .user
         
         self.userData = .pointer(event.udata)
         
@@ -99,32 +103,35 @@ public struct KernelEventDescriptor {
         self.flags = flags
         self.userData = userData
     }
-    
-    public static func readEv(ident: Int32, userData: KernelEventUserData? = nil) -> KernelEventDescriptor{
+}
+
+// MARK: Convenience init
+extension KernelEventDescriptor {
+    public static func read(ident: Int32, userData: KernelEventUserData? = nil) -> KernelEventDescriptor{
         return KernelEventDescriptor(ident: UInt(ident), type: .read, flags: KernelEventFlagsNone(),userData: userData)
     }
     
-    public static func writeEv(ident: Int32, userData: KernelEventUserData? = nil) -> KernelEventDescriptor {
+    public static func write(ident: Int32, userData: KernelEventUserData? = nil) -> KernelEventDescriptor {
         return KernelEventDescriptor(ident: UInt(ident), type: .write, flags: KernelEventFlagsNone(),userData: userData)
     }
     
-    public static func fileEv(fd: Int32, for evs: KernelEventFlags.Vnode,userData: KernelEventUserData? = nil) -> KernelEventDescriptor {
+    public static func file(fd: Int32, for evs: KernelEventFlags.Vnode,userData: KernelEventUserData? = nil) -> KernelEventDescriptor {
         return KernelEventDescriptor(ident: UInt(fd), type: .vnode, flags: evs, userData: userData)
     }
     
-    public static func timerEv(ident: UInt, unit: KernelEventFlags.Timer, userData: KernelEventUserData? = nil) -> KernelEventDescriptor {
+    public static func timer(ident: UInt, unit: KernelEventFlags.Timer, userData: KernelEventUserData? = nil) -> KernelEventDescriptor {
         return KernelEventDescriptor(ident: ident, type: .timer, flags: unit, userData: userData)
     }
     
-    public static func processEv(pid: pid_t, for evs: KernelEventFlags.Process, userData: KernelEventUserData? = nil) -> KernelEventDescriptor {
+    public static func process(pid: pid_t, for evs: KernelEventFlags.Process, userData: KernelEventUserData? = nil) -> KernelEventDescriptor {
         return KernelEventDescriptor(ident: UInt(pid), type: .proc, flags: evs, userData: userData)
     }
     
-    public static func signalEv(sig: Int32, userData: KernelEventUserData? = nil) -> KernelEventDescriptor {
+    public static func signal(sig: Int32, userData: KernelEventUserData? = nil) -> KernelEventDescriptor {
         return KernelEventDescriptor(ident: UInt(sig), type: .signal, flags: KernelEventFlagsNone(), userData: userData)
     }
     
-    public static func userEv(ident: UInt, options: KernelEventFlags.User, userData: KernelEventUserData? = nil) -> KernelEventDescriptor {
+    public static func user(ident: UInt, options: KernelEventFlags.User, userData: KernelEventUserData? = nil) -> KernelEventDescriptor {
         return KernelEventDescriptor(ident: ident, type: .user, flags: options, userData: userData)
     }
     

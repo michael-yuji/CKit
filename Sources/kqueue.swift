@@ -74,6 +74,19 @@ extension KernelQueue {
             handler(unsafeBitCast(evs[i], to: KernelEventResult.self))
         }
     }
+    
+    public mutating func wait(nevs: Int, handler: (KernelEventResult) -> ()) throws {
+        var evs = [KernelEvent](repeating: KernelEvent(), count: nevs)
+        
+        let nev = try throwsys("kevent") { () -> Int32 in
+            return kevent(fileDescriptor, pending, Int32(pending.count), &evs, Int32(nevs), nil)
+        }
+        
+        for i in 0..<Int(nev) {
+            handler(unsafeBitCast(evs[i], to: KernelEventResult.self))
+        }
+    }
+
 }
     
     
