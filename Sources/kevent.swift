@@ -30,30 +30,8 @@
 //  Copyright © 2017 Yuji. All rights reserved.
 //
 
+#if !os(Linux)
 public typealias KernelEvent = kevent
-
-#if os(Linux)
-public typealias KernelEvent = kevent
-public struct kevent {
-    
-    public var ident: UInt /* identifier for this event */
-    
-    public var filter: Int16 /* filter for event */
-    
-    public var flags: UInt16 /* general flags */
-    
-    public var fflags: UInt32 /* filter-specific flags */
-    
-    public var data: Int /* filter-specific data */
-    
-    public var udata: UnsafeMutableRawPointer! /* opaque user data identifier */
-    
-    public init()
-    
-    public init(ident: UInt, filter: Int16, flags: UInt16, fflags: UInt32, data: Int, udata: UnsafeMutableRawPointer!)
-}
-#else
-
 public protocol KernelEventFlags {
     var rawValue: UInt32 {get}
 }
