@@ -4,33 +4,110 @@
 
 ## Description
 
-CKit is framework designed for interact with C API. It provides painless pointer operations, object oriented wrappers of some common C struct such as stat, dirent and passed. 
+CKit is framework designed for interact with C API. It provides painless pointer operations, object oriented wrappers of some common C struct such as stat, dirent and passwd. In 0.0.5 release, an object oriented support for epoll and kqueue is added. 
 
 Because it is build on top of [xlibc](https://github.com/michael-yuji/xlibc), by importing CKit, besides all libc modules in Darwin.C and Glibc, you also have access to some platform dependented modules such as epoll and inotify.
 
 
 ## Pointer
 
-Although swift can call C API directly, swift has not provided an easy way to access pointer of non-Foundation object, and it is even harder to cast a pointer to unrelated types. An Example use is in socket to cast different types of sockaddr. 
-
-socket: bind()
-```Swift
-import CKit // no need to import Foundation/Darwin/Glibc, CKit itself is enough
-
-var sockfd = socket(AF_INET, SOCK_STREAM, 0); // nothing to explain
-var addr: sockaddr_in = ... // initialize the sockaddr_in object
-
-let err = Foundation.bind(sockfd, 
-                          // get pointer of addr and cast to `struct sockaddr *`
-                          pointer(of: &addr).cast(to: sockaddr.self),
-                          socklen_t(sizeof(sockaddr_in.self)))
-```
+Although swift can call C API directly, swift has not provided an easy way to access pointer of non-Foundation object, and it is even harder to cast a pointer to unrelated types. An Example use is in socket to cast different types of sockaddr. See the `pointer(of:)` and `mutablePointer(of:)` example in KernelQueue section of this readme.
 
 ### PointerType
 All pointer types (`UnsafePointer<T>`, `UnsafeRawPointer`, `UnsafeBufferPointer` and `Array<T>`) confirms to the CKit.PointerType protocol. It doesn't just allow you to write code that take any pointer types as argument easier but also come with a `PointerType.rawPointer` getter that returns you an `UnsafeRawPointer` object. The `PointerType.numerialValue` property returns the numberical representation of the address as `Int`.
 
 All mutable pointer types (`UnsafeMutablePointer<T>`, `UnsafeMutableRawPointer`, `UnsafeMutableBufferPointer`) comfirms to `CKit.MutablePointerType` protocol. They got all benefits `CKit.PointerType` get in addition to an `PointerType.mutableRawPointer` property that returns an `UnsafeMutableRawPointer` object.
 
+## KernelQueue (FreeBSD and OS X)
+
+KernelQueue is an object oriented wrapper for kqueue() system call. The following example demostrates use event looping on a server socket that simply print out requests
+```swift
+import CKit
+// helper
+func sizeof<T>(_ x: T) -> Int {
+    return MemoryLayout<T>.size
+}
+
+#if !os(Linux)
+// create our kernel queue and socket
+var queue = KernelQueue()
+let server = socket(AF_INET, SOCK_STREAM, 0)
+#else
+// cretae epoll and socket
+var ep = Epoll()
+let server = socket(AF_INET, Int32(SOCK_STREAM).rawValue, 0)
+#endif
+
+// reuse address
+var yes = 1
+setsockopt(server, SOL_SOCKET, SO_REUSEADDR, pointer(of: &yes).rawPointer, socklen_t(sizeof(yes)))
+var addr = sockaddr_in()
+
+let addrlen = MemoryLayout<sockaddr_in>.size
+
+// user mutablePointer(of:) to get the pointer of addr
+bzero(mutablePointer(of: &addr).mutableRawPointer, addrlen)
+
+addr.sin_port = in_port_t(8080).byteSwapped
+addr.sin_family = sa_family_t(AF_INET)
+#if !os(Linux)
+addr.sin_len = UInt8(addrlen)
+#endif
+
+// user pointer(of:) and cast(to:) to convert between pointers
+bind(server, pointer(of: &addr).cast(to: sockaddr.self), socklen_t(addrlen))
+
+listen(server, 999)
+
+#if !os(Linux)
+// one of two ways to add event, the equeue method are more free since you can add whatever
+// action you need.
+queue.enqueue(event: KernelEventDescriptor.read(ident: server), for: [.add, .enable])
+// main loop
+while (true) {
+    // wait for event
+    try? queue.wait(nevs: 1000, handler: { (result) in        
+        // our server socket
+        if result.ident == UInt(server) {
+            let newfd = accept(server, nil, nil)
+            // the other way to add event to kqueue
+            queue.add(event: .read(ident: newfd), enable: true, oneshot: false)
+        } else {
+            // In a read kevent result, the data field is the number of bytes
+            let bytes_in_buffer = result.data
+            let buffer = malloc(bytes_in_buffer)
+            read(Int32(result.ident), buffer, bytes_in_buffer)
+            print(String(cString: buffer!.assumingMemoryBound(to: Int8.self)))
+            free(buffer)
+        }
+    })
+}
+#else
+// add to epoll
+ep.add(fd: server, for: .pollin)
+while (true) {
+    for ev in ep.wait(maxevs: 999) {
+        // server socket
+        if ev.data.fd == server {
+            let newfd = accept(server, nil, nil)
+            ep.add(fd: newfd, for: .pollin)
+        } else {
+            var bytes_in_buffer = 0
+            // get number of bytes in socket
+            ioctl(ev.data.fd, UInt(FIONREAD), mutablePointer(of:&bytes_in_buffer).mutableRawPointer)
+            if bytes_in_buffer == 0 {
+                // in epoll we need to remove manually when the connection ended
+                ep.remove(fd: ev.data.fd)
+                return
+            }
+            read(Int32(result.ident), buffer, bytes_in_buffer)
+            print(String(cString: buffer!.assumingMemoryBound(to: Int8.self)))
+            free(buffer)
+        }
+    }
+}
+#endif
+```
 ## System Configuation
 
 The `CKit.System` struct contains information about the system setup. These included:
