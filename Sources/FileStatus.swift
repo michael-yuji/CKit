@@ -35,7 +35,7 @@ import typealias Foundation.TimeInterval
 
 public typealias cstat = CKit.stat
 
-public enum FileInfoError: Error {
+public enum FileStatusError: Error {
     case searchPermissionDenied
     case badFileDescriptor
     case badAddress
@@ -47,11 +47,11 @@ public enum FileInfoError: Error {
     case overflow
 }
 
-public struct FileInfo {
+public struct FileStatus {
     public var stat_ = cstat()
 }
 
-public extension FileInfo {
+public extension FileStatus {
     public var deviceId: dev_t {
         return stat_.st_dev
     }
@@ -108,11 +108,11 @@ public func ==(lhs: stat, rhs: stat) -> Bool {
     return memcmp(pointer(of: &l), pointer(of: &r), MemoryLayout<stat>.size) == 0
 }
 
-public func ==(lhs: FileInfo, rhs: FileInfo) -> Bool {
+public func ==(lhs: FileStatus, rhs: FileStatus) -> Bool {
     return lhs.stat_ == rhs.stat_
 }
 
-public extension FileInfo {
+public extension FileStatus {
     public var isBlock: Bool {
         return (self.mode & S_IFMT) == S_IFBLK
     }
@@ -141,7 +141,7 @@ public extension FileInfo {
     #endif
 }
 
-public extension FileInfo {
+public extension FileStatus {
     public init(path: String) throws {
         try verify(err: stat(path, &stat_))
     }
@@ -154,26 +154,26 @@ public extension FileInfo {
 
         switch err {
         case EACCES:
-            throw FileInfoError.searchPermissionDenied
+            throw FileStatusError.searchPermissionDenied
         case EBADF:
-            throw FileInfoError.badFileDescriptor
+            throw FileStatusError.badFileDescriptor
         case EFAULT:
-            throw FileInfoError.badAddress
+            throw FileStatusError.badAddress
         case ELOOP:
-            throw FileInfoError.tooManySymbolicLinksEncountered
+            throw FileStatusError.tooManySymbolicLinksEncountered
         case ENAMETOOLONG:
-            throw FileInfoError.pathIs2Long
+            throw FileStatusError.pathIs2Long
         case ENOENT:
-            throw FileInfoError.componentOfPathDoesNotExist
+            throw FileStatusError.componentOfPathDoesNotExist
         case ENOMEM:
-            throw FileInfoError.outOfMemory
+            throw FileStatusError.outOfMemory
         case ENOTDIR:
-            throw FileInfoError.componentOfPathIsNotDirectory
+            throw FileStatusError.componentOfPathIsNotDirectory
         case EOVERFLOW:
-            throw FileInfoError.overflow
+            throw FileStatusError.overflow
         case -1:
             perror("stat")
-            throw FileInfoError.badAddress
+            throw FileStatusError.badAddress
         default:
             break
         }
