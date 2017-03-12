@@ -26,7 +26,7 @@
 //  of the authors and should not be interpreted as representing official policies,
 //  either expressed or implied, of the FreeBSD Project.
 //
-//  Created by Yuji on 3/10/16.
+//  Created by Yuji on 3/10/17.
 //  Copyright © 2016 Yuji. All rights reserved.
 //
 
@@ -109,7 +109,7 @@ public extension FileDescriptorRepresentable {
     }
 }
 
-// MARK: Signal
+// MARK: Interrupt Driven IO
 public extension FileDescriptorRepresentable {
     
     public var signalOwner: FileDescriptorOwner {
