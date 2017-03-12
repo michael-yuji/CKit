@@ -11,16 +11,18 @@ Because it is build on top of [xlibc](https://github.com/michael-yuji/xlibc), by
 
 ## Pointer
 
-Although swift can call C API directly, swift has not provided an easy way to access pointer of non-Foundation object, and it is even harder to cast a pointer to unrelated types. An Example use is in socket to cast different types of sockaddr. See the `pointer(of:)` and `mutablePointer(of:)` example in KernelQueue section of this readme.
+Although swift can call C API directly, swift has not provided an easy way to access pointer of non-Foundation object, and it is even harder to cast a pointer to unrelated types. An Example use is in socket to cast different types of sockaddr. See the `pointer(of:)` and `mutablePointer(of:)` example in KernelQueue/Epoll section of this readme.
 
 ### PointerType
 All pointer types (`UnsafePointer<T>`, `UnsafeRawPointer`, `UnsafeBufferPointer` and `Array<T>`) confirms to the CKit.PointerType protocol. It doesn't just allow you to write code that take any pointer types as argument easier but also come with a `PointerType.rawPointer` getter that returns you an `UnsafeRawPointer` object. The `PointerType.numerialValue` property returns the numberical representation of the address as `Int`.
 
 All mutable pointer types (`UnsafeMutablePointer<T>`, `UnsafeMutableRawPointer`, `UnsafeMutableBufferPointer`) comfirms to `CKit.MutablePointerType` protocol. They got all benefits `CKit.PointerType` get in addition to an `PointerType.mutableRawPointer` property that returns an `UnsafeMutableRawPointer` object.
 
-## KernelQueue (FreeBSD and OS X)
+## KernelQueue (FreeBSD and OS X) and Epoll (Linux)
 
-KernelQueue is an object oriented wrapper for kqueue() system call. The following example demostrates use event looping on a server socket that simply print out requests
+KernelQueue is an object oriented wrapper for kqueue() system call. The following example demostrates use event looping on a server socket that simply print out requests. Similar to KernelQueue/kqueue, the Epoll is an oo wrapper for epoll()
+
+KernelQueue:
 ```swift
 import CKit
 // helper
@@ -28,38 +30,28 @@ func sizeof<T>(_ x: T) -> Int {
     return MemoryLayout<T>.size
 }
 
-#if !os(Linux)
 // create our kernel queue and socket
 var queue = KernelQueue()
 let server = socket(AF_INET, SOCK_STREAM, 0)
-#else
-// cretae epoll and socket
-var ep = Epoll()
-let server = socket(AF_INET, Int32(SOCK_STREAM).rawValue, 0)
-#endif
 
 // reuse address
 var yes = 1
 setsockopt(server, SOL_SOCKET, SO_REUSEADDR, pointer(of: &yes).rawPointer, socklen_t(sizeof(yes)))
 var addr = sockaddr_in()
 
-let addrlen = MemoryLayout<sockaddr_in>.size
+let addrlen = sizeof(addr)
 
 // user mutablePointer(of:) to get the pointer of addr
 bzero(mutablePointer(of: &addr).mutableRawPointer, addrlen)
-
 addr.sin_port = in_port_t(8080).byteSwapped
 addr.sin_family = sa_family_t(AF_INET)
-#if !os(Linux)
 addr.sin_len = UInt8(addrlen)
-#endif
 
 // user pointer(of:) and cast(to:) to convert between pointers
 bind(server, pointer(of: &addr).cast(to: sockaddr.self), socklen_t(addrlen))
 
 listen(server, 999)
 
-#if !os(Linux)
 // one of two ways to add event, the equeue method are more free since you can add whatever
 // action you need.
 queue.enqueue(event: KernelEventDescriptor.read(ident: server), for: [.add, .enable])
@@ -82,7 +74,35 @@ while (true) {
         }
     })
 }
-#else
+```
+Epoll:
+```swift
+import CKit
+// helper
+func sizeof<T>(_ x: T) -> Int {
+    return MemoryLayout<T>.size
+}
+
+// cretae epoll and socket
+var ep = Epoll()
+let server = socket(AF_INET, Int32(SOCK_STREAM).rawValue, 0)
+// reuse address
+var yes = 1
+setsockopt(server, SOL_SOCKET, SO_REUSEADDR, pointer(of: &yes).rawPointer, socklen_t(sizeof(yes)))
+var addr = sockaddr_in()
+let addrlen = MemoryLayout<sockaddr_in>.size
+
+// user mutablePointer(of:) to get the pointer of addr
+bzero(mutablePointer(of: &addr).mutableRawPointer, addrlen)
+
+addr.sin_port = in_port_t(8080).byteSwapped
+addr.sin_family = sa_family_t(AF_INET)
+
+// user pointer(of:) and cast(to:) to convert between pointers
+bind(server, pointer(of: &addr).cast(to: sockaddr.self), socklen_t(addrlen))
+
+listen(server, 999)
+
 // add to epoll
 ep.add(fd: server, for: .pollin)
 while (true) {
@@ -106,7 +126,6 @@ while (true) {
         }
     }
 }
-#endif
 ```
 ## System Configuation
 
