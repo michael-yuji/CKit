@@ -82,6 +82,14 @@ public struct System {
         public var physicalPages: Int {
             return sysconf(sys_conf_arg_t(_SC_PHYS_PAGES))
         }
+        
+        public var getpwd_r_bufsize: Int {
+            return sysconf(sys_conf_arg_t(_SC_GETPW_R_SIZE_MAX))
+        }
+        
+        public var getgrp_r_bufsize: Int {
+            return sysconf(sys_conf_arg_t(_SC_GETGR_R_SIZE_MAX))
+        }
     }
     
     public struct CPUs {

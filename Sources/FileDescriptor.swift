@@ -34,31 +34,23 @@ public protocol FileDescriptorRepresentable {
     var fileDescriptor: Int32 { get set }
 }
 
-public struct AccessMode: OptionSet {
-    public typealias RawValue = mode_t
-    public var rawValue: mode_t
-    public init(rawValue: mode_t) {
+public struct AccessMode: OptionSet, CustomStringConvertible {
+    public typealias RawValue = UInt16
+    public var rawValue: UInt16
+    public init(rawValue: UInt16) {
         self.rawValue = rawValue
     }
     
-    public init(_ rawValue: mode_t) {
-        self.rawValue = rawValue
+    public init(_ i: Int32) {
+        self.rawValue = UInt16(i)
     }
     
-    public static let user =
-        (r: AccessMode(mode_t(S_IREAD)),
-         w: AccessMode(mode_t(S_IWRITE)),
-         x: AccessMode(mode_t(S_IEXEC)))
+    public static let read = AccessMode(O_RDONLY)
+    public static let write = AccessMode(O_WRONLY)
     
-    public static let group =
-        (r: AccessMode(mode_t(S_IRGRP)),
-         w: AccessMode(mode_t(S_IWGRP)),
-         x: AccessMode(mode_t(S_IXGRP)))
-    
-    public static let other =
-        (r: AccessMode(mode_t(S_IROTH)),
-         w: AccessMode(mode_t(S_IWOTH)),
-         x: AccessMode(mode_t(S_IXOTH)))
+    public var description: String {
+        return "\(self.contains(.read) ? "r" : "-")" + "\(self.contains(.write) ? "w" : "-")"
+    }
 }
 
 public struct FileControlFlags: OptionSet {
@@ -76,6 +68,7 @@ public struct FileControlFlags: OptionSet {
 public enum FileDescriptorOwner {
     case group(pid_t)
     case process(pid_t)
+    case error(SystemError)
 }
 
 @inline(__always)
@@ -96,8 +89,8 @@ public extension FileDescriptorRepresentable {
         }
     }
     
-    public var accessMode: mode_t {
-        return mode_t(fcntl(fileDescriptor, F_GETFL, O_ACCMODE))
+    public var accessMode: AccessMode {
+        return AccessMode(self.flags.rawValue & O_ACCMODE)
     }
     
     public mutating func insert(flags: FileControlFlags) {
@@ -114,7 +107,8 @@ public extension FileDescriptorRepresentable {
     
     public var signalOwner: FileDescriptorOwner {
         let pid = fcntl(fileDescriptor, F_GETOWN)
-        return pid < 0 ? .group(abs(pid)) : .process(pid)
+        return pid == -1 ? .error(SystemError.lastest("fcntl:FL_GETOWN"))
+            : pid < 0 ? .group(abs(pid)) : .process(pid)
     }
     
     public func setSignalOwner(pid: pid_t) throws {
@@ -125,7 +119,6 @@ public extension FileDescriptorRepresentable {
 }
 
 public extension FileDescriptorRepresentable {
-    
     @discardableResult
     public func close() -> Int32 {
         return xlibc.close(fileDescriptor)

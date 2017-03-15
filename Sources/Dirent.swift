@@ -136,7 +136,7 @@ extension DirectoryEntry {
         return dirents
     }
 
-    public static func find(file: String, in path: String) -> DirectoryEntry? {
+    public static func find(entry: String, in path: String) -> DirectoryEntry? {
         guard let dfd = opendir(path.cString(using: .utf8)!) else {return nil}
         var dir: dirent = dirent()
         var result: UnsafeMutablePointer<dirent>? = nil
@@ -146,7 +146,7 @@ extension DirectoryEntry {
 
             if result == nil { break }
 
-            if DirectoryEntry(dirent: result!.pointee).name == file {
+            if DirectoryEntry(dirent: result!.pointee).name == entry {
                 closedir(dfd)
                 return DirectoryEntry(dirent: result!.pointee)
             }
