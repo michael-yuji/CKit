@@ -82,9 +82,21 @@ extension Socket {
         }
     }
     
-//    public func send(to address: sockaddr_storage, bytes: PointerType, length: Int, flags: SendFlags) throws -> Int {
-//        
-//    }
+    public func send(to dest: SocketAddress, bytes: PointerType, length: Int, flags: SendFlags) throws -> Int {
+        var dest = dest
+        return try throwsys("sendto") {
+            sendto(fileDescriptor, bytes.rawPointer, length, flags.rawValue, dest.addrptr(), dest.socklen)
+        }
+    }
+    
+    public func received(to buffer: MutablePointerType, length: Int, flags: RecvFlags) throws -> (sender: SocketAddress, size: Int) {
+        var storage = sockaddr_storage()
+        let i = try throwsys("recvfrom") {
+            recvfrom(fileDescriptor, buffer.mutableRawPointer, length, flags.rawValue, mutablePointer(of: &storage).cast(to: sockaddr.self), nil)
+        }
+        
+        return (sender: SocketAddress(storage: storage), size: i)
+    }
 }
 
 extension Socket {
