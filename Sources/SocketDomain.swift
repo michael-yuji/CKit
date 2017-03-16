@@ -31,7 +31,7 @@
 //
 
 #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
-    public enum SocketDomains: Int32 {
+    public enum SocketDomains: sa_family_t {
         case unspec     = 0
         case unix       = 1
         case inet       = 2
@@ -118,7 +118,7 @@
     }
 #else
     
-    public enum SocketDomains: UInt16 {
+    public enum SocketDomains: sa_family_t {
         case unspec     = 0
         case unix       = 1
         case inet       = 2

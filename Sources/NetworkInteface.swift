@@ -102,7 +102,7 @@ public struct NetworkInterface: CustomStringConvertible {
         cur = head;
         
         while (cur != nil) {
-            if let domain = SocketDomains(rawValue: Int32(cur!.pointee.ifa_addr.pointee.sa_family)) {
+            if let domain = SocketDomains(rawValue: cur!.pointee.ifa_addr.pointee.sa_family) {
                 if domains.contains(domain) {
                     intefaces.append(NetworkInterface(raw: cur!));
                 }
@@ -125,7 +125,7 @@ public struct NetworkInterface: CustomStringConvertible {
         cur = head;
         
         while (cur != nil) {
-            if let _domain = SocketDomains(rawValue: Int32(cur!.pointee.ifa_addr.pointee.sa_family)) {
+            if let _domain = SocketDomains(rawValue: cur!.pointee.ifa_addr.pointee.sa_family) {
                 if (_domain == domain) {
                     inteface = NetworkInterface(raw: cur!)
                 }

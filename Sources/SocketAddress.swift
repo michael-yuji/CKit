@@ -140,7 +140,7 @@ extension SocketAddress {
     }
     
     public var type: SocketDomains {
-        return SocketDomains(rawValue: Int32(storage.ss_family))!
+        return SocketDomains(rawValue: storage.ss_family)!
     }
     
     public func addr() -> sockaddr {

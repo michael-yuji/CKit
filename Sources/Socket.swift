@@ -3,7 +3,7 @@ public struct Socket : FileDescriptorRepresentable {
     public var fileDescriptor: Int32
     
     public init(domain: SocketDomains, type: SocketTypes, protocol: Int32) {
-        fileDescriptor = socket(domain.rawValue,
+        fileDescriptor = socket(Int32(domain.rawValue),
                                 type.rawValue, `protocol`)
     }
     
@@ -18,6 +18,10 @@ public struct RecvFlags: OptionSet {
     public var rawValue: Int32
     public init(rawValue: Int32) {
         self.rawValue = rawValue
+    }
+    
+    public init(rawValue: Int) {
+        self.rawValue = Int32(rawValue)
     }
     
     /// process out of band data
@@ -43,6 +47,10 @@ public struct SendFlags: OptionSet {
     public var rawValue: Int32
     public init(rawValue: Int32) {
         self.rawValue = rawValue
+    }
+    
+    public init(rawValue: Int) {
+        self.rawValue = Int32(rawValue)
     }
     
     /// process out-of-band data
