@@ -35,14 +35,14 @@ public protocol FileDescriptorRepresentable {
 }
 
 public struct AccessMode: OptionSet, CustomStringConvertible {
-    public typealias RawValue = UInt16
-    public var rawValue: UInt16
-    public init(rawValue: UInt16) {
+    public typealias RawValue = mode_t
+    public var rawValue: mode_t
+    public init(rawValue: mode_t) {
         self.rawValue = rawValue
     }
     
     public init(_ i: Int32) {
-        self.rawValue = UInt16(i)
+        self.rawValue = mode_t(i)
     }
     
     public static let read = AccessMode(O_RDONLY)
