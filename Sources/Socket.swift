@@ -94,18 +94,21 @@ extension Socket {
         }
     }
     
+    @discardableResult
     public func send(bytes: PointerType, length: Int, flags: SendFlags) throws -> Int {
         return try throwsys("send") {
             xlibc.send(fileDescriptor, bytes.rawPointer, length, flags.rawValue)
         }
     }
     
+    @discardableResult
     public func recv(to buffer: MutablePointerType, length: Int, flags: RecvFlags) throws -> Int {
         return try throwsys("send") {
             xlibc.recv(fileDescriptor, buffer.mutableRawPointer, length, flags.rawValue)
         }
     }
     
+    @discardableResult
     public func send(to dest: SocketAddress, bytes: PointerType, length: Int, flags: SendFlags) throws -> Int {
         var dest = dest
         return try throwsys("sendto") {
@@ -113,6 +116,7 @@ extension Socket {
         }
     }
     
+    @discardableResult
     public func received(to buffer: MutablePointerType, length: Int, flags: RecvFlags) throws -> (sender: SocketAddress, size: Int) {
         var storage = sockaddr_storage()
         let i = try throwsys("recvfrom") {
