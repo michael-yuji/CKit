@@ -62,8 +62,10 @@ public struct SendFlags: OptionSet {
     /// data completes record
     public static let eor = SendFlags(rawValue: MSG_EOR)
     
+    #if !os(Linux)
     /// data completes transcation
     public static let eof = SendFlags(rawValue: MSG_EOF)
+    #endif
     
 //    #if os(Linux) || os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
     /// do not block

@@ -115,7 +115,7 @@ extension SocketAddress {
         #else
             var len = MemoryLayout<sockaddr>.size
             
-            switch SocketDomain(rawValue: addr.pointee.sa_family) {
+            switch SocketDomains(rawValue: addr.pointee.sa_family) {
             case .inet:
                 len = MemoryLayout<sockaddr_in>.size
                 
