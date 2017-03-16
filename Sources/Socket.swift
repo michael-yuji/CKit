@@ -80,6 +80,20 @@ public struct SendFlags: OptionSet {
 }
 
 extension Socket {
+    
+    public func bind(_ addr: SocketAddress) throws {
+        var addr = addr
+        _ = try throwsys("bind") {
+            xlibc.bind(fileDescriptor, addr.addrptr(), addr.socklen)
+        }
+    }
+    
+    public func listen(_ backlog: Int32 = Int32(Int32.max)) throws {
+        _ = try throwsys("listen") {
+            xlibc.listen(fileDescriptor, backlog)
+        }
+    }
+    
     public func send(bytes: PointerType, length: Int, flags: SendFlags) throws -> Int {
         return try throwsys("send") {
             xlibc.send(fileDescriptor, bytes.rawPointer, length, flags.rawValue)
