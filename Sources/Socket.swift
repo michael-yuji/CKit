@@ -118,7 +118,7 @@ extension Socket {
     
     @discardableResult
     public func received(to buffer: MutablePointerType, length: Int, flags: RecvFlags) throws -> (sender: SocketAddress, size: Int) {
-        var storage = sockaddr_storage()
+        var storage = _sockaddr_storage()
         let i = try throwsys("recvfrom") {
             recvfrom(fileDescriptor, buffer.mutableRawPointer, length, flags.rawValue, mutablePointer(of: &storage).cast(to: sockaddr.self), nil)
         }

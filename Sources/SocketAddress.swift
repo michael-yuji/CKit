@@ -6,11 +6,21 @@
 #endif
 
 #if os(Linux)
+    
+// Have to use a custom sockaddr_storage here,
+// The default sockaddr_storage in Linux SwiftGlibc
+// "hide" the bytes between ss_family and __ss_align 
+// in some implementation of the Linux Kernel 
+// in that case, those "hidden" bytes are not copied
+// when the sockaddr_storage copied to the stack.
+// In those cases, 6 bytes will be missing when
+// use the sockaddr_storage struct as sockaddr_un.
+// which causes the socket bind to a empty string path.
 public struct _sockaddr_storage {
-    public var ss_family: UInt8 // 1 
-    // 127 byte
-    public var padding:
-    (UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
+    public var ss_family: sa_family_t // 2 bytes
+    // 126 bytes
+    public var __ss_pad1:
+    (UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
     UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
     UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
     UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
@@ -26,6 +36,21 @@ public struct _sockaddr_storage {
     UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
     UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
     UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8)
+    
+    public init() {
+        self.ss_family = 0
+        self.__ss_pad1 =
+            (
+                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+                0,0,0,0,0,0,0,0,0,0,0,0,0,0
+            )
+    }
 }
 #else
 public typealias _sockaddr_storage = xlibc.sockaddr_storage
@@ -227,16 +252,10 @@ extension SocketAddress {
         self.storage.ss_family = sa_family_t(AF_UNIX)
         #if !os(Linux)
         self.storage.ss_len = UInt8(MemoryLayout<sockaddr_un>.size)
+        #endif
         strncpy(mutablePointer(of: &(self.storage.__ss_pad1)).cast(to: Int8.self),
                 unixPath.cString(using: .utf8)!,
                 UNIX_PATH_MAX)
-        #else
-        var addr = sockaddr_un()
-        strncpy(mutablePointer(of: &(addr.sun_path)).cast(to: Int8.self),
-                unixPath.cString(using: .utf8)!,
-                UNIX_PATH_MAX)
-        memcpy(mutablePointer(of: &self.storage).mutableRawPointer, pointer(of: &addr).rawPointer, MemoryLayout<sockaddr_un>.size)
-        #endif
     }
     
     #if !os(Linux)
@@ -330,10 +349,7 @@ extension SocketAddress {
         }
         var stor = storage
         var buffer = [Int8](repeating: 0, count: System.maximum.pathname + 1)
-        var addr = sockaddr_un()
-        memcpy(mutablePointer(of: &addr).mutableRawPointer,
-               pointer(of: &stor).rawPointer, MemoryLayout<sockaddr_un>.size)
-        strncpy(&buffer, pointer(of: &addr.sun_path).cast(to: Int8.self), Int(System.maximum.pathname))
+        strncpy(&buffer, pointer(of: &stor.__ss_pad1).cast(to: Int8.self), Int(System.maximum.pathname))
         return String(cString: buffer)
     }
 }
