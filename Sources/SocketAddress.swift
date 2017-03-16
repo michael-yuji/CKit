@@ -200,9 +200,11 @@ extension SocketAddress {
                 unixPath.cString(using: .utf8)!,
                 UNIX_PATH_MAX)
         #else
-        strncpy(mutablePointer(of: &(self.storage.__ss_padding)).cast(to: Int8.self),
+        var addr = sockaddr_un()
+        strncpy(mutablePointer(of: &(addr.sun_path)).cast(to: Int8.self),
                 unixPath.cString(using: .utf8)!,
                 UNIX_PATH_MAX)
+        memcpy(mutablePointer(of: &self.storage).mutableRawPointer, pointer(of: &addr).rawPointer, MemoryLayout<sockaddr_un>.size)
         #endif
     }
     
@@ -279,6 +281,7 @@ extension SocketAddress {
     public func ip() -> String? {
         var buffer = [Int8](repeating: 0, count: System.maximum.pathname)
         var addr = self.storage
+        
         switch self.type {
         case .inet:
             inet_ntop(AF_INET, pointer(of: &addr).rawPointer, &buffer, self.len)
@@ -287,6 +290,19 @@ extension SocketAddress {
         default:
             return nil
         }
+        return String(cString: buffer)
+    }
+    
+    public func path() -> String? {
+        if self.type != .unix {
+            return nil
+        }
+        var stor = storage
+        var buffer = [Int8](repeating: 0, count: System.maximum.pathname + 1)
+        var addr = sockaddr_un()
+        memcpy(mutablePointer(of: &addr).mutableRawPointer,
+               pointer(of: &stor).rawPointer, MemoryLayout<sockaddr_un>.size)
+        strncpy(&buffer, pointer(of: &addr.sun_path).cast(to: Int8.self), Int(System.maximum.pathname))
         return String(cString: buffer)
     }
 }
