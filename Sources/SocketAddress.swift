@@ -34,6 +34,31 @@ extension sockaddr {
     #endif
 }
 
+extension sockaddr_storage {
+    #if os(Linux)
+    public var ss_len: UInt8 {
+
+        switch self.ss_family {
+        case sa_family_t(AF_INET):
+            return UInt8(MemoryLayout<sockaddr_in>.size)
+            
+        case sa_family_t(AF_INET6):
+            return UInt8(MemoryLayout<sockaddr_in6>.size)
+            
+        case sa_family_t(AF_UNIX):
+            return UInt8(MemoryLayout<sockaddr_un>.size)
+            
+        case sa_family_t(AF_LINK):
+            return UInt8(MemoryLayout<sockaddr_dl>.size)
+
+        default:
+            return UInt8(MemoryLayout<sockaddr>.size)
+        }
+        
+    }
+    #endif
+}
+
 extension sockaddr_in {
     init(port: in_port_t, addr: in_addr = in_addr(s_addr: 0)) {
         #if os(Linux)
@@ -103,15 +128,15 @@ extension SocketAddress {
             case .link:
                 len = MemoryLayout<sockaddr_dl>.size
                 
-            case .x25:
-                len = MemoryLayout<sockaddr_x25>.size
-                
-            case .ipx:
-                len = MemoryLayout<sockaddr_ipx>.size
-                
-            case .ax25:
-                len = MemoryLayout<sockaddr_ax25>.size
-                
+//            case .x25:
+//                len = MemoryLayout<sockaddr_x25>.size
+//                
+//            case .ipx:
+//                len = MemoryLayout<sockaddr_ipx>.size
+//                
+//            case .ax25:
+//                len = MemoryLayout<sockaddr_ax25>.size
+//                
                 
             default:
                 break
@@ -171,10 +196,14 @@ extension SocketAddress {
         self.storage.ss_family = sa_family_t(AF_UNIX)
         #if !os(Linux)
         self.storage.ss_len = UInt8(MemoryLayout<sockaddr_un>.size)
-        #endif
         strncpy(mutablePointer(of: &(self.storage.__ss_pad1)).cast(to: Int8.self),
                 unixPath.cString(using: .utf8)!,
                 UNIX_PATH_MAX)
+        #else
+        strncpy(mutablePointer(of: &(self.storage.__ss_padding)).cast(to: Int8.self),
+                unixPath.cString(using: .utf8)!,
+                UNIX_PATH_MAX)
+        #endif
     }
     
     #if !os(Linux)
@@ -217,15 +246,15 @@ extension SocketAddress {
             case .link:
                 return socklen_t(MemoryLayout<sockaddr_dl>.size)
                 
-            case .x25:
-                return socklen_t(MemoryLayout<sockaddr_x25>.size)
-                
-            case .ipx:
-                return socklen_t(MemoryLayout<sockaddr_ipx>.size)
-                
-            case .ax25:
-                return socklen_t(MemoryLayout<sockaddr_ax25>.size)
-                
+//            case .x25:
+//                return socklen_t(MemoryLayout<sockaddr_x25>.size)
+//                
+//            case .ipx:
+//                return socklen_t(MemoryLayout<sockaddr_ipx>.size)
+//                
+//            case .ax25:
+//                return socklen_t(MemoryLayout<sockaddr_ax25>.size)
+
             default:
                 return socklen_t(MemoryLayout<sockaddr>.size)
             }
