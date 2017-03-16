@@ -48,11 +48,13 @@ public struct FileFlags: OptionSet {
     /// to be appended to the end.
     public static let append = FileFlags(rawValue: O_APPEND)
     
+    #if !os(Linux)
     /// Atomically obtain a shared lock
     public static let sharelock = FileFlags(rawValue: O_SHLOCK)
     
     /// Atomically obtain an exclusive lock
     public static let exclusivelock = FileFlags(rawValue: O_EXLOCK)
+    #endif
     
     /// Do not follow symbolic links
     public static let nosymlink = FileFlags(rawValue: O_NOFOLLOW)

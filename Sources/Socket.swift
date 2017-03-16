@@ -227,7 +227,7 @@ public struct SocketOptions: RawRepresentable {
     #if os(Linux)
     public static let acceptFilter = SocketOptions(rawValue: SO_ATTACH_BPF)
     public static let bind2device = SocketOptions(rawValue: SO_BINDTODEVICE)
-    public static let `protocol` = SocketOptions(rawValue: SO_PROTOTYPE)
+    public static let `protocol` = SocketOptions(rawValue: SO_PROTOCOL)
     #endif
     
     #if os(FreeBSD)

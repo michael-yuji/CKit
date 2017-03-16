@@ -26,6 +26,14 @@ extension SocketAddress : CustomStringConvertible {
     }
 }
 
+extension sockaddr {
+    #if os(Linux)
+    public var sa_len: UInt8 {
+        return UInt8(MemoryLayout<sockaddr_in6>.size)
+    }
+    #endif
+}
+
 extension sockaddr_in {
     init(port: in_port_t, addr: in_addr = in_addr(s_addr: 0)) {
         #if os(Linux)
@@ -41,6 +49,12 @@ extension sockaddr_in {
                                sin_zero: (0, 0, 0, 0, 0, 0, 0, 0))
         #endif
     }
+    
+    #if os(Linux)
+    public var sin_len: UInt8 {
+        return UInt8(MemoryLayout<sockaddr_in>.size)
+    }
+    #endif
 }
 
 extension sockaddr_in6 {
@@ -60,12 +74,51 @@ extension sockaddr_in6 {
                                 sin6_scope_id: 0)
         #endif
     }
+    
+    #if os(Linux)
+    public var sin6_len: UInt8 {
+        return UInt8(MemoryLayout<sockaddr_in6>.size)
+    }
+    #endif
 }
 
 extension SocketAddress {
     public init(addr: UnsafePointer<sockaddr>) {
         self.storage = sockaddr_storage()
+        #if !os(Linux)
         memcpy(mutablePointer(of: &self.storage).mutableRawPointer, addr.rawPointer, Int(addr.pointee.sa_len))
+        #else
+            var len = MemoryLayout<sockaddr>.size
+            
+            switch SocketDomain(rawValue: addr.pointee.sa_family) {
+            case .inet:
+                len = MemoryLayout<sockaddr_in>.size
+                
+            case .inet6:
+                len = MemoryLayout<sockaddr_in6>.size
+                
+            case .unix:
+                len = MemoryLayout<sockaddr_un>.size
+            
+            case .link:
+                len = MemoryLayout<sockaddr_dl>.size
+                
+            case .x25:
+                len = MemoryLayout<sockaddr_x25>.size
+                
+            case .ipx:
+                len = MemoryLayout<sockaddr_ipx>.size
+                
+            case .ax25:
+                len = MemoryLayout<sockaddr_ax25>.size
+                
+                
+            default:
+                break
+            }
+            
+            memcpy(mutablePointer(of: &self.storage).mutableRawPointer, addr.rawPointer, len)
+        #endif
     }
     
     public init?(domain: SocketDomains, port: in_port_t) {
@@ -148,7 +201,35 @@ extension SocketAddress {
     }
     
     public var socklen: socklen_t {
+        #if !os(Linux)
         return socklen_t(self.storage.ss_len)
+        #else
+            switch self.type {
+            case .inet:
+                return socklen_t(MemoryLayout<sockaddr_in>.size)
+                
+            case .inet6:
+                return socklen_t(MemoryLayout<sockaddr_in6>.size)
+                
+            case .unix:
+                return socklen_t(MemoryLayout<sockaddr_un>.size)
+                
+            case .link:
+                return socklen_t(MemoryLayout<sockaddr_dl>.size)
+                
+            case .x25:
+                return socklen_t(MemoryLayout<sockaddr_x25>.size)
+                
+            case .ipx:
+                return socklen_t(MemoryLayout<sockaddr_ipx>.size)
+                
+            case .ax25:
+                return socklen_t(MemoryLayout<sockaddr_ax25>.size)
+                
+            default:
+                return socklen_t(MemoryLayout<sockaddr>.size)
+            }
+        #endif
     }
     
     public mutating func addrptr() -> UnsafePointer<sockaddr> {
