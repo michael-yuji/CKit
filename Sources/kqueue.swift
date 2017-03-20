@@ -31,15 +31,17 @@
 //
 
 #if !os(Linux)
-    
+
 public struct KernelQueue : FileDescriptorRepresentable {
     public var fileDescriptor: Int32
     public var pending = [KernelEvent]()
+    var lock = pthread_mutex_t()
     public init() {
         fileDescriptor = kqueue()
+        pthread_mutex_init(&self.lock, nil)
     }
 }
-    
+
 extension KernelQueue {
     
     public mutating func enqueue(event descriptor: KernelEventDescriptor, for actions: KernelEventAction) {
@@ -82,13 +84,15 @@ extension KernelQueue {
             return kevent(fileDescriptor, pending, Int32(pending.count), &evs, Int32(nevs), nil)
         }
         
+        _ = xlibc.pthread_mutex_lock(mutablePointer(of: &lock))
+        pending.removeAll()
+        _ = xlibc.pthread_mutex_unlock(mutablePointer(of: &lock))
         for i in 0..<Int(nev) {
             handler(unsafeBitCast(evs[i], to: KernelEventResult.self))
         }
     }
 
 }
-    
     
 /// a c like kqueue
 public struct UnmanagedKernelQueue: FileDescriptorRepresentable {

@@ -151,7 +151,6 @@ public extension FileStatus {
     }
 
     internal func verify(err: Int32) throws {
-
         switch err {
         case EACCES:
             throw FileStatusError.searchPermissionDenied

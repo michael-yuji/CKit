@@ -238,8 +238,7 @@ public enum KernelEventType: Int16 {
     /// of times the signal has been generated since the last call to `kevent()`.
     /// This filter automatically sets the `EV_CLEAR` flag internally.
     case signal = -6
-    
-    
+
     /// Establishes an arbitrary timer identified by `ident`. When adding a timer,
     /// `data` specifies the timeout period. The timer will be periodic unless `EV_ONESHOT`
     /// is specified. On return, `data` contains the number of times the timeout has
@@ -278,8 +277,7 @@ public enum KernelEventType: Int16 {
     /// If `fflags` is not set, the default is milliseconds. On return, fflags
     /// contains the events which triggered the filter.
     case timer = -7
-    
-    
+
     /// Establishes a user event identified by `ident` which is not associated with
     /// any kernel mechanism but is triggered by user level code. The lower 24 bits
     /// of the fflags may be used for user defined flags and manipulated using the

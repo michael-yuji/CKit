@@ -26,77 +26,64 @@
 //  of the authors and should not be interpreted as representing official policies,
 //  either expressed or implied, of the FreeBSD Project.
 //
-//  Created by yuuji on 8/26/16.
+//  Created by Yuji on 3/12/17.
+//  Copyright © 2017 Yuji. All rights reserved.
 //
-//
 
-import struct Foundation.Date
-import typealias Foundation.TimeInterval
-
-public class User {
-
-    public static var currentUser = User(uid: getuid())
+public class Group {
+    public static var currentGroup = Group(gid: User.currentUser.gid)
     
-    public var pw: passwd = xlibc.passwd()
+    public var gid: gid_t {
+        return cGroup.gr_gid
+    }
+    
+    public var cGroup: group = group()
     
     var bufferptr: UnsafeMutableRawPointer
     
-    public var uid: uid_t {
-        return pw.pw_uid
-    }
-    
-    public var gid: gid_t {
-        return pw.pw_gid
-    }
-
     public var name: String {
-        return String(cString: pw.pw_name)
+        return String(cString: cGroup.gr_name)
     }
-
-    public var passwd: String {
-        return String(cString: pw.pw_passwd)
-    }
-
-    public var home: String {
-        return String(cString: pw.pw_dir)
-    }
-
-    public var shell: String {
-        return String(cString: pw.pw_shell)
-    }
-
-    #if os(FreeBSD) || os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
-    public var expiration: Date {
-        return Date(timeIntervalSince1970: TimeInterval(pw.pw_expire))
-    }
-
-    public var pwdChangeTime: Date {
-        return Date(timeIntervalSince1970: TimeInterval(pw.pw_change))
-    }
-
-    public var `class`: String {
-        return String(cString: pw.pw_class)
-    }
-    #endif
     
-    public init(uid: uid_t) {
-        bufferptr = malloc(System.sizes.getpwd_r_bufsize)
-        var ptr: UnsafeMutablePointer<passwd>? = nil
-        getpwuid_r(uid, &self.pw,
+    public var password: String {
+        return String(cString: cGroup.gr_passwd)
+    }
+    
+    public var members: [String] {
+        var mem = [String]()
+        var ptr = cGroup.gr_mem
+        while (ptr != nil && ptr!.pointee != nil && ptr!.pointee!.numerialValue > 0) {
+            let string = String(cString: ptr!.pointee!, encoding: .ascii)
+            guard let str = string else {
+                break
+            }
+            mem.append(str)
+            ptr = ptr!.advanced(by: 1)
+            
+        }
+        return mem
+    }
+    
+    
+    public init(gid: gid_t) {
+        bufferptr = malloc(System.sizes.getgrp_r_bufsize)
+        var ptr: UnsafeMutablePointer<group>? = nil
+        getgrgid_r(gid, &self.cGroup,
                    bufferptr.assumingMemoryBound(to: Int8.self),
-                   System.sizes.getpwd_r_bufsize - 1, &ptr)
+                   System.sizes.getgrp_r_bufsize - 1,
+                   &ptr)
     }
     
     public init(name: String) {
-        bufferptr = malloc(System.sizes.getpwd_r_bufsize)
-        var ptr: UnsafeMutablePointer<passwd>? = nil
-        getpwnam_r(name, &self.pw,
+        bufferptr = malloc(System.sizes.getgrp_r_bufsize)
+        var ptr: UnsafeMutablePointer<group>? = nil
+        getgrnam_r(name, &self.cGroup,
                    bufferptr.assumingMemoryBound(to: Int8.self),
-                   System.sizes.getpwd_r_bufsize - 1, &ptr)
+                   System.sizes.getgrp_r_bufsize - 1,
+                   &ptr)
     }
     
     deinit {
         free(bufferptr)
     }
 }
-
