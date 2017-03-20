@@ -31,7 +31,7 @@
 //
 
 #if !os(Linux)
-    
+
 public struct KernelQueue : FileDescriptorRepresentable {
     public var fileDescriptor: Int32
     public var pending = [KernelEvent]()
@@ -39,7 +39,7 @@ public struct KernelQueue : FileDescriptorRepresentable {
         fileDescriptor = kqueue()
     }
 }
-    
+
 extension KernelQueue {
     
     public mutating func enqueue(event descriptor: KernelEventDescriptor, for actions: KernelEventAction) {

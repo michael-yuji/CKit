@@ -13,7 +13,7 @@ public struct NetworkInterface: CustomStringConvertible {
     }
     
     public var description: String {
-        return "Interface: \(name), : \(address?.description ?? "")"
+        return "\(name) \(address?.description ?? "")"
     }
     
     @inline(__always)

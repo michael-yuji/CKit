@@ -36,18 +36,18 @@ public struct FileFlags: OptionSet {
     public init(rawValue: RawValue) {
         self.rawValue = rawValue
     }
-    
+
     /// If the nonblock flag is speecified and `init`
     /// would result in the proceess being blocked for some reason
     /// (e.g., waiting for carrier on a dialup line), `init` returns
     /// immediately. The descriptor remains in non-blocking mode
     /// for subsequent operations
     public static let nonblock = FileFlags(rawValue: O_NONBLOCK)
-    
+
     /// Open a file with `append` set causes each write on the file
     /// to be appended to the end.
     public static let append = FileFlags(rawValue: O_APPEND)
-    
+
     #if !os(Linux)
     /// Atomically obtain a shared lock
     public static let sharelock = FileFlags(rawValue: O_SHLOCK)
@@ -55,7 +55,7 @@ public struct FileFlags: OptionSet {
     /// Atomically obtain an exclusive lock
     public static let exclusivelock = FileFlags(rawValue: O_EXLOCK)
     #endif
-    
+
     /// Do not follow symbolic links
     public static let nosymlink = FileFlags(rawValue: O_NOFOLLOW)
     

@@ -6,7 +6,6 @@
 #endif
 
 #if os(Linux)
-    
 // Have to use a custom sockaddr_storage here,
 // The default sockaddr_storage in Linux SwiftGlibc
 // "hide" the bytes between ss_family and __ss_align 
@@ -180,10 +179,10 @@ extension SocketAddress {
                 
             case .unix:
                 len = MemoryLayout<sockaddr_un>.size
-            
+
             case .link:
                 len = MemoryLayout<sockaddr_dl>.size
-                
+
 //            case .x25:
 //                len = MemoryLayout<sockaddr_x25>.size
 //                
@@ -192,16 +191,15 @@ extension SocketAddress {
 //                
 //            case .ax25:
 //                len = MemoryLayout<sockaddr_ax25>.size
-//                
-                
+
             default:
                 break
             }
-            
+
             memcpy(mutablePointer(of: &self.storage).mutableRawPointer, addr.rawPointer, len)
         #endif
     }
-    
+
     public init?(domain: SocketDomains, port: in_port_t) {
         switch domain {
         case .inet:
@@ -232,7 +230,7 @@ extension SocketAddress {
             memcpy(mutablePointer(of: &self.storage).mutableRawPointer,
                    pointer(of: &addr).rawPointer,
                    Int(addr.sin_len))
-            
+
         case .inet6:
             self.storage = _sockaddr_storage()
             var addr = sockaddr_in6(port: port)
@@ -241,7 +239,7 @@ extension SocketAddress {
             memcpy(mutablePointer(of: &self.storage).mutableRawPointer,
                    pointer(of: &addr).rawPointer,
                    Int(addr.sin6_len))
-            
+
         default:
             return nil
         }
@@ -278,7 +276,36 @@ extension SocketAddress {
     }
     
     public func addr() -> sockaddr {
-        return unsafeBitCast(storage, to: sockaddr.self)
+        var ret = sockaddr()
+        var stor = storage
+        memcpy(mutablePointer(of: &ret).mutableRawPointer,
+               pointer(of: &stor).rawPointer,
+               MemoryLayout<sockaddr>.size)
+        return ret
+    }
+    
+    public func inet() -> sockaddr_in? {
+        if self.type != .inet {
+            return nil
+        }
+        var ret = sockaddr_in()
+        var stor = storage
+        memcpy(mutablePointer(of: &ret).mutableRawPointer,
+               pointer(of: &stor).rawPointer,
+               MemoryLayout<sockaddr_in>.size)
+        return ret
+    }
+    
+    public func inet6() -> sockaddr_in6? {
+        if self.type != .inet6 {
+            return nil
+        }
+        var ret = sockaddr_in6()
+        var stor = storage
+        memcpy(mutablePointer(of: &ret).mutableRawPointer,
+               pointer(of: &stor).rawPointer,
+               MemoryLayout<sockaddr_in6>.size)
+        return ret
     }
     
     public var socklen: socklen_t {

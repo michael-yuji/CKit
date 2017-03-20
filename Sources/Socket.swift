@@ -131,13 +131,13 @@ extension Socket {
     
     func setsock<ArgType>(opt: SocketOptions, value: ArgType) {
         var _val = value
-        setsockopt(fileDescriptor, SOL_SOCKET, opt.rawValue, pointer(of: &_val).rawPointer, socklen_t(MemoryLayout<ArgType>.size))
+        setsockopt(fileDescriptor, opt.layer, opt.rawValue, pointer(of: &_val).rawPointer, socklen_t(MemoryLayout<ArgType>.size))
     }
     
     func getsock<ArgType>(opt: SocketOptions) -> ArgType {
         var ret: ArgType!
         var size = socklen_t(MemoryLayout<ArgType>.size)
-        getsockopt(fileDescriptor, SOL_SOCKET, opt.rawValue, mutablePointer(of: &ret).mutableRawPointer, &size)
+        getsockopt(fileDescriptor, opt.layer, opt.rawValue, mutablePointer(of: &ret).mutableRawPointer, &size)
         return ret
     }
     
@@ -239,9 +239,16 @@ public struct SocketOptions: RawRepresentable {
     
     public typealias RawValue = Int32
     public var rawValue: Int32
+    public var layer: Int32
+    
     public init(rawValue: Int32) {
         self.rawValue = rawValue
-        
+        self.layer = SOL_SOCKET
+    }
+    
+    public init(_ layer: Int32, _ rawValue: Int32) {
+        self.layer = layer
+        self.rawValue = rawValue
     }
     
     #if os(Linux)
@@ -257,25 +264,42 @@ public struct SocketOptions: RawRepresentable {
     #endif
     
     #if os(FreeBSD) || os(OSX) || os(watchOS) || os(tvOS) || os(iOS)
-    public static let nosigpipe = SocketOptions(rawValue: SO_NOSIGPIPE)
+    public static let nosigpipe = SocketOptions(SOL_SOCKET, SO_NOSIGPIPE)
     #endif
 
-    public static let sendBuffer = SocketOptions(rawValue: SO_SNDBUF)
-    public static let recvBuffer = SocketOptions(rawValue: SO_RCVBUF)
-    public static let sendLowAt = SocketOptions(rawValue: SO_SNDLOWAT)
-    public static let recvLowAt = SocketOptions(rawValue: SO_RCVLOWAT)
-    public static let sendTimeout = SocketOptions(rawValue: SO_SNDTIMEO)
-    public static let recvTimeout = SocketOptions(rawValue: SO_RCVTIMEO)
-    public static let timestamp = SocketOptions(rawValue: SO_TIMESTAMP)
-    public static let socktype = SocketOptions(rawValue: SO_TYPE)
-    public static let geterror = SocketOptions(rawValue: SO_ERROR)
-    public static let listenStatus = SocketOptions(rawValue: SO_ACCEPTCONN)
-    public static let broadcast = SocketOptions(rawValue: SO_BROADCAST)
-    public static let debug = SocketOptions(rawValue: SO_DEBUG)
-    public static let dontroute = SocketOptions(rawValue: SO_DONTROUTE)
-    public static let reuseaddr = SocketOptions(rawValue: SO_REUSEADDR)
-    public static let reuseport = SocketOptions(rawValue: SO_REUSEPORT)
-    public static let keepalive = SocketOptions(rawValue: SO_KEEPALIVE)
-    public static let linger = SocketOptions(rawValue: SO_LINGER)
-    public static let oobInline = SocketOptions(rawValue: SO_OOBINLINE)
+    public static let sendBuffer = SocketOptions(SOL_SOCKET, SO_SNDBUF)
+    
+    public static let recvBuffer = SocketOptions(SOL_SOCKET, SO_RCVBUF)
+    
+    public static let sendLowAt = SocketOptions(SOL_SOCKET, SO_SNDLOWAT)
+    
+    public static let recvLowAt = SocketOptions(SOL_SOCKET, SO_RCVLOWAT)
+    
+    public static let sendTimeout = SocketOptions(SOL_SOCKET, SO_SNDTIMEO)
+    
+    public static let recvTimeout = SocketOptions(SOL_SOCKET, SO_RCVTIMEO)
+    
+    public static let timestamp = SocketOptions(SOL_SOCKET, SO_TIMESTAMP)
+    
+    public static let socktype = SocketOptions(SOL_SOCKET, SO_TYPE)
+    
+    public static let geterror = SocketOptions(SOL_SOCKET, SO_ERROR)
+    
+    public static let listenStatus = SocketOptions(SOL_SOCKET, SO_ACCEPTCONN)
+    
+    public static let broadcast = SocketOptions(SOL_SOCKET, SO_BROADCAST)
+    
+    public static let debug = SocketOptions(SOL_SOCKET, SO_DEBUG)
+    
+    public static let dontroute = SocketOptions(SOL_SOCKET, SO_DONTROUTE)
+    
+    public static let reuseaddr = SocketOptions(SOL_SOCKET, SO_REUSEADDR)
+    
+    public static let reuseport = SocketOptions(SOL_SOCKET, SO_REUSEPORT)
+    
+    public static let keepalive = SocketOptions(SOL_SOCKET, SO_KEEPALIVE)
+    
+    public static let linger = SocketOptions(SOL_SOCKET, SO_LINGER)
+    
+    public static let oobInline = SocketOptions(SOL_SOCKET, SO_OOBINLINE)
 }

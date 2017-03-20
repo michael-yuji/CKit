@@ -12,10 +12,3 @@ public extension FileDescriptorRepresentable {
         return bytes
     }
 }
-
-// Routating Table
-public extension Socket {
-    public func addRoute() {
-        
-    }
-}
