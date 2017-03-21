@@ -67,10 +67,14 @@ while (true) {
         } else {
             // In a read kevent result, the data field is the number of bytes
             let bytes_in_buffer = result.data
-            let buffer = malloc(bytes_in_buffer)
-            read(Int32(result.ident), buffer, bytes_in_buffer)
-            print(String(cString: buffer!.assumingMemoryBound(to: Int8.self)))
-            free(buffer)
+            if bytes_in_buffer == 0 {
+                close(Int32(result.ident)) // close the socket
+            } else {
+                let buffer = malloc(bytes_in_buffer)
+                read(Int32(result.ident), buffer, bytes_in_buffer)
+                print(String(cString: buffer!.assumingMemoryBound(to: Int8.self)))
+                free(buffer)
+            }
         }
     })
 }
@@ -118,6 +122,8 @@ while (true) {
             if bytes_in_buffer == 0 {
                 // in epoll we need to remove manually when the connection ended
                 ep.remove(fd: ev.data.fd)
+                // close the socket
+                close(ev.data.fd)
                 return
             }
             read(Int32(result.ident), buffer, bytes_in_buffer)
