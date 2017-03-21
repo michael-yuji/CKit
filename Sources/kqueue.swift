@@ -54,7 +54,7 @@ extension KernelQueue {
             alist = alist.union(.enable)
         }
         
-        if enable {
+        if oneshot {
             alist = alist.union(.oneshot)
         }
         pending.append(descriptor.makeEvent([.add]))
@@ -64,84 +64,25 @@ extension KernelQueue {
         pending.append(descriptor.makeEvent([.delete]))
     }
 
-    public mutating func wait(nevs: Int, timeout: timespec, handler: (KernelEventResult) -> ()) throws {
+    public mutating func wait(nevs: Int, timeout: timespec? = nil, handler: (KernelEventResult) -> ()) throws {
         var evs = [KernelEvent](repeating: KernelEvent(), count: nevs)
         
         let nev = try throwsys("kevent") { () -> Int32 in
-            var t = timeout
-            return kevent(fileDescriptor, pending, Int32(pending.count), &evs, Int32(nevs), &t)
-        }
-        
-        for i in 0..<Int(nev) {
-            handler(unsafeBitCast(evs[i], to: KernelEventResult.self))
-        }
-    }
-    
-    public mutating func wait(nevs: Int, handler: (KernelEventResult) -> ()) throws {
-        var evs = [KernelEvent](repeating: KernelEvent(), count: nevs)
-        
-        let nev = try throwsys("kevent") { () -> Int32 in
-            return kevent(fileDescriptor, pending, Int32(pending.count), &evs, Int32(nevs), nil)
+            var timeptr: UnsafePointer<timespec>!
+            if var timeout = timeout {
+                timeptr = pointer(of: &timeout)
+            }
+            return kevent(fileDescriptor, pending, Int32(pending.count), &evs, Int32(nevs), timeptr)
         }
         
         _ = xlibc.pthread_mutex_lock(mutablePointer(of: &lock))
         pending.removeAll()
         _ = xlibc.pthread_mutex_unlock(mutablePointer(of: &lock))
+        
         for i in 0..<Int(nev) {
             handler(unsafeBitCast(evs[i], to: KernelEventResult.self))
         }
     }
-
 }
     
-/// a c like kqueue
-public struct UnmanagedKernelQueue: FileDescriptorRepresentable {
-    public var fileDescriptor: Int32
-    
-    public init() {
-        fileDescriptor = xlibc.kqueue()
-    }
-    
-    /// add events to the the queue, but not monitor yet
-    public func add(events: [kevent]) throws {
-        _ = try throwsys("kevent") {
-            kevent(fileDescriptor, events, Int32(events.count), nil, 0, nil)
-        }
-    }
-    
-    /// Monitor events with timeout
-    ///
-    /// - Parameters:
-    ///   - maxevs: maximum events to monitor
-    ///   - timeout: the timeout, nil if no timeout
-    /// - Returns: events triggered
-    /// - Throws: if kevent returns error
-    public func wait(maxevs: Int, timeout: timespec?) throws -> [kevent] {
-        var evs = [KernelEvent](repeating: KernelEvent(), count: maxevs)
-        
-        let nev = try throwsys("kevent") { () -> Int32 in
-            guard var t = timeout else {
-                return kevent(fileDescriptor, nil, 0, &evs, Int32(maxevs), nil)
-            }
-            return kevent(fileDescriptor, nil, 0, &evs, Int32(maxevs), &t)
-        }
-        
-        return Array<KernelEvent>(evs.dropLast(maxevs - Int(nev)))
-    }
-    
-    public func wait(moreEv ievs: [kevent], maxevs: Int, timeout: timespec?) throws -> [kevent] {
-        let mx = max(maxevs, ievs.count)
-        var evs = [KernelEvent](repeating: KernelEvent(), count: mx)
-        
-        let nev = try throwsys("kevent") { () -> Int32 in
-            guard var t = timeout else {
-                return kevent(fileDescriptor, ievs, Int32(ievs.count), &evs, Int32(maxevs), nil)
-            }
-            return kevent(fileDescriptor, nil, 0, &evs, Int32(maxevs), &t)
-        }
-        
-        return Array<KernelEvent>(evs.dropLast(maxevs - Int(nev)))
-    }
-}
-
 #endif

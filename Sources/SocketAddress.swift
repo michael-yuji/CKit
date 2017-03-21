@@ -73,7 +73,7 @@ extension SocketAddress : CustomStringConvertible {
         var detail = ""
         switch self.type {
         case .inet, .inet6:
-            detail = "\(ip()!):\(port!)"
+            detail = "\(ip!):\(port!)"
         default:
             return family
         }
@@ -225,21 +225,26 @@ extension SocketAddress {
         case .inet:
             self.storage = _sockaddr_storage()
             var addr = sockaddr_in(port: port)
-            inet_pton(AF_INET, ip.cString(using: .ascii),
-                      mutablePointer(of: &(addr.sin_addr)).mutableRawPointer)
+            _ = ip.withCString {
+                inet_pton(AF_INET, $0,
+                          mutablePointer(of: &(addr.sin_addr)).mutableRawPointer)
+            }
+            
             memcpy(mutablePointer(of: &self.storage).mutableRawPointer,
                    pointer(of: &addr).rawPointer,
                    Int(addr.sin_len))
-
+            
         case .inet6:
             self.storage = _sockaddr_storage()
             var addr = sockaddr_in6(port: port)
-            inet_pton(AF_INET6, ip.cString(using: .ascii),
-                      mutablePointer(of: &(addr.sin6_addr)).mutableRawPointer)
+            _ = ip.withCString {
+                inet_pton(AF_INET6, $0,
+                          mutablePointer(of: &(addr.sin6_addr)).mutableRawPointer)
+            }
             memcpy(mutablePointer(of: &self.storage).mutableRawPointer,
                    pointer(of: &addr).rawPointer,
                    Int(addr.sin6_len))
-
+            
         default:
             return nil
         }
@@ -347,30 +352,35 @@ extension SocketAddress {
     public var port: in_port_t? {
         switch self.type {
         case .inet:
-            return unsafeBitCast(storage, to: sockaddr_in.self).sin_port.byteSwapped
+            return unsafeCast(of: self.storage, cast: sockaddr_in.self).sin_port.byteSwapped
         case .inet6:
-            return unsafeBitCast(storage, to: sockaddr_in6.self).sin6_port.byteSwapped
+            return unsafeCast(of: self.storage, cast: sockaddr_in6.self).sin6_port.byteSwapped
         default:
             return nil
         }
     }
     
-    public func ip() -> String? {
-        var buffer = [Int8](repeating: 0, count: System.maximum.pathname)
+    public var ip: String? {
+        var buffer = [Int8](repeating: 0, count: Int(INET6_ADDRSTRLEN))
         var addr = self.storage
         
         switch self.type {
         case .inet:
-            inet_ntop(AF_INET, pointer(of: &addr).rawPointer, &buffer, self.len)
+            var _in = unsafeCast(of: &addr, cast: sockaddr_in.self).sin_addr
+            inet_ntop(AF_INET, &_in, &buffer,
+                      UInt32(INET_ADDRSTRLEN))
+            
         case .inet6:
-            inet_ntop(AF_INET6, pointer(of: &addr).rawPointer, &buffer, self.len)
+            var _in = unsafeCast(of: &addr, cast: sockaddr_in6.self).sin6_addr
+            inet_ntop(AF_INET6, &_in, &buffer,
+                      UInt32(INET6_ADDRSTRLEN))
         default:
             return nil
         }
         return String(cString: buffer)
     }
     
-    public func path() -> String? {
+    public var path: String? {
         if self.type != .unix {
             return nil
         }

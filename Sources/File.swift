@@ -113,4 +113,37 @@ public struct File: FileDescriptorRepresentable {
         }
     }
     
+    public enum Lock {
+        case share
+        case exclusive
+        
+        var value: Int32 {
+            switch self {
+            case .share:
+                return LOCK_SH
+            case .exclusive:
+                return LOCK_EX
+            }
+        }
+    }
+    
+    public func lock(_ type: Lock) {
+        _ = xlibc.flock(fileDescriptor, type.value)
+    }
+    
+    public func unlock() {
+        _ = xlibc.flock(fileDescriptor, LOCK_UN)
+    }
+    
+    public func withSharedLock(_ block: (File) -> ()) {
+        self.lock(.share)
+        block(self)
+        self.unlock()
+    }
+    
+    public func withExclusiveLock(_ block: (File) -> ()) {
+        self.lock(.exclusive)
+        block(self)
+        self.unlock()
+    }
 }
