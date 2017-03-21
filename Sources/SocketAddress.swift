@@ -347,9 +347,9 @@ extension SocketAddress {
     public var port: in_port_t? {
         switch self.type {
         case .inet:
-            return unsafeBitCast(storage, to: sockaddr_in.self).sin_port.byteSwapped
+            return unsafeCast(of: self.storage, cast: sockaddr_in.self).sin_port.byteSwapped
         case .inet6:
-            return unsafeBitCast(storage, to: sockaddr_in6.self).sin6_port.byteSwapped
+            return unsafeCast(of: self.storage, cast: sockaddr_in6.self).sin6_port.byteSwapped
         default:
             return nil
         }

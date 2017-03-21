@@ -47,6 +47,18 @@ func unsafeCast<T, X>(of obj: inout T, cast: X.Type) -> X {
     return mutablePointer(of: &obj).cast(to: X.self).pointee
 }
 
+@inline(__always)
+func unsafeCast<T, X>(of obj: T, cast: X.Type) -> X {
+    var obj = obj
+    return mutablePointer(of: &obj).cast(to: X.self).pointee
+}
+
+@inline(__always)
+func mCast<T, X>(of obj: inout T, cast: X.Type) -> UnsafeMutablePointer<X> {
+    return mutablePointer(of: &obj).cast(to: X.self)
+}
+
+
 public struct ConvenientPointer<T> {
     public var pointer: UnsafeMutablePointer<T>
     public var size: Int
