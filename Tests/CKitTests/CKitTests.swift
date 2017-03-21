@@ -14,7 +14,7 @@ class CKitTests: XCTestCase {
 		XCTAssertEqual(IPAddr.port, Optional(port), "Port of Socket", file: file, line: line)
 
 		// socket description
-		XCTAssertEqual("\(IPAddr)", "inet\(v4 ? "" : "7") \(ip):\(port)", "Description of Socket", file: file, line: line)
+		XCTAssertEqual("\(IPAddr)", "inet\(v4 ? "" : "6") \(ip):\(port)", "Description of Socket", file: file, line: line)
 	}
 
 	// MARK: SocketAddress Test Cases
