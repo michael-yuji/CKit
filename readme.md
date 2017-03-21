@@ -156,7 +156,7 @@ The `CKit.System` struct contains information about the system setup. These incl
 
 ## timespec
 
-The timespec struct is very common in C API to get precise time steps. However it is pretty painful to use in swift since timestep is nor comparable or substractable/addable.
+The timespec struct is very common in C API to get precise time steps. However it is pretty painful to use in swift since timestep is not comparable nor substractable/addable.
 
 In CKit, extensions are introduced to allow timespecs compare with each other, and also allow converting Foundation Date struct to timespec.
 
