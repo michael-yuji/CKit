@@ -225,21 +225,26 @@ extension SocketAddress {
         case .inet:
             self.storage = _sockaddr_storage()
             var addr = sockaddr_in(port: port)
-            inet_pton(AF_INET, ip.cString(using: .ascii),
-                      mutablePointer(of: &(addr.sin_addr)).mutableRawPointer)
+            _ = ip.withCString {
+                inet_pton(AF_INET, $0,
+                          mutablePointer(of: &(addr.sin_addr)).mutableRawPointer)
+            }
+            
             memcpy(mutablePointer(of: &self.storage).mutableRawPointer,
                    pointer(of: &addr).rawPointer,
                    Int(addr.sin_len))
-
+            
         case .inet6:
             self.storage = _sockaddr_storage()
             var addr = sockaddr_in6(port: port)
-            inet_pton(AF_INET6, ip.cString(using: .ascii),
-                      mutablePointer(of: &(addr.sin6_addr)).mutableRawPointer)
+            _ = ip.withCString {
+                inet_pton(AF_INET6, $0,
+                          mutablePointer(of: &(addr.sin6_addr)).mutableRawPointer)
+            }
             memcpy(mutablePointer(of: &self.storage).mutableRawPointer,
                    pointer(of: &addr).rawPointer,
                    Int(addr.sin6_len))
-
+            
         default:
             return nil
         }
