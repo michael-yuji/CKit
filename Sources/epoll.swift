@@ -36,11 +36,11 @@ public struct Epoll: FileDescriptorRepresentable {
     
     public func add(fd: Int32, for events: EpollEvents) {
         var ev = epoll_event(events: events.rawValue, data: epoll_data_t(fd: fd)) // to use pointer
-        epoll_ctl(self.fileDescriptor, EPOLL_CTL_ADD, fd, &ev)
+        _ = epoll_ctl(self.fileDescriptor, EPOLL_CTL_ADD, fd, &ev)
     }
     
     public func remove(fd: Int32) {
-        epoll_ctl(self.fileDescriptor, EPOLL_CTL_DEL, fd, nil)
+        _ = epoll_ctl(self.fileDescriptor, EPOLL_CTL_DEL, fd, nil)
     }
     
     public func wait(maxevs: Int, timeout: Int = 0) -> [epoll_event] {
@@ -49,10 +49,19 @@ public struct Epoll: FileDescriptorRepresentable {
         return Array(evs.dropLast(maxevs - Int(nev)))
     }
     
+    public func wait(maxevs: Int, timeout: Int = 0, handler: (epoll_event) -> ()) {
+        var evs = [epoll_event](repeating: epoll_event(), count: maxevs)
+        let nev = epoll_wait(fileDescriptor, &evs ,Int32(maxevs), Int32(timeout))
+        for i in 0..<Int(nev) {
+            handler(evs[i])
+        }
+    }
+    
     public init() {
         fileDescriptor = epoll_create(1024)
     }
 }
+
 public struct EpollEvents : OptionSet {
     public typealias RawValue = UInt32
     public var rawValue: UInt32

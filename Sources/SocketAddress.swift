@@ -73,7 +73,7 @@ extension SocketAddress : CustomStringConvertible {
         var detail = ""
         switch self.type {
         case .inet, .inet6:
-            detail = "\(ip()!):\(port!)"
+            detail = "\(ip!):\(port!)"
         default:
             return family
         }
@@ -355,22 +355,27 @@ extension SocketAddress {
         }
     }
     
-    public func ip() -> String? {
-        var buffer = [Int8](repeating: 0, count: System.maximum.pathname)
+    public var ip: String? {
+        var buffer = [Int8](repeating: 0, count: Int(INET6_ADDRSTRLEN))
         var addr = self.storage
         
         switch self.type {
         case .inet:
-            inet_ntop(AF_INET, pointer(of: &addr).rawPointer, &buffer, self.len)
+            var _in = unsafeCast(of: &addr, cast: sockaddr_in.self).sin_addr
+            inet_ntop(AF_INET, &_in, &buffer,
+                      UInt32(INET_ADDRSTRLEN))
+            
         case .inet6:
-            inet_ntop(AF_INET6, pointer(of: &addr).rawPointer, &buffer, self.len)
+            var _in = unsafeCast(of: &addr, cast: sockaddr_in6.self).sin6_addr
+            inet_ntop(AF_INET6, &_in, &buffer,
+                      UInt32(INET6_ADDRSTRLEN))
         default:
             return nil
         }
         return String(cString: buffer)
     }
     
-    public func path() -> String? {
+    public var path: String? {
         if self.type != .unix {
             return nil
         }

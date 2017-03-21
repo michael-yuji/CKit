@@ -42,6 +42,11 @@ public func mutablePointer<T>(of obj: inout T, advancedBy distance: Int = 0) -> 
     return withUnsafeMutablePointer(to: &obj, {ghost($0)}).advanced(by: distance)
 }
 
+@inline(__always)
+func unsafeCast<T, X>(of obj: inout T, cast: X.Type) -> X {
+    return mutablePointer(of: &obj).cast(to: X.self).pointee
+}
+
 public struct ConvenientPointer<T> {
     public var pointer: UnsafeMutablePointer<T>
     public var size: Int
