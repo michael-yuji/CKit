@@ -43,6 +43,10 @@ public struct KernelQueue : FileDescriptorRepresentable {
         public init() {
             pthread_mutex_init(&self.lock, nil)
         }
+        
+        deinit {
+            _ = xlibc.pthread_mutex_destroy(&self.lock)
+        }
     }
     
     public init() {
