@@ -59,19 +59,17 @@ public struct Ipv4Ops {
     
     #if os(FreeBSD)
     public static let boardcast = SocketOptions(IPPROTO_IP, IP_ONESBCAST)
+
+    public static let portRange = SocketOptions(IPPROTO_IP, IP_PORTRANGE)
     #endif
     
-    public static let portRange = SocketOptions(IPPROTO_IP, IP_PORTRANGE)
-    
     public struct Multicast {
+
         public static let addMembership = SocketOptions(IPPROTO_IP, IP_ADD_MEMBERSHIP)
         
-        
         public static let dropMembership = SocketOptions(IPPROTO_IP, IP_DROP_MEMBERSHIP)
-
         
         public static let loop = SocketOptions(IPPROTO_IP, IP_MULTICAST_LOOP)
-        
         
         public static let time2live = SocketOptions(IPPROTO_IP, IP_MULTICAST_TTL)
     }
@@ -98,7 +96,8 @@ public struct Ipv6Ops {
     
     public static let authLv = SocketOptions(IPPROTO_IPV6, IPV6_AUTH_LEVEL)
 
-    
+    public static let faith = SocketOptions(IPPROTO_IPV6, IPV6_FAITH)
+
     #else
     public static let packetInfo = SocketOptions(IPPROTO_IPV6, IPV6_2292PKTINFO)
     
@@ -109,7 +108,6 @@ public struct Ipv6Ops {
     public static let dstOpts = SocketOptions(IPPROTO_IPV6, IPV6_2292DSTOPTS)
     
     public static let rthdr = SocketOptions(IPPROTO_IPV6, IPV6_2292RTHDR)
-    
     #endif
 
     public static let tclass = SocketOptions(IPPROTO_IPV6, IPV6_TCLASS)
@@ -119,8 +117,6 @@ public struct Ipv6Ops {
     public static let checkSum = SocketOptions(IPPROTO_IPV6, IPV6_CHECKSUM)
     
     public static let v6only = SocketOptions(IPPROTO_IPV6, IPV6_V6ONLY)
-    
-    public static let faith = SocketOptions(IPPROTO_IPV6, IPV6_FAITH)
     
     
     public struct Unicast {

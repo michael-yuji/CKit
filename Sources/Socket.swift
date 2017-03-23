@@ -245,9 +245,24 @@ public struct SocketOptions: RawRepresentable {
         self.rawValue = rawValue
         self.layer = SOL_SOCKET
     }
-    
+    /*
     public init(_ layer: Int32, _ rawValue: Int32) {
         self.layer = layer
+        self.rawValue = rawValue
+    }
+    */
+    public init(_ layer: Int32, _ rawValue: Int32) {
+        self.layer = layer
+        self.rawValue = rawValue
+    }
+
+    public init(_ layer: Int, _ rawValue: Int32) {
+        self.layer = Int32(layer)
+        self.rawValue = rawValue
+    }
+
+    public init(_ layer: UInt32, _ rawValue: Int32) {
+        self.layer = Int32(layer)
         self.rawValue = rawValue
     }
     
