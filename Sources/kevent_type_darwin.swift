@@ -44,7 +44,7 @@ let _evfilt_vm: Int16 = -12
 let _evfilt_except: Int16 = -15
 
 public enum KernelEventType: Int16 {
-    
+
     public typealias RawValue = Int16
     public var rawValue: Int16 {
         switch self {
@@ -126,7 +126,7 @@ public enum KernelEventType: Int16 {
     /// has `immediate mode` enabled and these is any data to read; `data` contains the
     /// number of bytes available.
     case read = -1
-    
+
     /// Takes a file descriptor as the identifier, and returns whenever it is
     /// possible to write to the descriptor. For sockets, pipes and fifos, `data`
     /// will contain the amount of space remaining in the write buffer. The filter
@@ -137,7 +137,7 @@ public enum KernelEventType: Int16 {
     /// For sockets, the low water mark and socket error handling is identical to the
     /// `EVFILT_READ` case
     case write = -2
-    
+
     /// In Darwin, Returns when the file pointer is not at the end of file. `data` contains
     /// the offset from current position to end of file, and maybe negative.
     ///
@@ -203,8 +203,8 @@ public enum KernelEventType: Int16 {
     ///
     /// On return, `fflags` contains the events which triggered the filter.
     case vnode = -4
-    
-    
+
+
     /// Takes the process ID to monitor as the identifier and the events to watch
     /// for in `fflags`, and returns when the process performs one or more of the
     /// requested events. If a process can normally see another process, it can
@@ -226,8 +226,8 @@ public enum KernelEventType: Int16 {
     ///
     /// The process was sent a signal. Status can be checked via waitpid or similar call.
     case proc = -5
-    
-    
+
+
     /// Takes the signal number to monitor as the identifier and returns when the
     /// given signal is delivered to the process. This coexists with the `signal()`
     /// and `sigaction()` facilities, and has a lower precedence. Only signals
@@ -331,7 +331,7 @@ public enum KernelEventType: Int16 {
     /// If the read direction of the socket has shutdown, then the filter also set
     /// `EV_EOF` in `flags`, and returns the socket error (if any) in `fflags`.
     case except = -15
-    
+
     case vm = -12
 }
 #endif

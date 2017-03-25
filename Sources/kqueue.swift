@@ -33,35 +33,21 @@
 #if !os(Linux)
 
 public struct KernelQueue : FileDescriptorRepresentable {
-    
     public var fileDescriptor: Int32
-    var data: __kqueue_data
-    
-    class __kqueue_data {
-        public var pending = [KernelEvent]()
-        var lock = pthread_mutex_t()
-        public init() {
-            pthread_mutex_init(&self.lock, nil)
-        }
-        
-        deinit {
-            _ = xlibc.pthread_mutex_destroy(&self.lock)
-        }
-    }
-    
     public init() {
         self.fileDescriptor = xlibc.kqueue()
-        self.data = __kqueue_data()
     }
 }
-
-extension KernelQueue {
     
-    public func enqueue(event descriptor: KernelEventDescriptor, for actions: KernelEventAction) {
-        data.pending.append(descriptor.makeEvent(actions))
+public struct KQueueToDoList {
+    
+    var events = [KernelEvent]()
+    
+    public mutating func enqueue(event descriptor: KernelEventDescriptor, for actions: KernelEventAction) {
+        self.events.append(descriptor.makeEvent(actions))
     }
     
-    public func add(event descriptor: KernelEventDescriptor, enable: Bool, oneshot: Bool) {
+    public mutating func add(event descriptor: KernelEventDescriptor, enable: Bool, oneshot: Bool) {
         var alist: KernelEventAction = .add
         if enable {
             alist = alist.union(.enable)
@@ -70,32 +56,79 @@ extension KernelQueue {
         if oneshot {
             alist = alist.union(.oneshot)
         }
-        data.pending.append(descriptor.makeEvent([.add]))
+        self.events.append(descriptor.makeEvent([.add]))
     }
     
-    public func remove(event descriptor: KernelEventDescriptor) {
-        data.pending.append(descriptor.makeEvent([.delete]))
+    public mutating func remove(event descriptor: KernelEventDescriptor) {
+        self.events.append(descriptor.makeEvent([.delete]))
     }
+    
+}
 
-    public func wait(nevs: Int, timeout: timespec? = nil, handler: (KernelEventResult) -> ()) throws {
-        var evs = [KernelEvent](repeating: KernelEvent(), count: nevs)
+extension KernelQueue {
+    
+    public mutating func enqueue(event descriptor: KernelEventDescriptor, for actions: KernelEventAction) {
+        var event = descriptor.makeEvent(actions)
+        __kevent(event: &event)
         
-        let nev = try throwsys("kevent") { () -> Int32 in
-            var timeptr: UnsafePointer<timespec>!
-            if var timeout = timeout {
-                timeptr = pointer(of: &timeout)
-            }
-            return kevent(fileDescriptor, data.pending, Int32(data.pending.count), &evs, Int32(nevs), timeptr)
+    }
+    
+    public mutating func add(event descriptor: KernelEventDescriptor, enable: Bool, oneshot: Bool) {
+        var alist: KernelEventAction = .add
+        if enable {
+            alist = alist.union(.enable)
         }
         
-        _ = xlibc.pthread_mutex_lock(mutablePointer(of: &data.lock))
-        data.pending.removeAll()
-        _ = xlibc.pthread_mutex_unlock(mutablePointer(of: &data.lock))
-        
-        for i in 0..<Int(nev) {
-            handler(unsafeBitCast(evs[i], to: KernelEventResult.self))
+        if oneshot {
+            alist = alist.union(.oneshot)
         }
+        var event = descriptor.makeEvent([.add])
+        __kevent(event: &event)
+    }
+    
+    public mutating func remove(event descriptor: KernelEventDescriptor) {
+        var event = descriptor.makeEvent([.delete])
+        __kevent(event: &event)
+    }
+    
+    public func wait(todo: KQueueToDoList?, expecting eventsCount: Int, timeout: timespec?, handler: (KernelEventResult) -> ()) throws {
+        var changeList = todo?.events
+        
+        var eventsBuffer = [KernelEvent](repeating: KernelEvent(), count: eventsCount)
+        
+        var timeout_pointer: UnsafePointer<timespec>!
+        
+        if var timeout = timeout {
+            timeout_pointer = pointer(of: &timeout)
+        }
+        
+        let returnedEventsCount = try throwsys("kevent", { () -> Int32 in
+            changeList == nil
+                ? __kevent(&eventsBuffer, timeout: timeout_pointer)
+                : __kevent(&changeList!, &eventsBuffer, timeout: timeout_pointer)
+        })
+        
+        for i in 0..<Int(returnedEventsCount) {
+            handler(unsafeBitCast(eventsBuffer[i], to: KernelEventResult.self))
+        }
+    }
+    
+    @discardableResult
+    @inline(__always)
+    private func __kevent(event: inout KernelEvent) -> Int32 {
+        return xlibc.kevent(fileDescriptor, &event, 1, nil, 0, nil)
+    }
+    
+    @discardableResult
+    @inline(__always)
+    private func __kevent(_ changelist: inout [KernelEvent], _ eventlist: inout [KernelEvent], timeout: UnsafePointer<timespec>!) -> Int32 {
+        return xlibc.kevent(fileDescriptor, changelist, Int32(changelist.count), &eventlist, Int32(eventlist.count), timeout)
+    }
+    
+    @inline(__always)
+    private func __kevent(_ eventlist: inout [KernelEvent], timeout: UnsafePointer<timespec>!) -> Int32 {
+        return xlibc.kevent(fileDescriptor, nil, 0, &eventlist, Int32(eventlist.count), timeout)
     }
 }
-    
+
 #endif
