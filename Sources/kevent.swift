@@ -366,6 +366,11 @@ public struct KernelEventUserFlags: KernelEventFlags, RawRepresentable {
         self.rawValue = rawValue
     }
     
+    public init() {
+        self.rawValue = 0
+    }
+    
+    public static let none = KernelEventUserFlags()
     public static let ignore = KernelEventUserFlags(rawValue: NOTE_FFNOP)
     public static let bitand = KernelEventUserFlags(rawValue: NOTE_FFAND)
     public static let bitor = KernelEventUserFlags(rawValue: NOTE_FFOR)

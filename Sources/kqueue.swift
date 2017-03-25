@@ -56,6 +56,7 @@ public struct KQueueToDoList {
         if oneshot {
             alist = alist.union(.oneshot)
         }
+        
         self.events.append(descriptor.makeEvent([.add]))
     }
     
