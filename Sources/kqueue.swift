@@ -31,22 +31,21 @@
 //
 
 #if !os(Linux)
-
 public struct KernelQueue : FileDescriptorRepresentable {
     public var fileDescriptor: Int32
     public init() {
         self.fileDescriptor = xlibc.kqueue()
     }
 }
-    
+
 public struct KQueueToDoList {
-    
+
     var events = [KernelEvent]()
-    
+   
     public mutating func enqueue(event descriptor: KernelEventDescriptor, for actions: KernelEventAction) {
         self.events.append(descriptor.makeEvent(actions))
     }
-    
+
     public mutating func add(event descriptor: KernelEventDescriptor, enable: Bool, oneshot: Bool) {
         var alist: KernelEventAction = .add
         if enable {
@@ -56,10 +55,9 @@ public struct KQueueToDoList {
         if oneshot {
             alist = alist.union(.oneshot)
         }
-        
         self.events.append(descriptor.makeEvent([.add]))
     }
-    
+
     public mutating func remove(event descriptor: KernelEventDescriptor) {
         self.events.append(descriptor.makeEvent([.delete]))
     }

@@ -86,6 +86,25 @@ extension Socket {
         }
     }
     
+    public func bind(_ addr: SocketAddress, port: in_port_t) {
+        switch addr.type {
+        case .inet:
+            guard var inet = addr.inet() else {
+                return
+            }
+            inet.sin_port = port.byteSwapped
+            _ = xlibc.bind(fileDescriptor, pointer(of: &inet).cast(to: sockaddr.self), addr.socklen)
+        case .inet6:
+            guard var inet6 = addr.inet6() else {
+                return
+            }
+            inet6.sin6_port = port.byteSwapped
+            _ = xlibc.bind(fileDescriptor, pointer(of: &inet6).cast(to: sockaddr.self), addr.socklen)
+        default:
+            break
+        }
+    }
+    
     public func listen(_ backlog: Int32 = Int32(Int32.max)) throws {
         _ = try throwsys("listen") {
             xlibc.listen(fileDescriptor, backlog)
@@ -143,7 +162,7 @@ extension Socket {
     public var reuseaddr: Bool {
         get {
             return getsock(opt: .reuseaddr)
-        } set {
+        } nonmutating set {
             setsock(opt: .reuseaddr, value: newValue)
         }
     }
@@ -152,7 +171,7 @@ extension Socket {
     public var reuseport: Bool {
         get {
             return getsock(opt: .reuseport)
-        } set {
+        } nonmutating set {
             setsock(opt: .reuseport, value: newValue)
         }
     }
@@ -161,7 +180,7 @@ extension Socket {
     public var sendBufferSize: Int {
         get {
             return getsock(opt: .sendBuffer)
-        } set {
+        } nonmutating set {
             setsock(opt: .sendBuffer, value: newValue)
         }
     }
@@ -170,7 +189,7 @@ extension Socket {
     public var recvBufferSize: Int {
         get {
             return getsock(opt: .recvBuffer)
-        } set {
+        } nonmutating set {
             setsock(opt: .recvBuffer, value: newValue)
         }
     }
@@ -179,7 +198,7 @@ extension Socket {
     public var debug: Bool {
         get {
             return getsock(opt: .debug)
-        } set {
+        } nonmutating set {
             setsock(opt: .debug, value: newValue)
         }
     }
@@ -188,7 +207,7 @@ extension Socket {
     public var sendTimeout: timeval {
         get {
             return getsock(opt: .sendTimeout)
-        } set {
+        } nonmutating set {
             setsock(opt: .sendTimeout, value: newValue)
         }
     }
@@ -197,7 +216,7 @@ extension Socket {
     public var recvTimeout: timeval {
         get {
             return getsock(opt: .recvTimeout)
-        } set {
+        } nonmutating set {
             setsock(opt: .recvTimeout, value: newValue)
         }
     }
@@ -206,7 +225,7 @@ extension Socket {
     public var keepalive: Bool {
         get {
             return getsock(opt: .keepalive)
-        } set {
+        } nonmutating set {
             setsock(opt: .keepalive, value: newValue)
         }
     }
@@ -215,7 +234,7 @@ extension Socket {
     public var broadcast: Bool {
         get {
             return getsock(opt: .broadcast)
-        } set {
+        } nonmutating set {
             setsock(opt: .broadcast, value: newValue)
         }
     }
@@ -225,7 +244,7 @@ extension Socket {
     public var noSigpipe: Bool {
         get {
             return getsock(opt: .nosigpipe)
-        } set {
+        } nonmutating set {
             setsock(opt: .nosigpipe, value: newValue)
         }
     }

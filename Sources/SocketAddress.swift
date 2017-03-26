@@ -65,7 +65,8 @@ extension SocketAddress : CustomStringConvertible {
 
 // MARK: Initializers
 extension SocketAddress {
-    public init(addr: UnsafePointer<sockaddr>) {
+    
+    public init(addr: UnsafePointer<sockaddr>, port: in_port_t? = nil) {
         self.storage = _sockaddr_storage()
         #if !os(Linux)
         memcpy(mutablePointer(of: &self.storage).mutableRawPointer, addr.rawPointer, Int(addr.pointee.sa_len))
@@ -85,21 +86,22 @@ extension SocketAddress {
             case .link:
                 len = MemoryLayout<sockaddr_dl>.size
 
-//            case .x25:
-//                len = MemoryLayout<sockaddr_x25>.size
-//                
-//            case .ipx:
-//                len = MemoryLayout<sockaddr_ipx>.size
-//                
-//            case .ax25:
-//                len = MemoryLayout<sockaddr_ax25>.size
-
             default:
                 break
             }
 
             memcpy(mutablePointer(of: &self.storage).mutableRawPointer, addr.rawPointer, len)
         #endif
+        
+        if let port = port {
+            switch SocketDomains(rawValue: addr.pointee.sa_family)! {
+            case .inet:
+                mutablePointer(of: &self.storage).cast(to: sockaddr_in.self).pointee.sin_port = port.byteSwapped
+            case .inet6:
+                mutablePointer(of: &self.storage).cast(to: sockaddr_in6.self).pointee.sin6_port = port.byteSwapped
+            default: break
+            }
+        }
     }
 
     public init?(domain: SocketDomains, port: in_port_t) {
