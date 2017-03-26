@@ -1,4 +1,5 @@
 import XCTest
+import Dispatch
 @testable import CKit
 
 class CKitTests: XCTestCase {
@@ -16,6 +17,63 @@ class CKitTests: XCTestCase {
 		// socket description
 		XCTAssertEqual("\(IPAddr)", "inet\(v4 ? "" : "6") \(ip):\(port)", "Description of Socket", file: file, line: line)
 	}
+    
+    func testTrigger1() {
+        let trigger = Trigger()
+        var i = 0
+        var j = 0
+        
+        DispatchQueue.global().async {
+            while true {
+                trigger.wait()
+                i += 1
+//                print("wait \(i)")
+            }
+        }
+        
+        // to ensure thread creation
+        sleep(1)
+        
+        //
+        for _ in 0..<6 {
+            trigger.trigger()
+            j += 1
+//            print("trigger \(j)")
+            
+            // to ensure 1 trigger 1 wait
+            sleep(1)
+        }
+        
+        // joint thread
+        sleep(1)
+        XCTAssertEqual(i, j, "")
+    }
+    
+    func testTrigger2() {
+        let trigger = Trigger()
+        
+        var time_first_trigger: timespec!
+        var time_second_trigger: timespec!
+        
+        DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
+            trigger.trigger()
+            trigger.trigger()
+            sleep(1)
+            trigger.wait() // prevent this thread catch the trigger of the main thread
+            time_second_trigger = timespec.now()
+            print("second trigger")
+        }
+        
+        DispatchQueue.global().asyncAfter(deadline: .now() + 1.2) {
+            trigger.trigger()
+        }
+        
+        trigger.wait()
+        time_first_trigger = timespec.now()
+        print("first trigger")
+        sleep(2)
+        XCTAssertNotEqual(time_first_trigger, time_second_trigger, "time first triggered: \(time_first_trigger), time second triggered: \(time_second_trigger)")
+    }
 
 	// MARK: SocketAddress Test Cases
 	func testIPv4Init() {
@@ -30,7 +88,9 @@ class CKitTests: XCTestCase {
 	static var allTests : [(String, (CKitTests) -> () throws -> Void)] {
     return [
       ("init ipv4 SocketAddress", testIPv4Init),
-      ("init ipv6 SocketAddress", testIPv6Init)
+      ("init ipv6 SocketAddress", testIPv6Init),
+      ("ensure trigger and wait pair work as expect", testTrigger1),
+      ("ensure multiple trigger can only trigger one wait", testTrigger2)
     ]
   }
 }

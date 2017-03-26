@@ -26,48 +26,49 @@
 //  of the authors and should not be interpreted as representing official policies,
 //  either expressed or implied, of the FreeBSD Project.
 //
-//  Created by Yuji on 3/11/17.
-//  Copyright © 2016 Yuji. All rights reserved.
+//  Created by yuuji on 3/27/17.
 //
 
-public struct PremissionMode: OptionSet, CustomStringConvertible {
-    public typealias RawValue = mode_t
-    public var rawValue: mode_t
-    public init(rawValue: mode_t) {
-        self.rawValue = rawValue
+public struct Trigger {
+    
+    var kq: Int32
+    
+    public init() {
+        #if os(FreeBSD) || os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
+        kq = kqueue()
+        var ev = KernelEvent(ident: 0, filter: _evfilt_user, flags: UInt16(EV_ADD | EV_ONESHOT), fflags: NOTE_FFCOPY, data: 0, udata: nil)
+        kevent(kq, &ev, 1, nil, 0, nil)
+        #elseif os(Linux) || os(Android)
+        kq = eventfd(0,0)
+        #endif
     }
     
-    public init(_ rawValue: mode_t) {
-        self.rawValue = rawValue
+    public func trigger() {
+        #if os(FreeBSD) || os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
+        var triggerEv = KernelEventDescriptor.user(ident: 0, options: .trigger).makeEvent(.enable)
+        if kevent(kq, &triggerEv, 1, nil, 0, nil) == -1 {
+            return
+        }
+        #elseif os(Linux) || os(Android)
+        eventfd_write(kq, 1)
+        #endif
     }
     
-    public var description: String {
-        return
-            (
-                "\(self.contains(PremissionMode.user.r) ? "r" : "-")" +
-                "\(self.contains(PremissionMode.user.w) ? "w" : "-")" +
-                "\(self.contains(PremissionMode.user.x) ? "x" : "-")" +
-                "\(self.contains(PremissionMode.group.r) ? "r" : "-")" +
-                "\(self.contains(PremissionMode.group.w) ? "w" : "-")" +
-                "\(self.contains(PremissionMode.group.x) ? "x" : "-")" +
-                "\(self.contains(PremissionMode.other.r) ? "r" : "-")" +
-                "\(self.contains(PremissionMode.other.w) ? "w" : "-")" +
-                "\(self.contains(PremissionMode.other.x) ? "x" : "-")"
-        )
+    public func wait() {
+        #if os(FreeBSD) || os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
+        var t = KernelEvent()
+        var ev = KernelEvent(ident: 0, filter: _evfilt_user, flags: UInt16(EV_ADD | EV_ONESHOT), fflags: NOTE_FFCOPY, data: 0, udata: nil)
+        
+        kevent(kq, nil, 0, &t, 1, nil)
+        kevent(kq, &ev, 1, nil, 0, nil)
+        
+        #elseif os(Linux) || os(Android)
+        var val: eventfd_t = 0
+        eventfd_read(kq, &val)
+        #endif
     }
     
-    public static let user =
-        (r: PremissionMode(mode_t(S_IREAD)),
-         w: PremissionMode(mode_t(S_IWRITE)),
-         x: PremissionMode(mode_t(S_IEXEC)))
-    
-    public static let group =
-        (r: PremissionMode(mode_t(S_IRGRP)),
-         w: PremissionMode(mode_t(S_IWGRP)),
-         x: PremissionMode(mode_t(S_IXGRP)))
-    
-    public static let other =
-        (r: PremissionMode(mode_t(S_IROTH)),
-         w: PremissionMode(mode_t(S_IWOTH)),
-         x: PremissionMode(mode_t(S_IXOTH)))
+    public func close() {
+        _ = xlibc.close(kq)
+    }
 }

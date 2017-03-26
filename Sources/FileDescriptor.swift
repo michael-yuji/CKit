@@ -34,6 +34,11 @@ public protocol FileDescriptorRepresentable {
     var fileDescriptor: Int32 { get set }
 }
 
+public protocol CustomRawBytesRepresentable {
+    var size: Int { get }
+    var bytesPointer: UnsafeRawPointer { get }
+}
+
 public struct AccessMode: OptionSet, CustomStringConvertible {
     public typealias RawValue = mode_t
     public var rawValue: mode_t
@@ -49,7 +54,8 @@ public struct AccessMode: OptionSet, CustomStringConvertible {
     public static let write = AccessMode(O_WRONLY)
     
     public var description: String {
-        return "\(self.contains(.read) ? "r" : "-")" + "\(self.contains(.write) ? "w" : "-")"
+        return "\(self.contains(.read) ? "r" : "-")"
+            + "\(self.contains(.write) ? "w" : "-")"
     }
 }
 
@@ -69,15 +75,6 @@ public enum FileDescriptorOwner {
     case group(pid_t)
     case process(pid_t)
     case error(SystemError)
-}
-
-@inline(__always)
-func throwsys<I: Integer>(_ sys: String, _ blk: (Void) -> I) throws -> I {
-    let ret = blk()
-    if ret == -1 {
-        throw SystemError.lastest(sys)
-    }
-    return ret
 }
 
 public extension FileDescriptorRepresentable {
@@ -149,6 +146,16 @@ public extension FileDescriptorRepresentable {
     public func pwrite(bytes: PointerType, length: Int, at offset: off_t) throws -> Int {
         return try throwsys("pwrite") {
             xlibc.pwrite(fileDescriptor, bytes.rawPointer, length, offset)
+        }
+    }
+    
+    @discardableResult
+    public func write(collection: AnyCollection<CustomRawBytesRepresentable>) throws -> Int {
+        let vectors = collection.map{
+            unsafeBitCast(ConstIovec(iov_base: $0.bytesPointer, iov_len: $0.size), to: iovec.self)
+        }
+        return try throwsys("writev") {
+            xlibc.writev(fileDescriptor, vectors, Int32(vectors.count))
         }
     }
 }
