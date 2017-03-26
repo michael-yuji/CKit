@@ -1,5 +1,5 @@
 import XCTest
-@testable import CKitTestSuite
+@testable import CKitTests
 
 XCTMain([
 	testCase(CKitTests.allTests),
