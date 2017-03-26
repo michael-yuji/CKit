@@ -45,13 +45,13 @@ public struct PremissionMode: OptionSet, CustomStringConvertible {
         return
             (
                 "\(self.contains(PremissionMode.user.r) ? "r" : "-")" +
-                    "\(self.contains(PremissionMode.user.w) ? "w" : "-")" +
-                    "\(self.contains(PremissionMode.user.x) ? "x" : "-")" +
-                    "\(self.contains(PremissionMode.group.r) ? "r" : "-")" +
-                    "\(self.contains(PremissionMode.group.w) ? "w" : "-")" +
-                    "\(self.contains(PremissionMode.group.x) ? "x" : "-")" +
-                    "\(self.contains(PremissionMode.other.r) ? "r" : "-")" +
-                    "\(self.contains(PremissionMode.other.w) ? "w" : "-")" +
+                "\(self.contains(PremissionMode.user.w) ? "w" : "-")" +
+                "\(self.contains(PremissionMode.user.x) ? "x" : "-")" +
+                "\(self.contains(PremissionMode.group.r) ? "r" : "-")" +
+                "\(self.contains(PremissionMode.group.w) ? "w" : "-")" +
+                "\(self.contains(PremissionMode.group.x) ? "x" : "-")" +
+                "\(self.contains(PremissionMode.other.r) ? "r" : "-")" +
+                "\(self.contains(PremissionMode.other.w) ? "w" : "-")" +
                 "\(self.contains(PremissionMode.other.x) ? "x" : "-")"
         )
     }

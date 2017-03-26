@@ -54,7 +54,8 @@ public struct AccessMode: OptionSet, CustomStringConvertible {
     public static let write = AccessMode(O_WRONLY)
     
     public var description: String {
-        return "\(self.contains(.read) ? "r" : "-")" + "\(self.contains(.write) ? "w" : "-")"
+        return "\(self.contains(.read) ? "r" : "-")"
+            + "\(self.contains(.write) ? "w" : "-")"
     }
 }
 
