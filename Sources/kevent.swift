@@ -127,7 +127,7 @@ extension KernelEventDescriptor {
         return KernelEventDescriptor(ident: ident, type: .user, flags: options, userData: userData)
     }
     
-    internal func makeEvent(_ action: KernelEventAction) -> KernelEvent {
+    public func makeEvent(_ action: KernelEventAction) -> KernelEvent {
         return KernelEvent(ident: identifier, filter: type.rawValue, flags: action.rawValue, fflags: flags.rawValue, data: 0, udata: userData == nil ? nil : userData!.rawValue)
     }
 }
@@ -201,7 +201,7 @@ public enum KernelEventUserData {
     case uint16(UInt16)
     case int8(Int8)
     case uint8(UInt8)
-    case pointer(MutablePointerType)
+    case pointer(UnsafeMutableRawPointer)
     
     var rawValue: UnsafeMutableRawPointer! {
         switch self {
@@ -231,7 +231,7 @@ public enum KernelEventUserData {
             return UInt(i) == 0 ? nil : UnsafeMutableRawPointer(bitPattern: UInt(i))
             
         case let .pointer(p):
-            return p.mutableRawPointer
+            return p
         }
     }
 }
@@ -369,15 +369,20 @@ public struct KernelEventUserFlags: KernelEventFlags, RawRepresentable {
     public init() {
         self.rawValue = 0
     }
-    
-    public static let none = KernelEventUserFlags()
+
+    public static let none = KernelEventUserFlags(rawValue: NOTE_FFNOP)
     public static let ignore = KernelEventUserFlags(rawValue: NOTE_FFNOP)
-    public static let bitand = KernelEventUserFlags(rawValue: NOTE_FFAND)
-    public static let bitor = KernelEventUserFlags(rawValue: NOTE_FFOR)
-    public static let copy = KernelEventUserFlags(rawValue: NOTE_FFNOP)
-    public static let cntrlmask = KernelEventUserFlags(rawValue: NOTE_FFCTRLMASK)
-    public static let flagsmask = KernelEventUserFlags(rawValue: NOTE_FFLAGSMASK)
     public static let trigger = KernelEventUserFlags(rawValue: NOTE_TRIGGER)
+    
+    public static let copy = KernelEventUserFlags(rawValue: NOTE_FFNOP)
+    
+    public static func bitand(bits: Int32) -> KernelEventUserFlags {
+        return KernelEventUserFlags(rawValue: NOTE_FFAND | (bits & NOTE_FFLAGSMASK))
+    }
+    
+    public static func bitor(bits: Int32) -> KernelEventUserFlags {
+        return KernelEventUserFlags(rawValue: NOTE_FFOR | UInt32(bits & NOTE_FFLAGSMASK))
+    }
 }
     
 public struct KernelEventFlagsNone: KernelEventFlags, RawRepresentable {

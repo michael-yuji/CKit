@@ -92,6 +92,13 @@ extension KernelQueue {
         __kevent(event: &event)
     }
     
+    public func commit(todo: KQueueToDoList) throws {
+        var events = todo.events
+        _ = try throwsys("keven") {
+            __kevent(&events)
+        }
+    }
+    
     public func wait(todo: KQueueToDoList?, expecting eventsCount: Int, timeout: timespec?, handler: (KernelEventResult) -> ()) throws {
         var changeList = todo?.events
         
@@ -118,6 +125,12 @@ extension KernelQueue {
     @inline(__always)
     private func __kevent(event: inout KernelEvent) -> Int32 {
         return xlibc.kevent(fileDescriptor, &event, 1, nil, 0, nil)
+    }
+    
+    @discardableResult
+    @inline(__always)
+    private func __kevent(_ changelist: inout [KernelEvent]) -> Int32 {
+        return xlibc.kevent(fileDescriptor, changelist, Int32(changelist.count), nil, 0, nil)
     }
     
     @discardableResult

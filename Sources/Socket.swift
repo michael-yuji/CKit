@@ -67,10 +67,8 @@ public struct SendFlags: OptionSet {
     public static let eof = SendFlags(rawValue: MSG_EOF)
     #endif
     
-//    #if os(Linux) || os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
     /// do not block
     public static let dontWait = SendFlags(rawValue: MSG_DONTWAIT)
-//    #endif
     
     #if os(Linux) || os(FreeBSD)
     
@@ -245,12 +243,7 @@ public struct SocketOptions: RawRepresentable {
         self.rawValue = rawValue
         self.layer = SOL_SOCKET
     }
-    /*
-    public init(_ layer: Int32, _ rawValue: Int32) {
-        self.layer = layer
-        self.rawValue = rawValue
-    }
-    */
+    
     public init(_ layer: Int32, _ rawValue: Int32) {
         self.layer = layer
         self.rawValue = rawValue

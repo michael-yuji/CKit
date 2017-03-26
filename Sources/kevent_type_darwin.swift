@@ -58,8 +58,16 @@ public enum KernelEventType: Int16 {
             return _evfilt_signal
         case .timer:
             return _evfilt_timer
+        case .user:
+            return _evfilt_user
+        case .vm:
+            return _evfilt_vm
+        case .machport:
+            return _evfilt_macport
+        case .proc:
+            return _evfilt_proc
         default:
-            return _evfilt_timer
+            return _evfilt_except
         }
     }
     

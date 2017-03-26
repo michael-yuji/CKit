@@ -10,6 +10,7 @@ public struct NetworkInterface: CustomStringConvertible {
         name = String(cString: raw.pointee.ifa_name)
         address = SocketAddress(addr: raw.pointee.ifa_addr)
         flags = raw.pointee.ifa_flags
+        
     }
 
     public var description: String {

@@ -28,7 +28,6 @@
 //
 //  Created by yuuji on 8/27/16.
 //
-//
 
 public protocol OpaqueBridged: RawRepresentable {
     var opaqueObj: OpaqueObject { get set }
