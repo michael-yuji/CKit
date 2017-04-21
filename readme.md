@@ -8,6 +8,53 @@ CKit is framework designed for interact with C API. It provides painless pointer
 
 Because it is build on top of [xlibc](https://github.com/michael-yuji/xlibc), by importing CKit, besides all libc modules in Darwin.C and Glibc, you also have access to some platform dependented modules such as epoll and inotify.
 
+## Socket
+
+a simple server will be like:
+
+```swift
+let serv = Socket(domain: .inet, type: .stream, protocol: 0)
+    let addr = SocketAddress(ip: "127.0.0.1", domain: .inet, port: 8080)!
+    
+    serv.reuseaddr = true
+    serv.reuseport = true
+
+    do {
+        try serv.bind(addr)
+        try serv.listen()
+    
+        let (accepted, addrx) = try serv.accept()
+        
+        var buffer = Data(count: 100)
+
+        _ = buffer.withUnsafeMutableBytes { (ptr: UnsafeMutablePointer<Int8>) in
+            try! accepted.readBytes(to: ptr, length: accepted.bytesAvailable)
+            print(String(cString: ptr))
+        }
+
+    } catch {
+        print(error)
+    }
+
+    serv.close()
+```
+
+and client
+```
+let client = Socket(domain: .inet, type: .stream, protocol: 0)
+    let addr = SocketAddress(ip: "127.0.0.1", domain: .inet, port: 8080)!
+
+    let hi = "Hello World".cString(using: .ascii)!
+    
+    do {
+        try client.connect(to: addr)
+        try client.write(bytes: hi, length: hi.count)
+    } catch {
+        print(error)
+    }
+
+    client.close()
+```
 
 ## Pointer
 
