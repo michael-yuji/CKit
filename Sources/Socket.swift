@@ -105,6 +105,27 @@ extension Socket {
         }
     }
     
+    public func accept() throws -> (Socket, SocketAddress)
+    {
+        var addr = _sockaddr_storage()
+        var socklen: socklen_t = 0
+        
+        let fd = try throwsys("accept") {
+            xlibc.accept(self.fileDescriptor,
+                         mutablePointer(of: &addr).cast(to: sockaddr.self),
+                         &socklen)
+        }
+        
+        return (Socket(raw: fd), SocketAddress(storage: addr))
+    }
+    
+    public func connect(to addr: SocketAddress) throws {
+        var addr = addr
+        _ = try throwsys("connect") {
+            xlibc.connect(fileDescriptor, addr.addrptr(), addr.socklen)
+        }
+    }
+    
     public func listen(_ backlog: Int32 = Int32(Int32.max)) throws {
         _ = try throwsys("listen") {
             xlibc.listen(fileDescriptor, backlog)
