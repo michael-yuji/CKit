@@ -72,59 +72,45 @@ KernelQueue is an object oriented wrapper for kqueue() system call. The followin
 KernelQueue:
 ```swift
 import CKit
-// helper
-func sizeof<T>(_ x: T) -> Int {
-    return MemoryLayout<T>.size
-}
-
 // create our kernel queue and socket
-var queue = KernelQueue()
-let server = socket(AF_INET, SOCK_STREAM, 0)
-
-// reuse address
-var yes = 1
-setsockopt(server, SOL_SOCKET, SO_REUSEADDR, pointer(of: &yes).rawPointer, socklen_t(sizeof(yes)))
-var addr = sockaddr_in()
-
-let addrlen = sizeof(addr)
-
-// user mutablePointer(of:) to get the pointer of addr
-bzero(mutablePointer(of: &addr).mutableRawPointer, addrlen)
-addr.sin_port = in_port_t(8080).byteSwapped
-addr.sin_family = sa_family_t(AF_INET)
-addr.sin_len = UInt8(addrlen)
-
-// user pointer(of:) and cast(to:) to convert between pointers
-bind(server, pointer(of: &addr).cast(to: sockaddr.self), socklen_t(addrlen))
-
-listen(server, 999)
-
-// one of two ways to add event, the equeue method are more free since you can add whatever
-// action you need.
-queue.enqueue(event: KernelEventDescriptor.read(ident: server), for: [.add, .enable])
-// main loop
-while (true) {
-    // wait for event
-    try? queue.wait(nevs: 1000, handler: { (result) in        
-        // our server socket
-        if result.ident == UInt(server) {
-            let newfd = accept(server, nil, nil)
-            // the other way to add event to kqueue
-            queue.add(event: .read(ident: newfd), enable: true, oneshot: false)
-        } else {
-            // In a read kevent result, the data field is the number of bytes
-            let bytes_in_buffer = result.data
-            if bytes_in_buffer == 0 {
-                close(Int32(result.ident)) // close the socket
+    var queue = KernelQueue()
+    
+    let serv = Socket(domain: .inet, type: .stream, protocol: 0)
+    
+    let addr = SocketAddress(ip: "127.0.0.1", domain: .inet, port: 8080)!
+    
+    serv.reuseaddr = true
+    serv.reuseport = true
+    try! serv.bind(addr)
+    try! serv.listen()
+    
+    // one of two ways to add event, the equeue method are more free since you can add whatever
+    // action you need.
+    queue.enqueue(event: KernelEventDescriptor.read(ident: serv.fileDescriptor), for: [.add, .enable])
+    // main loop
+    while (true) {
+        // wait for event
+        try? queue.wait(todo: nil, expecting: 1000, timeout: nil) { (result) in
+            // our server socket
+            if result.ident == UInt(serv.fileDescriptor) {
+                let (newfd, _) = try! serv.accept()
+                // the other way to add event to kqueue
+                queue.add(event: .read(ident: newfd.fileDescriptor), enable: true, oneshot: false)
             } else {
-                let buffer = malloc(bytes_in_buffer)
-                read(Int32(result.ident), buffer, bytes_in_buffer)
-                print(String(cString: buffer!.assumingMemoryBound(to: Int8.self)))
-                free(buffer)
+                // In a read kevent result, the data field is the number of bytes
+                let bytes_in_buffer = result.data
+                if bytes_in_buffer == 0 {
+                    close(Int32(result.ident)) // close the socket
+                } else {
+                    let buffer = malloc(bytes_in_buffer)
+                    try! Socket(raw: Int32(result.ident))
+                            .readBytes(to: buffer!, length: bytes_in_buffer)
+                    print(String(cString: buffer!.assumingMemoryBound(to: Int8.self)))
+                    free(buffer)
+                }
             }
         }
-    })
-}
+    }
 ```
 Epoll:
 ```swift
