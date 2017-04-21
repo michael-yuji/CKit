@@ -108,17 +108,18 @@ extension SocketAddress {
         switch domain {
         case .inet:
             self.storage = _sockaddr_storage()
-            var addr = sockaddr_in(port: port)
-            memcpy(mutablePointer(of: &self.storage).mutableRawPointer,
-                   pointer(of: &addr).rawPointer,
-                   MemoryLayout<sockaddr_in>.size)
+            let addr = sockaddr_in(port: port)
+            mutablePointer(of: &self.storage)
+                .cast(to: sockaddr_in.self)
+                .initialize(to: addr)
             
         case .inet6:
             self.storage = _sockaddr_storage()
-            var addr = sockaddr_in6(port: port)
-            memcpy(mutablePointer(of: &self.storage).mutableRawPointer,
-                   pointer(of: &addr).rawPointer,
-                   MemoryLayout<sockaddr_in>.size)
+            let addr = sockaddr_in6(port: port)
+            mutablePointer(of: &self.storage)
+                .cast(to: sockaddr_in6.self)
+                .initialize(to: addr)
+
         default:
             return nil
         }
@@ -133,10 +134,9 @@ extension SocketAddress {
                 inet_pton(AF_INET, $0,
                           mutablePointer(of: &(addr.sin_addr)).mutableRawPointer)
             }
-            
-            memcpy(mutablePointer(of: &self.storage).mutableRawPointer,
-                   pointer(of: &addr).rawPointer,
-                   Int(addr.sin_len))
+            mutablePointer(of: &self.storage)
+                .cast(to: sockaddr_in.self)
+                .initialize(to: addr)
             
         case .inet6:
             self.storage = _sockaddr_storage()
@@ -145,9 +145,9 @@ extension SocketAddress {
                 inet_pton(AF_INET6, $0,
                           mutablePointer(of: &(addr.sin6_addr)).mutableRawPointer)
             }
-            memcpy(mutablePointer(of: &self.storage).mutableRawPointer,
-                   pointer(of: &addr).rawPointer,
-                   Int(addr.sin6_len))
+            mutablePointer(of: &self.storage)
+                .cast(to: sockaddr_in6.self)
+                .initialize(to: addr)
             
         default:
             return nil
@@ -185,36 +185,21 @@ extension SocketAddress {
     }
     
     public func addr() -> sockaddr {
-        var ret = sockaddr()
-        var stor = storage
-        memcpy(mutablePointer(of: &ret).mutableRawPointer,
-               pointer(of: &stor).rawPointer,
-               MemoryLayout<sockaddr>.size)
-        return ret
+        return unsafeCast(of: self.storage, cast: sockaddr.self)
     }
     
     public func inet() -> sockaddr_in? {
         if self.type != .inet {
             return nil
         }
-        var ret = sockaddr_in()
-        var stor = storage
-        memcpy(mutablePointer(of: &ret).mutableRawPointer,
-               pointer(of: &stor).rawPointer,
-               MemoryLayout<sockaddr_in>.size)
-        return ret
+        return unsafeCast(of: storage, cast: sockaddr_in.self)
     }
     
     public func inet6() -> sockaddr_in6? {
         if self.type != .inet6 {
             return nil
         }
-        var ret = sockaddr_in6()
-        var stor = storage
-        memcpy(mutablePointer(of: &ret).mutableRawPointer,
-               pointer(of: &stor).rawPointer,
-               MemoryLayout<sockaddr_in6>.size)
-        return ret
+        return unsafeCast(of: storage, cast: sockaddr_in6.self)
     }
     
     public var socklen: socklen_t {
