@@ -8,8 +8,7 @@ public struct Socket : FileDescriptorRepresentable {
     }
     
     public init(raw: Int32) {
-//        assert(raw > 0)
-        print("raw = \(raw)")
+        assert(raw > 0)
         self.fileDescriptor = raw
     }
 }
