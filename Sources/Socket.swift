@@ -11,6 +11,30 @@ public struct Socket : FileDescriptorRepresentable {
         assert(raw > 0)
         self.fileDescriptor = raw
     }
+    
+    public static func makePair(domain: SocketDomains, type: SocketTypes, `protocol`: Int32)
+        throws -> (Socket, Socket)
+    {
+        var pair = [Int32](repeating: 0, count: 2)
+        
+        _ = try guarding("socketpair") {
+            xlibc.socketpair(Int32(domain.rawValue), type.rawValue, `protocol`, &pair)
+        }
+        
+        return (Socket(raw: pair[0]), Socket(raw: pair[1]))
+    }
+    
+    public var blocking: Bool {
+        get {
+            return !self.flags.contains(.nonblock)
+        } set {
+            if newValue {
+                self.flags.remove(.nonblock)
+            } else {
+                self.flags.insert(.nonblock)
+            }
+        }
+    }
 }
 
 public struct RecvFlags: OptionSet {
@@ -35,6 +59,8 @@ public struct RecvFlags: OptionSet {
     
     /// do not block
     public static let dontWait = RecvFlags(rawValue: MSG_DONTWAIT)
+    
+    public static let none = RecvFlags(rawValue: 0)
     
     #if os(FreeBSD)
     /// Do not block after receiving the first message (only for `recvmmsg()`)
@@ -70,6 +96,8 @@ public struct SendFlags: OptionSet {
     /// do not block
     public static let dontWait = SendFlags(rawValue: MSG_DONTWAIT)
     
+    public static let none = SendFlags(rawValue: 0)
+    
     #if os(Linux) || os(FreeBSD)
     
     /// do not generate sigpipe
@@ -81,7 +109,7 @@ extension Socket {
     
     public func bind(_ addr: SocketAddress) throws {
         var addr = addr
-        _ = try throwsys("bind") {
+        _ = try guarding("bind") {
             xlibc.bind(fileDescriptor, addr.addrptr(), addr.socklen)
         }
     }
@@ -93,13 +121,17 @@ extension Socket {
                 return
             }
             inet.sin_port = port.byteSwapped
-            _ = xlibc.bind(fileDescriptor, pointer(of: &inet).cast(to: sockaddr.self), addr.socklen)
+            _ = xlibc.bind(fileDescriptor,
+                           pointer(of: &inet).cast(to: sockaddr.self),
+                           addr.socklen)
         case .inet6:
             guard var inet6 = addr.inet6() else {
                 return
             }
             inet6.sin6_port = port.byteSwapped
-            _ = xlibc.bind(fileDescriptor, pointer(of: &inet6).cast(to: sockaddr.self), addr.socklen)
+            _ = xlibc.bind(fileDescriptor,
+                           pointer(of: &inet6).cast(to: sockaddr.self),
+                           addr.socklen)
         default:
             break
         }
@@ -110,7 +142,7 @@ extension Socket {
         var addr = _sockaddr_storage()
         var socklen: socklen_t = 0
         
-        let fd = try throwsys("accept") {
+        let fd = try guarding("accept") {
             xlibc.accept(self.fileDescriptor,
                          mutablePointer(of: &addr).cast(to: sockaddr.self),
                          &socklen)
@@ -121,44 +153,56 @@ extension Socket {
     
     public func connect(to addr: SocketAddress) throws {
         var addr = addr
-        _ = try throwsys("connect") {
+        _ = try guarding("connect") {
             xlibc.connect(fileDescriptor, addr.addrptr(), addr.socklen)
         }
     }
     
     public func listen(_ backlog: Int32 = Int32(Int32.max)) throws {
-        _ = try throwsys("listen") {
+        _ = try guarding("listen") {
             xlibc.listen(fileDescriptor, backlog)
         }
     }
     
     @discardableResult
-    public func send(bytes: PointerType, length: Int, flags: SendFlags) throws -> Int {
-        return try throwsys("send") {
+    public func send(bytes: PointerType,
+                     length: Int, flags: SendFlags) throws -> Int {
+        return try guarding("send") {
             xlibc.send(fileDescriptor, bytes.rawPointer, length, flags.rawValue)
         }
     }
     
     @discardableResult
-    public func recv(to buffer: MutablePointerType, length: Int, flags: RecvFlags) throws -> Int {
-        return try throwsys("send") {
-            xlibc.recv(fileDescriptor, buffer.mutableRawPointer, length, flags.rawValue)
+    public func recv(to buffer: MutablePointerType,
+                     length: Int, flags: RecvFlags) throws -> Int {
+        return try guarding("recv") {
+            xlibc.recv(fileDescriptor,
+                       buffer.mutableRawPointer,
+                       length, flags.rawValue)
         }
     }
     
     @discardableResult
-    public func send(to dest: SocketAddress, bytes: PointerType, length: Int, flags: SendFlags) throws -> Int {
+    public func send(to dest: SocketAddress,
+                     bytes: PointerType,
+                     length: Int, flags: SendFlags) throws -> Int {
         var dest = dest
-        return try throwsys("sendto") {
-            sendto(fileDescriptor, bytes.rawPointer, length, flags.rawValue, dest.addrptr(), dest.socklen)
+        return try guarding("sendto") {
+            sendto(fileDescriptor, bytes.rawPointer, length,
+                   flags.rawValue, dest.addrptr(), dest.socklen)
         }
     }
     
     @discardableResult
-    public func received(to buffer: MutablePointerType, length: Int, flags: RecvFlags) throws -> (sender: SocketAddress, size: Int) {
+    public func received(to buffer: MutablePointerType,
+                         length: Int, flags: RecvFlags)
+        throws -> (sender: SocketAddress, size: Int) {
+            
         var storage = _sockaddr_storage()
-        let i = try throwsys("recvfrom") {
-            recvfrom(fileDescriptor, buffer.mutableRawPointer, length, flags.rawValue, mutablePointer(of: &storage).cast(to: sockaddr.self), nil)
+        let i = try guarding("recvfrom") {
+            recvfrom(fileDescriptor,
+                     buffer.mutableRawPointer, length, flags.rawValue,
+                     mutablePointer(of: &storage).cast(to: sockaddr.self), nil)
         }
         
         return (sender: SocketAddress(storage: storage), size: i)
@@ -169,13 +213,16 @@ extension Socket {
     
     func setsock<ArgType>(opt: SocketOptions, value: ArgType) {
         var _val = value
-        setsockopt(fileDescriptor, opt.layer, opt.rawValue, pointer(of: &_val).rawPointer, socklen_t(MemoryLayout<ArgType>.size))
+        setsockopt(fileDescriptor, opt.layer, opt.rawValue,
+                   pointer(of: &_val).rawPointer,
+                   socklen_t(MemoryLayout<ArgType>.size))
     }
     
     func getsock<ArgType>(opt: SocketOptions) -> ArgType {
         var ret: ArgType!
         var size = socklen_t(MemoryLayout<ArgType>.size)
-        getsockopt(fileDescriptor, opt.layer, opt.rawValue, mutablePointer(of: &ret).mutableRawPointer, &size)
+        getsockopt(fileDescriptor, opt.layer, opt.rawValue,
+                   mutablePointer(of: &ret).mutableRawPointer, &size)
         return ret
     }
     
