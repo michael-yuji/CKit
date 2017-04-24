@@ -35,7 +35,8 @@ public struct Epoll: FileDescriptorRepresentable {
     
     
     public func add(fd: Int32, for events: EpollEvents) {
-        var ev = epoll_event(events: events.rawValue, data: epoll_data_t(fd: fd)) // to use pointer
+        var ev = epoll_event(events: events.rawValue,
+                             data: epoll_data_t(fd: fd)) // to use pointer
         _ = epoll_ctl(self.fileDescriptor, EPOLL_CTL_ADD, fd, &ev)
     }
     

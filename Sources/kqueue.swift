@@ -92,7 +92,7 @@ extension KernelQueue {
     
     public func commit(todo: KQueueToDoList) throws {
         var events = todo.events
-        _ = try throwsys("keven") {
+        _ = try guarding("keven") {
             __kevent(&events)
         }
     }
@@ -108,7 +108,7 @@ extension KernelQueue {
             timeout_pointer = pointer(of: &timeout)
         }
         
-        let returnedEventsCount = try throwsys("kevent", { () -> Int32 in
+        let returnedEventsCount = try guarding("kevent", { () -> Int32 in
             changeList == nil
                 ? __kevent(&eventsBuffer, timeout: timeout_pointer)
                 : __kevent(&changeList!, &eventsBuffer, timeout: timeout_pointer)

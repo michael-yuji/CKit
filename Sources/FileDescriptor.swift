@@ -78,11 +78,12 @@ public enum FileDescriptorOwner {
 }
 
 public extension FileDescriptorRepresentable {
+
     public var flags: FileControlFlags {
         get {
             return FileControlFlags(rawValue: xlibc.fcntl(fileDescriptor, F_GETFL, 0))
         } set {
-            flags = FileControlFlags(rawValue: xlibc.fcntl(fileDescriptor, F_GETFL, newValue.rawValue))
+            _ = xlibc.fcntl(fileDescriptor, F_SETFL, newValue.rawValue)
         }
     }
     
@@ -91,7 +92,8 @@ public extension FileDescriptorRepresentable {
     }
     
     public mutating func insert(flags: FileControlFlags) {
-        self.flags = self.flags.insert(flags).memberAfterInsert
+        var flags = self.flags
+        self.flags = flags.insert(flags).memberAfterInsert
     }
     
     public mutating func remove(flags: FileControlFlags) {
@@ -104,12 +106,12 @@ public extension FileDescriptorRepresentable {
     
     public var signalOwner: FileDescriptorOwner {
         let pid = fcntl(fileDescriptor, F_GETOWN)
-        return pid == -1 ? .error(SystemError.lastest("fcntl:FL_GETOWN"))
+        return pid == -1 ? .error(SystemError.last("fcntl:FL_GETOWN"))
             : pid < 0 ? .group(abs(pid)) : .process(pid)
     }
     
     public func setSignalOwner(pid: pid_t) throws {
-        _ = try throwsys("fcntl:F_SETOWN") {
+        _ = try guarding("fcntl:F_SETOWN") {
             fcntl(fileDescriptor, F_SETOWN, pid)
         }
     }
@@ -123,28 +125,28 @@ public extension FileDescriptorRepresentable {
     
     @discardableResult
     public func write(bytes: PointerType, length: Int) throws -> Int {
-        return try throwsys("write") {
+        return try guarding("write") {
             xlibc.write(fileDescriptor, bytes.rawPointer, length)
         }
     }
     
     @discardableResult
     public func readBytes(to buffer: MutablePointerType, length: Int) throws -> Int {
-        return try throwsys("read") {
+        return try guarding("read") {
             xlibc.read(fileDescriptor, buffer.mutableRawPointer, length)
         }
     }
 
     @discardableResult
     public func vectorWrite(_ vectors: [xlibc.iovec]) throws -> Int {
-        return try throwsys("writev") {
+        return try guarding("writev") {
             xlibc.writev(fileDescriptor, vectors, Int32(vectors.count))
         }
     }
     
     @discardableResult
     public func pwrite(bytes: PointerType, length: Int, at offset: off_t) throws -> Int {
-        return try throwsys("pwrite") {
+        return try guarding("pwrite") {
             xlibc.pwrite(fileDescriptor, bytes.rawPointer, length, offset)
         }
     }
@@ -154,7 +156,7 @@ public extension FileDescriptorRepresentable {
         let vectors = collection.map{
             unsafeBitCast(ConstIovec(iov_base: $0.bytesPointer, iov_len: $0.size), to: iovec.self)
         }
-        return try throwsys("writev") {
+        return try guarding("writev") {
             xlibc.writev(fileDescriptor, vectors, Int32(vectors.count))
         }
     }

@@ -51,33 +51,32 @@ public struct POSIXFileTypes : RawRepresentable, CustomStringConvertible {
     #endif
 
     public var description: String {
-        #if os(OSX) || os(FreeBSD)
-            switch self.rawValue {
-            case POSIXFileTypes.unknown.rawValue: return "unknown"
-            case POSIXFileTypes.namedPipe.rawValue: return "namedPipe"
-            case POSIXFileTypes.characterDevice.rawValue: return "chracterDevice"
-            case POSIXFileTypes.directory.rawValue: return "directory"
-            case POSIXFileTypes.blockDevice.rawValue: return "blockDevice"
-            case POSIXFileTypes.regular.rawValue: return "regular"
-            case POSIXFileTypes.symbolicLink.rawValue: return "softlink"
-            case POSIXFileTypes.socket.rawValue: return "socket"
-            case POSIXFileTypes.whiteOut.rawValue: return "whiteout"
-            default: return "Invalid val"
+        switch self.rawValue {
+            case POSIXFileTypes.unknown.rawValue:
+                return "unknown"
+            case POSIXFileTypes.namedPipe.rawValue:
+                return "namedPipe"
+            case POSIXFileTypes.characterDevice.rawValue:
+                return "chracterDevice"
+            case POSIXFileTypes.directory.rawValue:
+                return "directory"
+            case POSIXFileTypes.blockDevice.rawValue:
+                return "blockDevice"
+            case POSIXFileTypes.regular.rawValue:
+                return "regular"
+            case POSIXFileTypes.symbolicLink.rawValue:
+                return "softlink"
+            case POSIXFileTypes.socket.rawValue:
+                return "socket"
+            default:
+                #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS) || os(FreeBSD)
+                if self.rawValue == POSIXFileTypes.whiteOut.rawValue {
+                    return "whiteout"
+                }
+                #endif
+                return "Invalid val"
             }
-        #else
-
-            switch self.rawValue {
-            case POSIXFileTypes.unknown.rawValue: return "unknown"
-            case POSIXFileTypes.namedPipe.rawValue: return "namedPipe"
-            case POSIXFileTypes.characterDevice.rawValue: return "chracterDevice"
-            case POSIXFileTypes.directory.rawValue: return "directory"
-            case POSIXFileTypes.blockDevice.rawValue: return "blockDevice"
-            case POSIXFileTypes.regular.rawValue: return "regular"
-            case POSIXFileTypes.symbolicLink.rawValue: return "softlink"
-            case POSIXFileTypes.socket.rawValue: return "socket"
-            default: return "Invalid val"
-            }
-        #endif
+        
     }
 
     public init(rawValue: DirentRawType) {
@@ -87,7 +86,8 @@ public struct POSIXFileTypes : RawRepresentable, CustomStringConvertible {
 
 public typealias Dirent = DirectoryEntry
 
-public struct DirectoryEntry: CustomStringConvertible {
+public struct DirectoryEntry : CustomStringConvertible
+{
     public var name: String
     public var ino: ino_t
     public var size: Int
@@ -102,9 +102,11 @@ public struct DirectoryEntry: CustomStringConvertible {
     }
 
     public var description: String {
-        get {
-            return String.alignedText( strings: name, "\(ino)", "\(size)", "\(type)", spaces: [25, 10, 7, 15])
-        }
+        return "\(name) : \(type) {\n  ino: \(ino)\n  size: \(size)\n}"
+    }
+    
+    public var formattedString: String {
+        return String.alignedText( strings: name, "\(ino)", "\(size)", "\(type)", spaces: [25, 10, 7, 15])
     }
 }
 

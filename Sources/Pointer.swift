@@ -137,7 +137,7 @@ extension UnsafeRawPointer: PointerType {
 }
 extension UnsafeBufferPointer: PointerType {
     public var rawPointer: UnsafeRawPointer {
-        return unsafeBitCast(self, to: UnsafeRawPointer.self)
+        return self.baseAddress!.rawPointer
     }
 }
 
@@ -163,10 +163,10 @@ extension UnsafeMutableRawPointer: MutablePointerType {
 
 extension UnsafeMutableBufferPointer: MutablePointerType {
     public var mutableRawPointer: UnsafeMutableRawPointer {
-        return unsafeBitCast(self, to: UnsafeMutableRawPointer.self)
+        return self.baseAddress!.mutableRawPointer
     }
 
     public var rawPointer: UnsafeRawPointer {
-        return unsafeBitCast(self, to: UnsafeRawPointer.self)
+        return self.baseAddress!.rawPointer
     }
 }

@@ -202,6 +202,13 @@ extension SocketAddress {
         return unsafeCast(of: storage, cast: sockaddr_in6.self)
     }
     
+    public func unix() -> sockaddr_un? {
+        if self.type != .unix {
+            return nil
+        }
+        return unsafeCast(of: storage, cast: sockaddr_un.self)
+    }
+    
     public var socklen: socklen_t {
         #if !os(Linux)
         return socklen_t(self.storage.ss_len)

@@ -76,7 +76,7 @@ public extension String {
     public static func alignedText(strings: String..., spaces: [Int]) -> String {
         let astr = strings.enumerated().map { (index, string) -> String in
             var temp = string
-            let space_to_insert = spaces[index] - string.characters.count
+            let space_to_insert = max(0, spaces[index] - string.characters.count)
             for _ in 0 ..< space_to_insert {
                 temp.append(Character(" "))
             }

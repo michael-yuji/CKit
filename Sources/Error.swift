@@ -6,7 +6,18 @@ public struct SystemError: Error, CustomStringConvertible {
         return "\(umsg ?? ""): " + String(cString: xlibc.strerror(errno))
     }
     
-    public static func lastest(_ umsg: String?) -> SystemError {
+    public static func last(_ umsg: String?) -> SystemError {
         return SystemError(errno: xlibc.errno, umsg: umsg)
+    }
+    
+    public func catching<T>(errorCodes: [Int32],
+                         _ syscall: () throws -> T) rethrows -> T? {
+        do {
+            return try syscall()
+        } catch is SystemError {
+            return nil
+        } catch {
+            throw error
+        }
     }
 }
