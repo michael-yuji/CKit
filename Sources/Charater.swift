@@ -30,8 +30,6 @@
 //  Copyright © 2016 yuuji. All rights reserved.
 //
 
-import Foundation
-
 public extension Character {
     public static var null: Character {
         return Character(UnicodeScalar.init(0))

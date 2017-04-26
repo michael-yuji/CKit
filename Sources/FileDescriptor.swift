@@ -34,9 +34,12 @@ public protocol FileDescriptorRepresentable {
     var fileDescriptor: Int32 { get set }
 }
 
-public protocol CustomRawBytesRepresentable {
-    var size: Int { get }
-    var bytesPointer: UnsafeRawPointer { get }
+public typealias CustomRawBytesRepresentable = RawBufferRepresentable
+
+public protocol RawBufferRepresentable {
+    var rawBufferRepresentation: UnsafeRawBufferPointer { get }
+    func rawBufferReleased(_ buffer: UnsafeRawBufferPointer)
+    func rawBufferRetained(_ buffer: UnsafeRawBufferPointer)
 }
 
 public struct AccessMode: OptionSet, CustomStringConvertible {
@@ -54,8 +57,8 @@ public struct AccessMode: OptionSet, CustomStringConvertible {
     public static let write = AccessMode(O_WRONLY)
     
     public var description: String {
-        return "\(self.contains(.read) ? "r" : "-")"
-            + "\(self.contains(.write) ? "w" : "-")"
+        return (self.contains(.read) ? "r" : "-")
+                + (self.contains(.write) ? "w" : "-")
     }
 }
 
@@ -124,16 +127,56 @@ public extension FileDescriptorRepresentable {
     }
     
     @discardableResult
-    public func write(bytes: PointerType, length: Int) throws -> Int {
+    public func write(bytes: Pointer, length: Int) throws -> Int {
         return try guarding("write") {
             xlibc.write(fileDescriptor, bytes.rawPointer, length)
         }
     }
     
     @discardableResult
-    public func readBytes(to buffer: MutablePointerType, length: Int) throws -> Int {
+    public func write(buffer: BufferPointer) throws -> Int {
+        return try guarding("write") {
+            xlibc.write(fileDescriptor,
+                        buffer.rawBuffer.baseAddress!,
+                        buffer.rawBuffer.count)
+        }
+    }
+    
+    @discardableResult
+    public func pread(bytes: Pointer, length: Int, at offset: off_t) throws -> Int {
+        return try guarding("pwrite") {
+            xlibc.pwrite(fileDescriptor, bytes.rawPointer, length, offset)
+        }
+    }
+    
+    @discardableResult
+    public func pread(buffer: BufferPointer, at offset: off_t) throws -> Int {
+        return try guarding("pwrite") {
+            xlibc.pwrite(fileDescriptor,
+                         buffer.rawBuffer.rawPointer,
+                         buffer.rawBuffer.count, offset)
+        }
+    }
+    
+    @available(*, deprecated, message: "use read instead")
+    @discardableResult
+    public func readBytes(to address: MutablePointer, length: Int) throws -> Int {
+        return try read(to: address, length: length)
+    }
+    
+    @discardableResult
+    public func read(to address: MutablePointer, length: Int) throws -> Int {
         return try guarding("read") {
-            xlibc.read(fileDescriptor, buffer.mutableRawPointer, length)
+            xlibc.read(fileDescriptor, address.mutableRawPointer, length)
+        }
+    }
+    
+    @discardableResult
+    public func read(to buffer: MutableBufferPointer) throws -> Int {
+        return try guarding("read") {
+            xlibc.read(fileDescriptor,
+                       buffer.mutableRawBuffer.baseAddress!,
+                       buffer.mutableRawBuffer.count)
         }
     }
 
@@ -145,19 +188,47 @@ public extension FileDescriptorRepresentable {
     }
     
     @discardableResult
-    public func pwrite(bytes: PointerType, length: Int, at offset: off_t) throws -> Int {
+    public func vectorWrite(_ vector: [BufferPointer]) throws -> Int {
+        return try guarding("writev") {
+            xlibc.writev(fileDescriptor,
+                         vector.map{$0.rawBuffer.iovec},
+                         Int32(vector.count))
+        }
+    }
+    
+    @discardableResult
+    public func pwrite(bytes: Pointer, length: Int, at offset: off_t) throws -> Int {
         return try guarding("pwrite") {
             xlibc.pwrite(fileDescriptor, bytes.rawPointer, length, offset)
         }
     }
     
     @discardableResult
-    public func write(collection: AnyCollection<CustomRawBytesRepresentable>) throws -> Int {
-        let vectors = collection.map{
-            unsafeBitCast(ConstIovec(iov_base: $0.bytesPointer, iov_len: $0.size), to: iovec.self)
+    public func pwrite(buffer: BufferPointer, at offset: off_t) throws -> Int {
+        return try guarding("pwrite") {
+            xlibc.pwrite(fileDescriptor,
+                         buffer.rawBuffer.rawPointer,
+                         buffer.rawBuffer.count, offset)
         }
-        return try guarding("writev") {
-            xlibc.writev(fileDescriptor, vectors, Int32(vectors.count))
+    }
+    
+    @discardableResult
+    public func write(collection: AnyCollection<RawBufferRepresentable>) throws -> Int {
+        let vectors = collection.map{ (buffer) -> iovec in
+            let rawBuffer = buffer.rawBufferRepresentation
+            buffer.rawBufferRetained(rawBuffer)
+            return rawBuffer.iovec
+        }
+
+        return try guarding("writev")
+        {
+            let ret = xlibc.writev(fileDescriptor, vectors, Int32(vectors.count))
+            
+            zip(collection, vectors).forEach {
+                $0.0.rawBufferReleased($0.1.buffer)
+            }
+    
+            return ret
         }
     }
 }

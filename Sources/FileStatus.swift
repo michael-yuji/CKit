@@ -79,25 +79,26 @@ public extension FileStatus {
     public var blocksCount: Int {
         return Int(stat_.st_blocks)
     }
-    public var lastAccessDate: Date {
+
+    public var lastAccessDate: time_t {
         #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
-        return Date(timeIntervalSince1970: TimeInterval(stat_.st_atimespec.tv_sec))
+        return stat_.st_atimespec.tv_sec
         #elseif os(FreeBSD) || os(Linux)
-        return Date(timeIntervalSince1970: TimeInterval(stat_.st_atim.tv_sec))
+        return stat_.st_atim.tv_sec
         #endif
     }
-    public var modificationDate: Date {
+    public var modificationDate: time_t {
         #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
-            return Date(timeIntervalSince1970: TimeInterval(stat_.st_mtimespec.tv_sec))
+            return stat_.st_mtimespec.tv_sec
         #elseif os(FreeBSD) || os(Linux)
-            return Date(timeIntervalSince1970: TimeInterval(stat_.st_mtim.tv_sec))
+            return stat_.st_mtim.tv_sec
         #endif
     }
-    public var lastStatusChange: Date {
+    public var lastStatusChange: time_t {
         #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
-            return Date(timeIntervalSince1970: TimeInterval(stat_.st_ctimespec.tv_sec))
+            return stat_.st_ctimespec.tv_sec
         #elseif os(FreeBSD) || os(Linux)
-            return Date(timeIntervalSince1970: TimeInterval(stat_.st_ctim.tv_sec))
+            return stat_.st_ctim.tv_sec
         #endif
     }
 }

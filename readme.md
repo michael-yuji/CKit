@@ -28,7 +28,7 @@ do {
     var buffer = Data(count: 100)
 
     _ = buffer.withUnsafeMutableBytes { (ptr: UnsafeMutablePointer<Int8>) in
-        try! accepted.readBytes(to: ptr, length: accepted.bytesAvailable)
+        try! accepted.read(to: ptr, length: accepted.bytesAvailable)
         print(String(cString: ptr))
     }
 

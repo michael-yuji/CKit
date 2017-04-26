@@ -30,16 +30,19 @@
 //  Copyright © 2017 Yuji. All rights reserved.
 //
 
-public class Group {
-    public static var currentGroup = Group(gid: User.currentUser.gid)
+public struct Group {
+    
+    public static var current = Group(gid: User.currentUser.gid)
+    
+    var group: _group
+
+    var cGroup: group {
+        return group.cGroup
+    }
     
     public var gid: gid_t {
         return cGroup.gr_gid
     }
-    
-    public var cGroup: group = group()
-    
-    var bufferptr: UnsafeMutableRawPointer
     
     public var name: String {
         return String(cString: cGroup.gr_name)
@@ -64,26 +67,43 @@ public class Group {
         return mem
     }
     
-    
     public init(gid: gid_t) {
-        bufferptr = malloc(System.sizes.getgrp_r_bufsize)
-        var ptr: UnsafeMutablePointer<group>? = nil
-        getgrgid_r(gid, &self.cGroup,
-                   bufferptr.assumingMemoryBound(to: Int8.self),
-                   System.sizes.getgrp_r_bufsize - 1,
-                   &ptr)
+        self.group = _group(gid: gid)
     }
     
     public init(name: String) {
-        bufferptr = malloc(System.sizes.getgrp_r_bufsize)
-        var ptr: UnsafeMutablePointer<group>? = nil
-        getgrnam_r(name, &self.cGroup,
-                   bufferptr.assumingMemoryBound(to: Int8.self),
-                   System.sizes.getgrp_r_bufsize - 1,
-                   &ptr)
+        self.group = _group(name: name)
     }
-    
-    deinit {
-        free(bufferptr)
+}
+
+extension Group {
+    class _group {
+        var cGroup: group = xlibc.group()
+        
+        var bufferptr: UnsafeMutablePointer<Int8>
+        
+        init(gid: gid_t) {
+            bufferptr = UnsafeMutablePointer<Int8>
+                .allocate(capacity: System.sizes.getgrp_r_bufsize)
+            var ptr: UnsafeMutablePointer<group>? = nil
+            getgrgid_r(gid, &self.cGroup,
+                       bufferptr,
+                       System.sizes.getgrp_r_bufsize,
+                       &ptr)
+        }
+        
+        init(name: String) {
+            bufferptr = UnsafeMutablePointer<Int8>
+                .allocate(capacity: System.sizes.getgrp_r_bufsize)
+            var ptr: UnsafeMutablePointer<group>? = nil
+            getgrnam_r(name, &self.cGroup,
+                       bufferptr,
+                       System.sizes.getgrp_r_bufsize,
+                       &ptr)
+        }
+        
+        deinit {
+            bufferptr.deallocate(capacity: System.sizes.getgrp_r_bufsize)
+        }
     }
 }
