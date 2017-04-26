@@ -56,6 +56,35 @@ do {
 client.close()
 ```
 
+to set a socket to non-blocking, simply set the `blocking` to false, to switch to blocking, set it to false
+
+```swift
+sock.blocking = false
+```
+
+other settings includes:
+- reuseaddr
+- reuseport
+- sendBufferSize
+- recvBufferSize
+- debug
+- sendTimeout
+- recvTimeout
+- keepalive
+- broadcast
+- noSigpipe (BSD systems only)
+
+## Network interfaces
+
+Getting network interfaces is fairly simple
+```swift
+let interfaces = NetworkInterface.interfaces
+// filter to ipv4 interfaces
+let inetIfx = interfaces.filter{$0.address?.type == .inet}
+// get interface by name
+let en0 = NetworkInterface.interface(named: "en0", support: .inet)
+```
+
 ## Pointer
 
 Although swift can call C API directly, swift has not provided an easy way to access pointer of non-Foundation object, and it is even harder to cast a pointer to unrelated types. An Example use is in socket to cast different types of sockaddr. See the `pointer(of:)` and `mutablePointer(of:)` example in KernelQueue/Epoll section of this readme.
