@@ -30,6 +30,24 @@
 //  Copyright © 2016 yuuji. All rights reserved.
 //
 
+public typealias PointerType = Pointer
+public typealias MutablePointerType = MutablePointer
+public protocol Pointer : IntegerValueConvertiable {
+    var rawPointer: UnsafeRawPointer {get}
+}
+
+public protocol MutablePointer : Pointer {
+    var mutableRawPointer: UnsafeMutableRawPointer {get}
+}
+
+public protocol BufferPointer {
+    var rawBuffer: UnsafeRawBufferPointer {get}
+}
+
+public protocol MutableBufferPointer : BufferPointer {
+    var mutableRawBuffer: UnsafeMutableRawBufferPointer { get }
+}
+
 @inline(__always)
 public func pointer<T>(of obj: inout T, advancedBy distance: Int = 0) -> UnsafePointer<T> {
     let ghost: (UnsafePointer<T>) -> UnsafePointer<T> = {$0}
@@ -58,12 +76,6 @@ func mCast<T, X>(of obj: inout T, cast: X.Type) -> UnsafeMutablePointer<X> {
     return mutablePointer(of: &obj).cast(to: X.self)
 }
 
-
-public struct ConvenientPointer<T> {
-    public var pointer: UnsafeMutablePointer<T>
-    public var size: Int
-}
-
 public extension UnsafeMutablePointer {
     @inline(__always)
     func cast<T>(to type: T.Type, NItems count: Int = 1) -> UnsafeMutablePointer<T> {
@@ -86,12 +98,12 @@ public extension UnsafeMutableRawPointer {
 }
 
 extension Int {
-    func asPointer() -> UnsafeMutableRawPointer {
+    public func asPointer() -> UnsafeMutableRawPointer {
         return UnsafeMutableRawPointer(bitPattern: self)!
     }
 }
 
-extension PointerType {
+extension Pointer {
     
     public var description: String {
         return "\(self)"
@@ -107,41 +119,49 @@ extension PointerType {
     }
 }
 
-extension Array: PointerType {
+extension Array: Pointer {
     private static func toPointer<T>(_ p: UnsafePointer<T>) -> UnsafePointer<T> {
         return p
     }
 
     public var rawPointer: UnsafeRawPointer {
-        return Array.toPointer(self).rawPointer}
+        return Array.toPointer(self).rawPointer
+    }
 }
 
-public protocol PointerType : IntegerValueConvertiable {
-    var rawPointer: UnsafeRawPointer {get}
-}
-
-public protocol MutablePointerType : PointerType {
-    var mutableRawPointer: UnsafeMutableRawPointer {get}
-}
-
-extension UnsafePointer: PointerType {
+extension UnsafePointer: Pointer {
     public var rawPointer: UnsafeRawPointer {
         return UnsafeRawPointer(self)
     }
 }
 
-extension UnsafeRawPointer: PointerType {
+extension UnsafeRawPointer: Pointer {
     public var rawPointer: UnsafeRawPointer {
         return self
     }
 }
-extension UnsafeBufferPointer: PointerType {
+
+extension UnsafeBufferPointer: Pointer, BufferPointer {
     public var rawPointer: UnsafeRawPointer {
         return self.baseAddress!.rawPointer
     }
+    
+    public var rawBuffer: UnsafeRawBufferPointer{
+        return UnsafeRawBufferPointer(self)
+    }
 }
 
-extension UnsafeMutablePointer: MutablePointerType {
+extension UnsafeRawBufferPointer: Pointer, BufferPointer {
+    public var rawPointer: UnsafeRawPointer {
+        return self.baseAddress!
+    }
+    
+    public var rawBuffer: UnsafeRawBufferPointer {
+        return self
+    }
+}
+
+extension UnsafeMutablePointer: MutablePointer {
     public var mutableRawPointer: UnsafeMutableRawPointer {
         return UnsafeMutableRawPointer(self)
     }
@@ -151,7 +171,7 @@ extension UnsafeMutablePointer: MutablePointerType {
     }
 }
 
-extension UnsafeMutableRawPointer: MutablePointerType {
+extension UnsafeMutableRawPointer: MutablePointer {
     public var mutableRawPointer: UnsafeMutableRawPointer {
         return self
     }
@@ -161,12 +181,48 @@ extension UnsafeMutableRawPointer: MutablePointerType {
     }
 }
 
-extension UnsafeMutableBufferPointer: MutablePointerType {
+extension UnsafeMutableBufferPointer: MutablePointer, MutableBufferPointer {
     public var mutableRawPointer: UnsafeMutableRawPointer {
         return self.baseAddress!.mutableRawPointer
     }
 
     public var rawPointer: UnsafeRawPointer {
         return self.baseAddress!.rawPointer
+    }
+    
+    public var rawBuffer: UnsafeRawBufferPointer {
+        return UnsafeRawBufferPointer(self)
+    }
+    
+    public var mutableRawBuffer: UnsafeMutableRawBufferPointer {
+        return UnsafeMutableRawBufferPointer(self)
+    }
+}
+
+extension UnsafeMutableRawBufferPointer: Pointer, MutableBufferPointer {
+    public var rawPointer: UnsafeRawPointer {
+        return UnsafeRawPointer(self.baseAddress!)
+    }
+    
+    public var mutableRawPointer: UnsafeMutableRawPointer {
+        return self.baseAddress!
+    }
+    
+    public var mutableRawBuffer: UnsafeMutableRawBufferPointer {
+        return self
+    }
+    
+    public var rawBuffer: UnsafeRawBufferPointer {
+        return UnsafeRawBufferPointer(self)
+    }
+}
+
+extension OpaquePointer {
+    public var mutableRawPointer: UnsafeMutableRawPointer {
+        return UnsafeMutableRawPointer(self)
+    }
+    
+    public var rawPointer: UnsafeRawPointer {
+        return UnsafeRawPointer(self)
     }
 }

@@ -35,6 +35,7 @@ extension CKitTests {
                 }
                 
                 break
+
             } catch {
                 // not going to happen
                 break
@@ -44,5 +45,11 @@ extension CKitTests {
         
         XCTAssertEqual(longStr, String(cString: buf!.assumingMemoryBound(to: CChar.self)))
         
+    }
+    
+    
+    func test_user() {
+        print(geteuid())
+        print(getuid())
     }
 }

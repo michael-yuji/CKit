@@ -165,7 +165,7 @@ extension Socket {
     }
     
     @discardableResult
-    public func send(bytes: PointerType,
+    public func send(bytes: Pointer,
                      length: Int, flags: SendFlags) throws -> Int {
         return try guarding("send") {
             xlibc.send(fileDescriptor, bytes.rawPointer, length, flags.rawValue)
@@ -173,7 +173,7 @@ extension Socket {
     }
     
     @discardableResult
-    public func recv(to buffer: MutablePointerType,
+    public func recv(to buffer: MutablePointer,
                      length: Int, flags: RecvFlags) throws -> Int {
         return try guarding("recv") {
             xlibc.recv(fileDescriptor,
@@ -184,7 +184,7 @@ extension Socket {
     
     @discardableResult
     public func send(to dest: SocketAddress,
-                     bytes: PointerType,
+                     bytes: Pointer,
                      length: Int, flags: SendFlags) throws -> Int {
         var dest = dest
         return try guarding("sendto") {
@@ -194,7 +194,7 @@ extension Socket {
     }
     
     @discardableResult
-    public func received(to buffer: MutablePointerType,
+    public func received(to buffer: MutablePointer,
                          length: Int, flags: RecvFlags)
         throws -> (sender: SocketAddress, size: Int) {
             

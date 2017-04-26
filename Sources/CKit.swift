@@ -32,23 +32,6 @@
 
 @_exported import xlibc
 
-public struct ConstIovec {
-    
-    public var iov_base: UnsafeRawPointer! /* [XSI] Base address of I/O memory region */
-    
-    public var iov_len: Int /* [XSI] Size of region iov_base points to */
-    
-    public init() {
-        iov_base = nil
-        iov_len = 0
-    }
-    
-    public init(iov_base: UnsafeRawPointer!, iov_len: Int) {
-        self.iov_base = iov_base
-        self.iov_len = iov_len
-    }
-}
-
 public protocol IntegerValueConvertiable {
     var integerValue: Int { get }
 }

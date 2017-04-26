@@ -1,5 +1,6 @@
 import XCTest
 import Dispatch
+import Foundation
 @testable import CKit
 
 class CKitTests: XCTestCase {
@@ -22,8 +23,7 @@ class CKitTests: XCTestCase {
 //            XCTAssertEqual(interface.address?.type, .inet)
 //        }
 //    }
-//
-	// MARK: Export all tests for Linux swift test
+
 	static var allTests : [(String, (CKitTests) -> () throws -> Void)] {
     return [
 //      ("init ipv4 SocketAddress", testIPv4Init),
