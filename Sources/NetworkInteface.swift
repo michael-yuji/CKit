@@ -40,7 +40,7 @@ public struct NetworkInterface: CustomStringConvertible {
     }
 
     public var isLoopback: Bool {
-        return contains(IFF_LOOPBACK) || name.hasPrefix("lo")
+        return contains(IFF_LOOPBACK)
     }
 
     public var noArp: Bool {
