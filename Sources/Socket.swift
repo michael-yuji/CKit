@@ -2,8 +2,14 @@
 public struct Socket : FileDescriptorRepresentable {
     public var fileDescriptor: Int32
     
+    @available(*, renamed: "init")
     public init(domain: SocketDomains, type: SocketTypes, protocol: Int32) {
         fileDescriptor = socket(Int32(domain.rawValue),
+                                type.rawValue, `protocol`)
+    }
+    
+    public init(family: SocketDomains, type: SocketTypes, protocol: Int32) {
+        fileDescriptor = socket(Int32(family.rawValue),
                                 type.rawValue, `protocol`)
     }
     

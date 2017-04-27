@@ -107,6 +107,28 @@ public struct System {
         }
     }
     
+    public struct DNS {
+        
+        public struct LookupResult {
+            public var officialHostname: String?
+            public var addrs: [SocketAddress]
+            init(name: String? = nil, results: [SocketAddress]) {
+                self.officialHostname = name
+                self.addrs = results
+            }
+        }
+        
+        public enum LookupOptions {
+            case family(SocketDomains)
+            case type(SocketTypes)
+            case `protocol`(Int32)
+            case fetchOriginalName
+            case fetchAll
+            case addrConf
+            case count(Int)
+        }
+    }
+    
     @available(*, deprecated, message: "use System.cpus.configuared instead")
     public static var cpusConfigured: Int {
         return sysconf(sys_conf_arg_t(_SC_NPROCESSORS_CONF))
@@ -160,5 +182,89 @@ public struct System {
     @available(*, deprecated, message: "use System.maximum.args instead")
     public static var maxArgsCount: Int {
         return sysconf(sys_conf_arg_t(_SC_ARG_MAX))
+    }
+}
+
+public extension System.DNS {
+
+    public static func lookup(host: String, service: String,
+                              options: LookupOptions...)
+        throws -> LookupResult {
+        return try lookup(host: host, service: service,
+                          port: false, options: options)
+    }
+    
+    public static func lookup(host: String, port: in_port_t,
+                              options: LookupOptions...)
+        throws -> LookupResult {
+        return try lookup(host: host, service: "\(port)",
+                          port: true, options: options)
+    }
+    
+    static func lookup(host: String, service: String, port: Bool,
+                       options: [LookupOptions]) throws -> LookupResult {
+
+        var info: UnsafeMutablePointer<addrinfo>?
+        var cinfo: UnsafeMutablePointer<addrinfo>?
+        var addrs = [SocketAddress]()
+        var hint = addrinfo()
+        var realhost: String?
+        
+        var count = Int.max
+        
+        for option in options {
+            switch option {
+            case .addrConf:
+                hint.ai_flags |= AI_ADDRCONFIG
+            case .fetchAll:
+                hint.ai_flags |= AI_ALL
+            case .fetchOriginalName:
+                hint.ai_flags |= AI_CANONNAME
+            case let .protocol(p):
+                hint.ai_protocol = p
+            case let .type(t):
+                hint.ai_socktype = t.rawValue
+            case let .family(d):
+                hint.ai_family = Int32(d.rawValue)
+            case let .count(c):
+                count = c
+            }
+        }
+        
+        if port {
+            hint.ai_flags |= AI_NUMERICSERV
+        }
+        
+        if getaddrinfo(host.cString(using: .utf8)!,
+                       service.cString(using: .utf8)!,
+                       &hint, &info) != 0 {
+            throw SystemError.last("getaddrinfo")
+        }
+        
+        if info!.pointee.ai_canonname != nil {
+            realhost = String(cString: info!.pointee.ai_canonname)
+        }
+        
+        
+        cinfo = info
+        
+        while cinfo != nil {
+            cinfo = cinfo!.pointee.ai_next
+            
+            if cinfo == nil {
+                continue
+            }
+            
+            if let addr = cinfo!.pointee.ai_addr {
+                addrs.append(SocketAddress(addr: addr))
+                count -= 1
+            }
+            
+            if count == 0 {
+                break
+            }
+        }
+        
+        return LookupResult(name: realhost, results: addrs)
     }
 }

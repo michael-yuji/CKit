@@ -11,6 +11,12 @@ public struct SystemError: Error, CustomStringConvertible {
     public static func last(_ umsg: String?) -> SystemError {
         return SystemError(errno: xlibc.errno, umsg: umsg)
     }
+    
+    public static func lastErrorString() -> String {
+        var buf = [CChar](repeating: 0, count: 128)
+        _ = xlibc.strerror_r(xlibc.errno, &buf, 128)
+        return String(cString: buf)
+    }
 }
 
 @inline(__always)
