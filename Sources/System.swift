@@ -107,6 +107,28 @@ public struct System {
         }
     }
     
+    public struct DNS {
+        
+        public struct LookupResult {
+            public var officialHostname: String?
+            public var addrs: [SocketAddress]
+            init(name: String? = nil, results: [SocketAddress]) {
+                self.officialHostname = name
+                self.addrs = results
+            }
+        }
+        
+        public enum LookupOptions {
+            case family(SocketDomains)
+            case type(SocketTypes)
+            case `protocol`(Int32)
+            case fetchOriginalName
+            case fetchAll
+            case addrConf
+            case count(Int)
+        }
+    }
+    
     @available(*, deprecated, message: "use System.cpus.configuared instead")
     public static var cpusConfigured: Int {
         return sysconf(sys_conf_arg_t(_SC_NPROCESSORS_CONF))
@@ -163,29 +185,7 @@ public struct System {
     }
 }
 
-public struct DNS {
-    
-    public struct LookupResult {
-        public var officialHostname: String?
-        public var addrs: [SocketAddress]
-        init(name: String? = nil, results: [SocketAddress]) {
-            self.officialHostname = name
-            self.addrs = results
-        }
-    }
-    
-    public enum LookupOptions {
-        case family(SocketDomains)
-        case type(SocketTypes)
-        case `protocol`(Int32)
-        case fetchOriginalName
-        case fetchAll
-        case addrConf
-        case count(Int)
-    }
-}
-
-public extension DNS {
+public extension System.DNS {
 
     public static func lookup(host: String, service: String,
                               options: LookupOptions...)
