@@ -72,26 +72,27 @@ extension SocketAddress {
 //        memcpy(mutablePointer(of: &self.storage).mutableRawPointer, addr.rawPointer, Int(addr.pointee.sa_len))
             let len = Int(addr.pointee.sa_len)
         #else
-            var len = MemoryLayout<sockaddr>.size
+            let len = Int(get_socklen_by_family(Int32(addr.pointee.sa_family)))
+//            var len = MemoryLayout<sockaddr>.size
             
-            switch SocketDomains(rawValue: addr.pointee.sa_family)! {
-            case .inet:
-                len = MemoryLayout<sockaddr_in>.size
-                
-            case .inet6:
-                len = MemoryLayout<sockaddr_in6>.size
-                
-            case .unix:
-                len = MemoryLayout<sockaddr_un>.size
+//            switch SocketDomains(rawValue: addr.pointee.sa_family)! {
+//            case .inet:
+//                len = MemoryLayout<sockaddr_in>.size
+//                
+//            case .inet6:
+//                len = MemoryLayout<sockaddr_in6>.size
+//                
+//            case .unix:
+//                len = MemoryLayout<sockaddr_un>.size
+//
+//            case .link:
+//                len = MemoryLayout<sockaddr_dl>.size
+//
+//            default:
+//                break
+//            }
 
-            case .link:
-                len = MemoryLayout<sockaddr_dl>.size
-
-            default:
-                break
-            }
-
-            memcpy(mutablePointer(of: &self.storage).mutableRawPointer, addr.rawPointer, len)
+//            memcpy(mutablePointer(of: &self.storage).mutableRawPointer, addr.rawPointer, len)
         #endif
         
         mutablePointer(of: &self.storage)

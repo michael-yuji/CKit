@@ -88,25 +88,47 @@ extension sockaddr {
     #endif
 }
 
+#if os(Linux)
+func get_socklen_by_family(_ family: Int32) -> UInt8 {
+    switch family {
+    case AF_INET:
+        return UInt8(MemoryLayout<sockaddr_in>.size)
+        
+    case AF_INET6:
+        return UInt8(MemoryLayout<sockaddr_in6>.size)
+        
+    case AF_UNIX:
+        return UInt8(MemoryLayout<sockaddr_un>.size)
+        
+    case AF_LINK:
+        return UInt8(MemoryLayout<sockaddr_dl>.size)
+
+    default:
+        return UInt8(MemoryLayout<sockaddr>.size)
+    }
+}
+#endif
+
 extension _sockaddr_storage {
     #if os(Linux)
     public var ss_len: UInt8 {
-        switch self.ss_family {
-            case sa_family_t(AF_INET):
-                return UInt8(MemoryLayout<sockaddr_in>.size)
-            
-            case sa_family_t(AF_INET6):
-                return UInt8(MemoryLayout<sockaddr_in6>.size)
-            
-            case sa_family_t(AF_UNIX):
-                return UInt8(MemoryLayout<sockaddr_un>.size)
-            
-            case sa_family_t(AF_LINK):
-                return UInt8(MemoryLayout<sockaddr_dl>.size)
-            
-            default:
-                return UInt8(MemoryLayout<sockaddr>.size)
-        }
+        return get_socklen_by_family(Int32(self.ss_family))
+//        switch self.ss_family {
+//            case sa_family_t(AF_INET):
+//                return UInt8(MemoryLayout<sockaddr_in>.size)
+//            
+//            case sa_family_t(AF_INET6):
+//                return UInt8(MemoryLayout<sockaddr_in6>.size)
+//            
+//            case sa_family_t(AF_UNIX):
+//                return UInt8(MemoryLayout<sockaddr_un>.size)
+//            
+//            case sa_family_t(AF_LINK):
+//                return UInt8(MemoryLayout<sockaddr_dl>.size)
+//            
+//            default:
+//                return UInt8(MemoryLayout<sockaddr>.size)
+//        }
     }
     #endif
 }

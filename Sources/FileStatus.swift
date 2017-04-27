@@ -172,8 +172,7 @@ public extension FileStatus {
         case EOVERFLOW:
             throw FileStatusError.overflow
         case -1:
-            perror("stat")
-            throw FileStatusError.badAddress
+            throw SystemError.last("stat")
         default:
             break
         }
