@@ -29,6 +29,8 @@
 //  Created by yuuji on 3/27/17.
 //
 
+import xlibc
+
 public struct Trigger {
     
     var kq: Int32

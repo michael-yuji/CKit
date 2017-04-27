@@ -69,7 +69,8 @@ extension SocketAddress {
     public init(addr: UnsafePointer<sockaddr>, port: in_port_t? = nil) {
         self.storage = _sockaddr_storage()
         #if !os(Linux)
-        memcpy(mutablePointer(of: &self.storage).mutableRawPointer, addr.rawPointer, Int(addr.pointee.sa_len))
+//        memcpy(mutablePointer(of: &self.storage).mutableRawPointer, addr.rawPointer, Int(addr.pointee.sa_len))
+            let len = Int(addr.pointee.sa_len)
         #else
             var len = MemoryLayout<sockaddr>.size
             
@@ -93,8 +94,11 @@ extension SocketAddress {
             memcpy(mutablePointer(of: &self.storage).mutableRawPointer, addr.rawPointer, len)
         #endif
         
+        mutablePointer(of: &self.storage)
+            .mutableRawPointer.copyBytes(from: addr.rawPointer, count: len)
+        
         if let port = port {
-            switch SocketDomains(rawValue: addr.pointee.sa_family)! {
+            switch SocketFamilies(rawValue: addr.pointee.sa_family)! {
             case .inet:
                 mutablePointer(of: &self.storage).cast(to: sockaddr_in.self).pointee.sin_port = port.byteSwapped
             case .inet6:
@@ -104,7 +108,7 @@ extension SocketAddress {
         }
     }
 
-    public init?(domain: SocketDomains, port: in_port_t) {
+    public init?(domain: SocketFamilies, port: in_port_t) {
         switch domain {
         case .inet:
             self.storage = _sockaddr_storage()
@@ -125,7 +129,7 @@ extension SocketAddress {
         }
     }
     
-    public init?(ip: String, domain: SocketDomains, port: in_port_t = 0) {
+    public init?(ip: String, domain: SocketFamilies, port: in_port_t = 0) {
         switch domain {
         case .inet:
             self.storage = _sockaddr_storage()
@@ -176,12 +180,19 @@ extension SocketAddress {
 }
 
 extension SocketAddress {
+    
+    @available(*, renamed: "socklen", deprecated, message: "use socklen instead")
     public var len: socklen_t {
         return socklen_t(storage.ss_len)
     }
     
-    public var type: SocketDomains {
-        return SocketDomains(rawValue: storage.ss_family)!
+    @available(*, renamed: "family")
+    public var type: SocketFamilies {
+        return SocketFamilies(rawValue: storage.ss_family)!
+    }
+    
+    public var family: SocketFamilies {
+        return SocketFamilies(rawValue: storage.ss_family)!
     }
     
     public func addr() -> sockaddr {
@@ -210,35 +221,7 @@ extension SocketAddress {
     }
     
     public var socklen: socklen_t {
-        #if !os(Linux)
         return socklen_t(self.storage.ss_len)
-        #else
-            switch self.type {
-            case .inet:
-                return socklen_t(MemoryLayout<sockaddr_in>.size)
-                
-            case .inet6:
-                return socklen_t(MemoryLayout<sockaddr_in6>.size)
-                
-            case .unix:
-                return socklen_t(MemoryLayout<sockaddr_un>.size)
-                
-            case .link:
-                return socklen_t(MemoryLayout<sockaddr_dl>.size)
-                
-//            case .x25:
-//                return socklen_t(MemoryLayout<sockaddr_x25>.size)
-//                
-//            case .ipx:
-//                return socklen_t(MemoryLayout<sockaddr_ipx>.size)
-//                
-//            case .ax25:
-//                return socklen_t(MemoryLayout<sockaddr_ax25>.size)
-
-            default:
-                return socklen_t(MemoryLayout<sockaddr>.size)
-            }
-        #endif
     }
     
     public mutating func addrptr() -> UnsafePointer<sockaddr> {
