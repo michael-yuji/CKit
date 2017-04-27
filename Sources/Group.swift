@@ -56,11 +56,11 @@ public struct Group {
         var mem = [String]()
         var ptr = cGroup.gr_mem
         while (ptr != nil && ptr!.pointee != nil && ptr!.pointee!.numerialValue > 0) {
-            let string = String(cString: ptr!.pointee!, encoding: .ascii)
-            guard let str = string else {
-                break
-            }
-            mem.append(str)
+            let string = String(cString: ptr!.pointee!)
+//            guard let str = string else {
+//                break
+//            }
+            mem.append(string)
             ptr = ptr!.advanced(by: 1)
             
         }

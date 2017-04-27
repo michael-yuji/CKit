@@ -112,10 +112,11 @@ public struct DirectoryEntry : CustomStringConvertible
 
 extension DirectoryEntry {
     public static func files(at path: String) -> [DirectoryEntry] {
-        guard let dfd = opendir(path.cString(using: .utf8)!) else {return []}
-        
-        defer {
-            closedir(dfd)
+
+        guard let dfd = path.withCString({
+            opendir($0)
+        }) else {
+            return []
         }
 
         var dirents = [DirectoryEntry]()
@@ -139,7 +140,13 @@ extension DirectoryEntry {
     }
 
     public static func find(entry: String, in path: String) -> DirectoryEntry? {
-        guard let dfd = opendir(path.cString(using: .utf8)!) else {return nil}
+
+        guard let dfd = path.withCString({
+            opendir($0)
+        }) else {
+            return nil
+        }
+        
         var dir: dirent = dirent()
         var result: UnsafeMutablePointer<dirent>? = nil
 

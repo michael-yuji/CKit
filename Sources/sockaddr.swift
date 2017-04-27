@@ -113,22 +113,6 @@ extension _sockaddr_storage {
     #if os(Linux)
     public var ss_len: UInt8 {
         return get_socklen_by_family(Int32(self.ss_family))
-//        switch self.ss_family {
-//            case sa_family_t(AF_INET):
-//                return UInt8(MemoryLayout<sockaddr_in>.size)
-//            
-//            case sa_family_t(AF_INET6):
-//                return UInt8(MemoryLayout<sockaddr_in6>.size)
-//            
-//            case sa_family_t(AF_UNIX):
-//                return UInt8(MemoryLayout<sockaddr_un>.size)
-//            
-//            case sa_family_t(AF_LINK):
-//                return UInt8(MemoryLayout<sockaddr_dl>.size)
-//            
-//            default:
-//                return UInt8(MemoryLayout<sockaddr>.size)
-//        }
     }
     #endif
 }

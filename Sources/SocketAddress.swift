@@ -69,34 +69,12 @@ extension SocketAddress {
     public init(addr: UnsafePointer<sockaddr>, port: in_port_t? = nil) {
         self.storage = _sockaddr_storage()
         #if !os(Linux)
-//        memcpy(mutablePointer(of: &self.storage).mutableRawPointer, addr.rawPointer, Int(addr.pointee.sa_len))
             let len = Int(addr.pointee.sa_len)
         #else
             let len = Int(get_socklen_by_family(Int32(addr.pointee.sa_family)))
-//            var len = MemoryLayout<sockaddr>.size
-            
-//            switch SocketDomains(rawValue: addr.pointee.sa_family)! {
-//            case .inet:
-//                len = MemoryLayout<sockaddr_in>.size
-//                
-//            case .inet6:
-//                len = MemoryLayout<sockaddr_in6>.size
-//                
-//            case .unix:
-//                len = MemoryLayout<sockaddr_un>.size
-//
-//            case .link:
-//                len = MemoryLayout<sockaddr_dl>.size
-//
-//            default:
-//                break
-//            }
-
-//            memcpy(mutablePointer(of: &self.storage).mutableRawPointer, addr.rawPointer, len)
         #endif
-        
-        mutablePointer(of: &self.storage)
-            .mutableRawPointer.copyBytes(from: addr.rawPointer, count: len)
+
+        memcpy(mutablePointer(of: &self.storage), addr.rawPointer, len)
         
         if let port = port {
             switch SocketFamilies(rawValue: addr.pointee.sa_family)! {
@@ -165,9 +143,10 @@ extension SocketAddress {
         #if !os(Linux)
         self.storage.ss_len = UInt8(MemoryLayout<sockaddr_un>.size)
         #endif
-        strncpy(mutablePointer(of: &(self.storage.__ss_pad1)).cast(to: Int8.self),
-                unixPath.cString(using: .utf8)!,
-                UNIX_PATH_MAX)
+        unixPath.withCString {
+            memcpy(mutablePointer(of: &(self.storage.__ss_pad1)),
+                   $0, unixPath.characters.count)
+        }
     }
     
     #if !os(Linux)
@@ -175,7 +154,9 @@ extension SocketAddress {
         self.storage = _sockaddr_storage()
         self.storage.ss_family = sa_family_t(AF_LINK)
         self.storage.ss_len = UInt8(MemoryLayout<sockaddr_un>.size)
-        link_addr(linkAddress.cString(using: .ascii), mutablePointer(of: &self.storage).cast(to: sockaddr_dl.self))
+        linkAddress.withCString {
+            link_addr($0, mutablePointer(of: &self.storage).cast(to: sockaddr_dl.self))
+        }
     }
     #endif
 }

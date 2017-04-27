@@ -32,6 +32,11 @@
 
 @_exported import xlibc
 
+@inline(__always)
+public func memcpy(_ dst: MutablePointer, _ src: Pointer, _ bytes: Int) {
+    dst.mutableRawPointer.copyBytes(from: src.rawPointer, count: bytes)
+}
+
 public protocol IntegerValueConvertiable {
     var integerValue: Int { get }
 }

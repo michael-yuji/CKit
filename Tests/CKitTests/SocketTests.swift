@@ -23,7 +23,7 @@ extension CKitTests {
 
         repeat {
             do {
-                c = try sockout.readBytes(to: buf!.advanced(by: idx), length: 20)
+                c = try sockout.read(to: buf!.advanced(by: idx), length: 20)
                 idx += 20
             } catch let error as SystemError {
                 

@@ -180,11 +180,19 @@ public extension System.DNS {
             hint.ai_flags |= AI_NUMERICSERV
         }
         
-        if getaddrinfo(host.cString(using: .utf8)!,
-                       service.cString(using: .utf8)!,
-                       &hint, &info) != 0 {
-            throw SystemError.last("getaddrinfo")
+        try host.withCString { hostp in
+            try service.withCString {
+                if getaddrinfo(hostp, $0,
+                               &hint, &info) != 0 {
+                    throw SystemError.last("getaddrinfo")
+                }
+            }
         }
+//        if getaddrinfo(host.cString(),
+//                       service.cString(),
+//                       &hint, &info) != 0 {
+//            throw SystemError.last("getaddrinfo")
+//        }
         
         if info!.pointee.ai_canonname != nil {
             realhost = String(cString: info!.pointee.ai_canonname)
