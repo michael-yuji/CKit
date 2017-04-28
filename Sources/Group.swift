@@ -57,9 +57,6 @@ public struct Group {
         var ptr = cGroup.gr_mem
         while (ptr != nil && ptr!.pointee != nil && ptr!.pointee!.numerialValue > 0) {
             let string = String(cString: ptr!.pointee!)
-//            guard let str = string else {
-//                break
-//            }
             mem.append(string)
             ptr = ptr!.advanced(by: 1)
             
@@ -82,24 +79,26 @@ extension Group {
         
         var bufferptr: UnsafeMutablePointer<Int8>
         
-        init(gid: gid_t) {
+        init(gid: gid_t)
+        {
             bufferptr = UnsafeMutablePointer<Int8>
                 .allocate(capacity: System.sizes.getgrp_r_bufsize)
+            
             var ptr: UnsafeMutablePointer<group>? = nil
-            getgrgid_r(gid, &self.cGroup,
-                       bufferptr,
-                       System.sizes.getgrp_r_bufsize,
-                       &ptr)
+            
+            getgrgid_r(gid, &self.cGroup, bufferptr,
+                       System.sizes.getgrp_r_bufsize, &ptr)
         }
         
-        init(name: String) {
+        init(name: String)
+        {
             bufferptr = UnsafeMutablePointer<Int8>
                 .allocate(capacity: System.sizes.getgrp_r_bufsize)
+
             var ptr: UnsafeMutablePointer<group>? = nil
-            getgrnam_r(name, &self.cGroup,
-                       bufferptr,
-                       System.sizes.getgrp_r_bufsize,
-                       &ptr)
+
+            getgrnam_r(name, &self.cGroup, bufferptr,
+                       System.sizes.getgrp_r_bufsize, &ptr)
         }
         
         deinit {

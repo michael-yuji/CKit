@@ -36,7 +36,7 @@ public extension UnsafeMutableBufferPointer {
                            iov_len: self.count * MemoryLayout<Element>.size)
     }
 }
-
+;
 public extension UnsafeRawBufferPointer {
     public var iovec: xlibc.iovec {
         guard let baseAddress = self.baseAddress else {

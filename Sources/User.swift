@@ -31,43 +31,53 @@
 //
 
 public struct User {
-    
+
+    private static var __cur_usr: User?
+    private static var __cur_eusr: User?
+
     var usr: _usr
 
-    public static var _current_cached_user: User?
-    public static var _current_cached_euser: User?
-
-    public static var currentUser: User {
+    /// Who own this process
+    public static var currentUser: User
+    {
         get {
-            if _current_cached_user == nil ||
-               _current_cached_user!.uid != getuid() {
-                _current_cached_user = User(uid: getuid())
+            if __cur_usr == nil || __cur_usr!.uid != getuid() {
+                __cur_usr = User(uid: getuid())
             }
-            
-            return _current_cached_user!
-        } set {
-            if newValue.uid != currentUser.uid {
-                _current_cached_user = newValue
+            return __cur_usr!
+        }
+        
+        set {
+            if newValue.uid != currentUser.uid
+            {
+                __cur_usr = newValue
                 setuid(newValue.uid)
             }
         }
     }
     
-    public static var currentEffectiveUser: User {
+    /// On whose behave this process is acting
+    public static var currentEffectiveUser: User
+    {
         get {
-            if _current_cached_euser == nil ||
-                _current_cached_euser!.uid != geteuid() {
-                _current_cached_euser = User(uid: geteuid())
+            if __cur_eusr == nil || __cur_eusr!.uid != geteuid()
+            {
+                __cur_eusr = User(uid: geteuid())
             }
-            return _current_cached_euser!
-        } set {
-            if newValue.uid != currentEffectiveUser.uid {
-                _current_cached_user = newValue
+            return __cur_eusr!
+        }
+        
+        set {
+            if newValue.uid != currentEffectiveUser.uid
+            {
+                __cur_usr = newValue
                 seteuid(newValue.uid)
             }
         }
     }
+
     
+    /// The underlying passwd struct
     public var pw: passwd {
         return usr.pw
     }
@@ -80,8 +90,7 @@ public struct User {
         self.usr = _usr(name: name)
     }
 
-    @available(*, unavailable,
-                message: "Deprecated since it's too easy to misuse")
+    @available(*, unavailable, message: "Deprecated since it's too easy to misuse")
     public func perform<R>(action: () throws -> R) throws -> R
     {
         let cur_uid = geteuid()
@@ -94,35 +103,44 @@ public struct User {
             let r = try action()
             seteuid(cur_uid)
             return r
-        } catch {
+        }
+        
+        catch {
             seteuid(cur_uid)
             throw error
         }
+
     }
 }
 
 extension User {
 
+    /// user uid
     public var uid: uid_t {
         return pw.pw_uid
     }
-    
+
+    /// user gid
     public var gid: gid_t {
         return pw.pw_gid
     }
     
+    /// user name
     public var name: String {
         return String(cString: pw.pw_name)
     }
     
+    /// The encrypted password
     public var passwd: String {
         return String(cString: pw.pw_passwd)
     }
-    
+
+    /// The home directory
     public var home: String {
         return String(cString: pw.pw_dir)
     }
     
+    /// The default shell
     public var shell: String {
         return String(cString: pw.pw_shell)
     }
@@ -145,28 +163,31 @@ extension User {
 
 extension User {
 
-    class _usr {
+    final class _usr {
 
         var pw: passwd = xlibc.passwd()
+
         var bufferptr: UnsafeMutablePointer<Int8>
         
-        init(uid: uid_t) {
+        init(uid: uid_t)
+        {
             bufferptr = UnsafeMutablePointer<Int8>
                 .allocate(capacity: System.sizes.getpwd_r_bufsize)
 
             var ptr: UnsafeMutablePointer<passwd>? = nil
-            getpwuid_r(uid, &self.pw,
-                       bufferptr,
+
+            getpwuid_r(uid, &self.pw, bufferptr,
                        System.sizes.getpwd_r_bufsize, &ptr)
         }
         
-        init(name: String) {
+        init(name: String)
+        {
             bufferptr = UnsafeMutablePointer<Int8>
                 .allocate(capacity: System.sizes.getpwd_r_bufsize)
-            
+
             var ptr: UnsafeMutablePointer<passwd>? = nil
-            getpwnam_r(name, &self.pw,
-                       bufferptr,
+
+            getpwnam_r(name, &self.pw, bufferptr,
                        System.sizes.getpwd_r_bufsize, &ptr)
         }
         

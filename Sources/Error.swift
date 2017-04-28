@@ -2,6 +2,7 @@
 public struct SystemError: Error, CustomStringConvertible {
     public var errno: Int32
     public var umsg: String?
+
     public var description: String {
         var buf = [CChar](repeating: 0, count: 128)
         _ = xlibc.strerror_r(errno, &buf, 128)

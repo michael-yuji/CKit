@@ -31,4 +31,12 @@ extension CKitTests {
         }
     }
     
+    func test_dns2() {
+        let hosts = try! SocketAddressInfo.lookup(ip: "8.8.8.8", service: "http")
+        XCTAssert(hosts.addrs.count > 0)
+        for addr in hosts.addrs {
+            XCTAssertEqual(addr.port, 80)
+        }
+    }
+    
 }

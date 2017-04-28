@@ -33,7 +33,7 @@
 //import struct Foundation.Date
 //import typealias Foundation.TimeInterval
 
-public typealias cstat = CKit.stat
+public typealias cstat = xlibc.stat
 
 public enum FileStatusError: Error {
     case searchPermissionDenied

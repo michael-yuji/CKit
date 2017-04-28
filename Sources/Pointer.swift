@@ -32,6 +32,7 @@
 
 public typealias PointerType = Pointer
 public typealias MutablePointerType = MutablePointer
+
 public protocol Pointer : IntegerValueConvertiable {
     var rawPointer: UnsafeRawPointer {get}
 }
@@ -49,36 +50,77 @@ public protocol MutableBufferPointer : BufferPointer {
 }
 
 @inline(__always)
-public func pointer<T>(of obj: inout T, advancedBy distance: Int = 0) -> UnsafePointer<T> {
+public func rawPointer<T>(of obj: inout T,
+                    advancedBy count: Int = 0) -> UnsafeRawPointer
+{
     let ghost: (UnsafePointer<T>) -> UnsafePointer<T> = {$0}
-    return withUnsafePointer(to: &obj, {ghost($0)}).advanced(by: distance)
+    return withUnsafePointer(to: &obj, {
+        ghost($0)
+    }).advanced(by: count).rawPointer
 }
 
 @inline(__always)
-public func mutablePointer<T>(of obj: inout T, advancedBy distance: Int = 0) -> UnsafeMutablePointer<T> {
+public func mutableRawPointer<T>(of obj: inout T,
+                           advancedBy count: Int = 0) -> UnsafeMutableRawPointer
+{
     let ghost: (UnsafeMutablePointer<T>) -> UnsafeMutablePointer<T> = {$0}
-    return withUnsafeMutablePointer(to: &obj, {ghost($0)}).advanced(by: distance)
+    return withUnsafeMutablePointer(to: &obj, {
+        ghost($0)
+    }).advanced(by: count).mutableRawPointer
 }
 
 @inline(__always)
-func unsafeCast<T, X>(of obj: inout T, cast: X.Type) -> X {
+public func pointer<T>(of obj: inout T,
+                    advancedBy count: Int = 0) -> UnsafePointer<T>
+{
+    let ghost: (UnsafePointer<T>) -> UnsafePointer<T> = {$0}
+    return withUnsafePointer(to: &obj, {ghost($0)}).advanced(by: count)
+}
+
+@inline(__always)
+public func mutablePointer<T>(of obj: inout T,
+                           advancedBy count: Int = 0) -> UnsafeMutablePointer<T>
+{
+    let ghost: (UnsafeMutablePointer<T>) -> UnsafeMutablePointer<T> = {$0}
+    return withUnsafeMutablePointer(to: &obj, {
+        ghost($0)
+    }).advanced(by: count)
+}
+
+@inline(__always)
+public func pointer<T, R>(of obj: inout T, as r: R.Type,
+                    advancedBy count: Int = 0) -> UnsafePointer<R>
+{
+    let ghost: (UnsafePointer<T>) -> UnsafePointer<T> = {$0}
+    return withUnsafePointer(to: &obj, {
+        ghost($0)
+    }).advanced(by: count).cast(to: r)
+}
+
+@inline(__always)
+public func mutablePointer<T,R>(of obj: inout T, as r: R.Type,
+                           advancedBy count: Int = 0) -> UnsafeMutablePointer<R>
+{
+    let ghost: (UnsafeMutablePointer<T>) -> UnsafeMutablePointer<T> = {$0}
+    return withUnsafeMutablePointer(to: &obj, {
+        ghost($0)
+    }).advanced(by: count).cast(to: r)
+}
+
+@inline(__always)
+func unconditionalCast<T, X>(from obj: inout T, to: X.Type) -> X {
     return mutablePointer(of: &obj).cast(to: X.self).pointee
 }
 
 @inline(__always)
-func unsafeCast<T, X>(of obj: T, cast: X.Type) -> X {
+func unconditionalCast<T, X>(from obj: T, to: X.Type) -> X {
     var obj = obj
     return mutablePointer(of: &obj).cast(to: X.self).pointee
 }
 
-@inline(__always)
-func mCast<T, X>(of obj: inout T, cast: X.Type) -> UnsafeMutablePointer<X> {
-    return mutablePointer(of: &obj).cast(to: X.self)
-}
-
 public extension UnsafeMutablePointer {
     @inline(__always)
-    func cast<T>(to type: T.Type, NItems count: Int = 1) -> UnsafeMutablePointer<T> {
+    func cast<T>(to type: T.Type) -> UnsafeMutablePointer<T> {
         return UnsafeMutableRawPointer(self).assumingMemoryBound(to: type)
     }
 }

@@ -69,7 +69,7 @@ public final class OpaqueObject {
 }
 
 public extension OpaqueObject {
-    public func underlayMemory<T>(as _: T.Type) -> T {
+    public func underlyingMemory<T>(as _: T.Type) -> T {
         return UnsafeMutablePointer<T>(self.opaquePtr).pointee
     }
 }

@@ -18,13 +18,15 @@ public struct Socket : FileDescriptorRepresentable {
         self.fileDescriptor = raw
     }
     
-    public static func makePair(domain: SocketDomains, type: SocketTypes, `protocol`: Int32)
+    public static func makePair(domain: SocketDomains,
+                                type: SocketTypes, `protocol`: Int32)
         throws -> (Socket, Socket)
     {
         var pair = [Int32](repeating: 0, count: 2)
         
         _ = try guarding("socketpair") {
-            xlibc.socketpair(Int32(domain.rawValue), type.rawValue, `protocol`, &pair)
+            xlibc.socketpair(Int32(domain.rawValue), type.rawValue,
+                             `protocol`, &pair)
         }
         
         return (Socket(raw: pair[0]), Socket(raw: pair[1]))
@@ -59,7 +61,7 @@ public struct RecvFlags: OptionSet {
     
     /// peek at incoming message
     public static let peek = RecvFlags(rawValue: MSG_PEEK)
-    
+
     /// wait for full request or error
     public static let waitall = RecvFlags(rawValue: MSG_WAITALL)
     
@@ -126,6 +128,7 @@ extension Socket {
             guard var inet = addr.inet() else {
                 return
             }
+            getpagesize()
             inet.sin_port = port.byteSwapped
             _ = xlibc.bind(fileDescriptor,
                            pointer(of: &inet).cast(to: sockaddr.self),
