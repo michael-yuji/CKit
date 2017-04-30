@@ -89,6 +89,15 @@ public struct File: FileDescriptorRepresentable {
         }
     }
     
+    public init(path: String, access: mode_t, flags: FileFlags) throws {
+        self.path = path
+        self.fileDescriptor = try guarding("open") {
+            return path.withCString {
+                open($0, flags.rawValue, access)
+            }
+        }
+    }
+    
     public func chmod(permission: PremissionMode) throws {
         _ = try guarding("open") {
             fchmod(fileDescriptor, permission.rawValue)

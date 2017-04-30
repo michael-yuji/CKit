@@ -35,50 +35,53 @@ public typealias DirentRawType = Int32
 public typealias DirentRawType = Int
 #endif
 
-public struct POSIXFileTypes : RawRepresentable, CustomStringConvertible {
+public typealias POSIXFileTypes = FileTypes
+
+public struct FileTypes : RawRepresentable, CustomStringConvertible
+{
     public var rawValue: DirentRawType
     
-    public static let unknown = POSIXFileTypes(rawValue: DT_UNKNOWN)
+    public static let unknown = FileTypes(rawValue: DT_UNKNOWN)
     
-    public static let namedPipe = POSIXFileTypes(rawValue: DT_FIFO)
+    public static let namedPipe = FileTypes(rawValue: DT_FIFO)
     
-    public static let characterDevice = POSIXFileTypes(rawValue: DT_CHR)
+    public static let streamDevice = FileTypes(rawValue: DT_CHR)
     
-    public static let directory = POSIXFileTypes(rawValue: DT_DIR)
+    public static let directory = FileTypes(rawValue: DT_DIR)
     
-    public static let blockDevice = POSIXFileTypes(rawValue: DT_BLK)
+    public static let blockDevice = FileTypes(rawValue: DT_BLK)
     
-    public static let regular = POSIXFileTypes(rawValue: DT_REG)
+    public static let regular = FileTypes(rawValue: DT_REG)
     
-    public static let symbolicLink = POSIXFileTypes(rawValue: DT_LNK)
+    public static let symbolicLink = FileTypes(rawValue: DT_LNK)
     
-    public static let socket = POSIXFileTypes(rawValue: DT_SOCK)
+    public static let socket = FileTypes(rawValue: DT_SOCK)
     
     #if os(OSX) || os(FreeBSD)
-    public static let whiteOut = POSIXFileTypes(rawValue: DT_WHT)
+    public static let whiteOut = FileTypes(rawValue: DT_WHT)
     #endif
 
     public var description: String {
         switch self.rawValue {
-            case POSIXFileTypes.unknown.rawValue:
+            case FileTypes.unknown.rawValue:
                 return "unknown"
-            case POSIXFileTypes.namedPipe.rawValue:
-                return "namedPipe"
-            case POSIXFileTypes.characterDevice.rawValue:
-                return "chracterDevice"
-            case POSIXFileTypes.directory.rawValue:
+            case FileTypes.namedPipe.rawValue:
+                return "named pipe"
+            case FileTypes.streamDevice.rawValue:
+                return "stream device"
+            case FileTypes.directory.rawValue:
                 return "directory"
-            case POSIXFileTypes.blockDevice.rawValue:
-                return "blockDevice"
-            case POSIXFileTypes.regular.rawValue:
+            case FileTypes.blockDevice.rawValue:
+                return "block device"
+            case FileTypes.regular.rawValue:
                 return "regular"
-            case POSIXFileTypes.symbolicLink.rawValue:
+            case FileTypes.symbolicLink.rawValue:
                 return "softlink"
-            case POSIXFileTypes.socket.rawValue:
+            case FileTypes.socket.rawValue:
                 return "socket"
             default:
                 #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS) || os(FreeBSD)
-                if self.rawValue == POSIXFileTypes.whiteOut.rawValue {
+                if self.rawValue == FileTypes.whiteOut.rawValue {
                     return "whiteout"
                 }
                 #endif
@@ -94,18 +97,72 @@ public struct POSIXFileTypes : RawRepresentable, CustomStringConvertible {
 
 public typealias Dirent = DirectoryEntry
 
+public struct Directory {
+    
+    public fileprivate(set)var path: String
+    
+    public fileprivate(set)var contents = [Dirent]()
+    
+    public init(path: String) throws
+    {
+        self.path = path
+
+        guard let dfd = path.withCString({
+            opendir($0)
+        }) else {
+            throw SystemError.last("opendir")
+        }
+        
+        var dir: dirent = dirent()
+        
+        var resloved: UnsafeMutablePointer<dirent>? = nil
+        
+        let path = path.hasSuffix("/") ? path : (path + "/")
+        
+        repeat
+        {
+            if readdir_r(dfd, &dir, &resloved) != 0 {
+                break
+            }
+            
+            if resloved == nil {
+                break
+            }
+            
+            contents.append(Dirent(basePath: path, dirent: resloved!.pointee))
+            
+        } while (resloved != nil)
+        
+        closedir(dfd)
+    }
+}
+
 public struct DirectoryEntry : CustomStringConvertible
 {
-    public var name: String
-    public var ino: ino_t
-    public var size: Int
-    public var type: POSIXFileTypes
+    /// where is this item located
+    public fileprivate(set)var basePath: String
+    /// the name of the entry
+    public fileprivate(set)var name: String
+    /// file number of this entry
+    public fileprivate(set)var ino: ino_t
+    /// length of the record
+    public fileprivate(set)var size: Int
+    /// file type
+    public fileprivate(set)var type: FileTypes
+    
+    /// the full path of the entry
+    public var fullpath: String {
+        return basePath + name
+    }
 
-    public init(dirent d: dirent) {
+    public init(basePath: String, dirent d: dirent)
+    {
         var dirent = d
-        self.name = String(cString: pointer(of: &(dirent.d_name), as: CChar.self))
+        self.basePath = basePath
+        self.name = String(cString: pointer(of: &(dirent.d_name),
+                                            as: CChar.self))
         self.size = Int(dirent.d_reclen)
-        self.type = POSIXFileTypes(rawValue: DirentRawType(dirent.d_type))
+        self.type = FileTypes(rawValue: DirentRawType(dirent.d_type))
         self.ino = dirent.d_ino
     }
 
@@ -119,12 +176,14 @@ public struct DirectoryEntry : CustomStringConvertible
     }
 }
 
-extension DirectoryEntry {
+extension DirectoryEntry
+{
     public static func files(at path: String) -> [DirectoryEntry]
     {
         guard let dfd = path.withCString({
             opendir($0)
         }) else {
+            perror("opendir")
             return []
         }
 
@@ -133,6 +192,8 @@ extension DirectoryEntry {
         var dir: dirent = dirent()
 
         var resloved: UnsafeMutablePointer<dirent>? = nil
+        
+        let path = path.hasSuffix("/") ? path : (path + "/")
 
         repeat
         {
@@ -144,9 +205,11 @@ extension DirectoryEntry {
                 break
             }
 
-            dirents.append(DirectoryEntry(dirent: resloved!.pointee))
+            dirents.append(Dirent(basePath: path, dirent: resloved!.pointee))
 
         } while (resloved != nil)
+        
+        closedir(dfd)
 
         return dirents
     }
@@ -155,6 +218,7 @@ extension DirectoryEntry {
     {
         guard let dfd = path.withCString({
             opendir($0)
+            
         }) else {
             return nil
         }
@@ -169,9 +233,9 @@ extension DirectoryEntry {
 
             if result == nil { break }
 
-            if DirectoryEntry(dirent: result!.pointee).name == entry {
+            if Dirent(basePath: path, dirent: result!.pointee).name == entry {
                 closedir(dfd)
-                return DirectoryEntry(dirent: result!.pointee)
+                return Dirent(basePath: path, dirent: result!.pointee)
             }
 
         } while (result != nil)

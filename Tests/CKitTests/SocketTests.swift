@@ -3,8 +3,10 @@ import XCTest
 
 extension CKitTests {
     func test_read_nonblk() {
-        var (sockin, sockout) = try! Socket.makePair(domain: .unix, type: .stream,
-                                                protocol: 0)
+
+        var (sockin, sockout) = try! Socket.makePair(domain: .unix,
+                                                     type: .stream,
+                                                     protocol: 0)
         
         let longStr = "This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;"
         
@@ -44,11 +46,5 @@ extension CKitTests {
         
         XCTAssertEqual(longStr, String(cString: buf!.assumingMemoryBound(to: CChar.self)))
         
-    }
-    
-    
-    func test_user() {
-        print(geteuid())
-        print(getuid())
     }
 }
