@@ -1,6 +1,6 @@
 
 public extension iovec {
-    public init(base: Pointer, len: Int) {
+    public init(base: AnyPointer, len: Int) {
         self.iov_base = UnsafeMutableRawPointer(mutating: base.rawPointer)
         self.iov_len = len
     }

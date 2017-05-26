@@ -33,7 +33,7 @@
 @_exported import xlibc
 
 @inline(__always)
-public func memcpy(_ dst: MutablePointer, _ src: Pointer, _ bytes: Int) {
+public func memcpy(_ dst: AnyMutablePointer, _ src: AnyPointer, _ bytes: Int) {
     dst.mutableRawPointer.copyBytes(from: src.rawPointer, count: bytes)
 }
 

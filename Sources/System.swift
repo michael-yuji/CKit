@@ -108,10 +108,10 @@ public struct System {
     }
 }
 
-public extension System {
-    /// Backward compatibility
-    public typealias DNS = SocketAddressInfo
-}
+//public extension System {
+//    /// Backward compatibility
+//    public typealias DNS = SocketAddressInfo
+//}
 
 public extension System {
     

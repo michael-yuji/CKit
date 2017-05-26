@@ -4,8 +4,13 @@ public struct NetworkInterface: CustomStringConvertible {
     public fileprivate(set)var name: String
     public fileprivate(set)var address: SocketAddress?
     public fileprivate(set)var netmask: SocketAddress?
+
     var _dest: SocketAddress?
     var flags: UInt32
+    
+    public var family: SocketFamilies {
+        return address!.family
+    }
 
     public var destaddr: SocketAddress? {
         return _dest
@@ -18,8 +23,12 @@ public struct NetworkInterface: CustomStringConvertible {
     public init(raw: UnsafePointer<ifaddrs>) {
         name = String(cString: raw.pointee.ifa_name)
         address = SocketAddress(addr: raw.pointee.ifa_addr)
-        _dest = SocketAddress(addr: raw.pointee.ifa_dstaddr)
-        netmask = SocketAddress(addr: raw.pointee.ifa_netmask)
+        if (raw.pointee.ifa_dstaddr != nil) {
+            _dest = SocketAddress(addr: raw.pointee.ifa_dstaddr)
+        }
+        if (raw.pointee.ifa_netmask != nil) {
+            netmask = SocketAddress(addr: raw.pointee.ifa_netmask)
+        }
         flags = raw.pointee.ifa_flags
         
     }
@@ -44,8 +53,13 @@ public struct NetworkInterface: CustomStringConvertible {
         return contains(IFF_UP)
     }
 
-    public var isVliadBoardcast: Bool {
-        return contains(IFF_BROADCAST)
+    @available(*, deprecated, message: "use supportBroadcast instead")
+    public var isVaildBroadcast: Bool {
+        return contains(IFF_BROADCAST) && self.address!.family == .inet
+    }
+    
+    public var supportBroadcast: Bool {
+        return contains(IFF_BROADCAST) && self.address!.family == .inet
     }
 
     public var debug: Bool {

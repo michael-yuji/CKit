@@ -127,14 +127,14 @@ public extension FileDescriptorRepresentable {
     }
     
     @discardableResult
-    public func write(bytes: Pointer, length: Int) throws -> Int {
+    public func write(bytes: AnyPointer, length: Int) throws -> Int {
         return try guarding("write") {
             xlibc.write(fileDescriptor, bytes.rawPointer, length)
         }
     }
     
     @discardableResult
-    public func write(buffer: BufferPointer) throws -> Int {
+    public func write(buffer: AnyBufferPointer) throws -> Int {
         return try guarding("write") {
             xlibc.write(fileDescriptor,
                         buffer.rawBuffer.baseAddress!,
@@ -143,14 +143,14 @@ public extension FileDescriptorRepresentable {
     }
     
     @discardableResult
-    public func pread(bytes: Pointer, length: Int, at offset: off_t) throws -> Int {
+    public func pread(bytes: AnyPointer, length: Int, at offset: off_t) throws -> Int {
         return try guarding("pwrite") {
             xlibc.pwrite(fileDescriptor, bytes.rawPointer, length, offset)
         }
     }
     
     @discardableResult
-    public func pread(buffer: BufferPointer, at offset: off_t) throws -> Int {
+    public func pread(buffer: AnyBufferPointer, at offset: off_t) throws -> Int {
         return try guarding("pwrite") {
             xlibc.pwrite(fileDescriptor,
                          buffer.rawBuffer.rawPointer,
@@ -160,19 +160,19 @@ public extension FileDescriptorRepresentable {
     
     @available(*, deprecated, message: "use read instead")
     @discardableResult
-    public func readBytes(to address: MutablePointer, length: Int) throws -> Int {
+    public func readBytes(to address: AnyMutablePointer, length: Int) throws -> Int {
         return try read(to: address, length: length)
     }
     
     @discardableResult
-    public func read(to address: MutablePointer, length: Int) throws -> Int {
+    public func read(to address: AnyMutablePointer, length: Int) throws -> Int {
         return try guarding("read") {
             xlibc.read(fileDescriptor, address.mutableRawPointer, length)
         }
     }
     
     @discardableResult
-    public func read(to buffer: MutableBufferPointer) throws -> Int {
+    public func read(to buffer: AnyMutableBufferPointer) throws -> Int {
         return try guarding("read") {
             xlibc.read(fileDescriptor,
                        buffer.mutableRawBuffer.baseAddress!,
@@ -188,7 +188,7 @@ public extension FileDescriptorRepresentable {
     }
     
     @discardableResult
-    public func vectorWrite(_ vector: [BufferPointer]) throws -> Int {
+    public func vectorWrite(_ vector: [AnyBufferPointer]) throws -> Int {
         return try guarding("writev") {
             xlibc.writev(fileDescriptor,
                          vector.map{$0.rawBuffer.iovec},
@@ -197,14 +197,14 @@ public extension FileDescriptorRepresentable {
     }
     
     @discardableResult
-    public func pwrite(bytes: Pointer, length: Int, at offset: off_t) throws -> Int {
+    public func pwrite(bytes: AnyPointer, length: Int, at offset: off_t) throws -> Int {
         return try guarding("pwrite") {
             xlibc.pwrite(fileDescriptor, bytes.rawPointer, length, offset)
         }
     }
     
     @discardableResult
-    public func pwrite(buffer: BufferPointer, at offset: off_t) throws -> Int {
+    public func pwrite(buffer: AnyBufferPointer, at offset: off_t) throws -> Int {
         return try guarding("pwrite") {
             xlibc.pwrite(fileDescriptor,
                          buffer.rawBuffer.rawPointer,
