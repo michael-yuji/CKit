@@ -143,18 +143,18 @@ public extension FileDescriptorRepresentable {
     }
     
     @discardableResult
-    public func pread(bytes: Pointer, length: Int, at offset: off_t) throws -> Int {
-        return try guarding("pwrite") {
-            xlibc.pwrite(fileDescriptor, bytes.rawPointer, length, offset)
+    public func pread(bytes: MutablePointer, length: Int, at offset: off_t) throws -> Int {
+        return try guarding("pread") {
+            xlibc.pread(fileDescriptor, bytes.mutableRawPointer, length, offset)
         }
     }
     
     @discardableResult
-    public func pread(buffer: BufferPointer, at offset: off_t) throws -> Int {
-        return try guarding("pwrite") {
-            xlibc.pwrite(fileDescriptor,
-                         buffer.rawBuffer.rawPointer,
-                         buffer.rawBuffer.count, offset)
+    public func pread(buffer: MutableBufferPointer, at offset: off_t) throws -> Int {
+        return try guarding("pread") {
+            xlibc.pread(fileDescriptor,
+                         buffer.mutableRawBuffer.mutableRawPointer,
+                         buffer.mutableRawBuffer.count, offset)
         }
     }
     
