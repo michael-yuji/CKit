@@ -30,48 +30,60 @@
 //  Copyright © 2016 yuuji. All rights reserved.
 //
 
-public extension Character {
-    public static var null: Character {
+public extension Character
+{
+    public static var null: Character
+    {
         return Character(UnicodeScalar.init(0))
     }
 
-    public static var digits: [Character] {
+    public static var digits: [Character]
+    {
         return "0123456789".characters.sorted()
     }
 
-    public static var lowercase: [Character] {
+    public static var lowercase: [Character]
+    {
         return "abcdefghijklmnopqrstuvwxyz".characters.sorted()
     }
 
-    public static var uppercase: [Character] {
+    public static var uppercase: [Character]
+    {
         return "ABCDEFGHIJKLMNOPQRSTUVWXYZ".characters.sorted()
     }
 
-    public var isAlphabit: Bool {
+    public var isAlphabit: Bool
+    {
         return self.isLowercase || self.isUppercase
     }
 
-    public var isUppercase: Bool {
+    public var isUppercase: Bool
+    {
         return Character.uppercase.contains(self)
     }
 
-    public var isLowercase: Bool {
+    public var isLowercase: Bool
+    {
         return Character.lowercase.contains(self)
     }
 
-    public var isdigits: Bool {
+    public var isdigits: Bool
+    {
         return Character.digits.contains(self)
     }
 }
 
 @inline(__always)
-public func stderr(_ string: String) {
+public func stderr(_ string: String)
+{
     var msg = string
     write(STDERR_FILENO, &msg, msg.characters.count)
 }
 
-public extension String {
-    public static func alignedText(strings: String..., spaces: [Int]) -> String {
+public extension String
+{
+    public static func alignedText(strings: String..., spaces: [Int]) -> String
+    {
         let astr = strings.enumerated().map { (index, string) -> String in
             var temp = string
             let space_to_insert = max(0, spaces[index] - string.characters.count)
@@ -84,14 +96,17 @@ public extension String {
     }
 }
 
-public extension Strideable {
+public extension Strideable
+{
     @inline(__always)
-    public mutating func decrement() {
+    public mutating func decrement()
+    {
         self -= 1
     }
 
     @inline(__always)
-    public mutating func increment() {
+    public mutating func increment()
+    {
         self += 1
     }
 }

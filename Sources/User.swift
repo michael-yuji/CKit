@@ -30,8 +30,8 @@
 //
 //
 
-public struct User {
-
+public struct User
+{
     private static var __cur_usr: User?
     private static var __cur_eusr: User?
 
@@ -78,15 +78,18 @@ public struct User {
 
     
     /// The underlying passwd struct
-    public var pw: passwd {
+    public var pw: passwd
+    {
         return usr.pw
     }
     
-    public init(uid: uid_t) {
+    public init(uid: uid_t)
+    {
         self.usr = _usr(uid: uid)
     }
     
-    public init(name: String) {
+    public init(name: String)
+    {
         self.usr = _usr(name: name)
     }
 
@@ -113,58 +116,67 @@ public struct User {
     }
 }
 
-extension User {
-
+extension User
+{
     /// user uid
-    public var uid: uid_t {
+    public var uid: uid_t
+    {
         return pw.pw_uid
     }
 
     /// user gid
-    public var gid: gid_t {
+    public var gid: gid_t
+    {
         return pw.pw_gid
     }
     
     /// user name
-    public var name: String {
+    public var name: String
+    {
         return String(cString: pw.pw_name)
     }
     
     /// The encrypted password
-    public var passwd: String {
+    public var passwd: String
+    {
         return String(cString: pw.pw_passwd)
     }
 
     /// The home directory
-    public var home: String {
+    public var home: String
+    {
         return String(cString: pw.pw_dir)
     }
     
     /// The default shell
-    public var shell: String {
+    public var shell: String
+    {
         return String(cString: pw.pw_shell)
     }
     
     #if os(FreeBSD) || os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
     
-    public var expiration: time_t {
+    public var expiration: time_t
+    {
         return pw.pw_expire
     }
     
-    public var pwdChangeTime: time_t {
+    public var pwdChangeTime: time_t
+    {
         return pw.pw_change
     }
     
-    public var `class`: String {
+    public var `class`: String
+    {
         return String(cString: pw.pw_class)
     }
     #endif
 }
 
-extension User {
-
-    final class _usr {
-
+extension User
+{
+    final class _usr
+    {
         var pw: passwd = xlibc.passwd()
 
         var bufferptr: UnsafeMutablePointer<Int8>

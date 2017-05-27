@@ -1,6 +1,6 @@
 
-public struct NetworkInterface: CustomStringConvertible {
-
+public struct NetworkInterface: CustomStringConvertible
+{
     public fileprivate(set)var name: String
     public fileprivate(set)var address: SocketAddress?
     public fileprivate(set)var netmask: SocketAddress?
@@ -8,19 +8,23 @@ public struct NetworkInterface: CustomStringConvertible {
     var _dest: SocketAddress?
     var flags: UInt32
     
-    public var family: SocketFamilies {
+    public var family: SocketFamilies
+    {
         return address!.family
     }
 
-    public var destaddr: SocketAddress? {
+    public var destaddr: SocketAddress?
+    {
         return _dest
     }
     
-    public var bcastaddr: SocketAddress? {
+    public var bcastaddr: SocketAddress?
+    {
         return _dest
     }
 
-    public init(raw: UnsafePointer<ifaddrs>) {
+    public init(raw: UnsafePointer<ifaddrs>)
+    {
         name = String(cString: raw.pointee.ifa_name)
         address = SocketAddress(addr: raw.pointee.ifa_addr)
         if (raw.pointee.ifa_dstaddr != nil) {
@@ -33,7 +37,8 @@ public struct NetworkInterface: CustomStringConvertible {
         
     }
 
-    public var description: String {
+    public var description: String
+    {
         return "\(name) \(address?.description ?? "")"
     }
 
@@ -49,28 +54,34 @@ public struct NetworkInterface: CustomStringConvertible {
         return (flags & UInt32(f)) == UInt32(f)
     }
 
-    public var up: Bool {
+    public var up: Bool
+    {
         return contains(IFF_UP)
     }
 
     @available(*, deprecated, message: "use supportBroadcast instead")
-    public var isVaildBroadcast: Bool {
+    public var isVaildBroadcast: Bool
+    {
         return contains(IFF_BROADCAST) && self.address!.family == .inet
     }
     
-    public var supportBroadcast: Bool {
+    public var supportBroadcast: Bool
+    {
         return contains(IFF_BROADCAST) && self.address!.family == .inet
     }
 
-    public var debug: Bool {
+    public var debug: Bool
+    {
         return contains(IFF_DEBUG)
     }
 
-    public var isLoopback: Bool {
+    public var isLoopback: Bool
+    {
         return contains(IFF_LOOPBACK)
     }
 
-    public var noArp: Bool {
+    public var noArp: Bool
+    {
         return contains(IFF_NOARP)
     }
 
@@ -90,12 +101,14 @@ public struct NetworkInterface: CustomStringConvertible {
         return contains(IFF_MULTICAST)
     }
 
-    public var running: Bool {
+    public var running: Bool
+    {
         return contains(IFF_RUNNING)
     }
 
     #if !os(Linux)
-    public var simplex: Bool {
+    public var simplex: Bool
+    {
         return contains(IFF_SIMPLEX)
     }
     #endif
@@ -120,7 +133,8 @@ public struct NetworkInterface: CustomStringConvertible {
         return intefaces
     }
 
-    public static func interfaces(support domains: Set<SocketDomains>) -> [NetworkInterface]
+    public static func interfaces(support domains: Set<SocketDomains>)
+        -> [NetworkInterface]
     {
         var head: UnsafeMutablePointer<ifaddrs>?
         var cur: UnsafeMutablePointer<ifaddrs>?
@@ -143,7 +157,9 @@ public struct NetworkInterface: CustomStringConvertible {
         return intefaces
     }
 
-    public static func interface(named: String, support domain: SocketDomains) -> NetworkInterface?
+    public static func interface(named: String,
+                                 support domain: SocketDomains)
+        -> NetworkInterface?
     {
         var head: UnsafeMutablePointer<ifaddrs>?
         var cur: UnsafeMutablePointer<ifaddrs>?
@@ -156,7 +172,8 @@ public struct NetworkInterface: CustomStringConvertible {
 
         while (cur != nil)
         {
-            if let _domain = SocketDomains(rawValue: cur!.pointee.ifa_addr.pointee.sa_family) {
+            if let _domain = SocketDomains(rawValue:
+                cur!.pointee.ifa_addr.pointee.sa_family) {
                 if (_domain == domain) {
                     inteface = NetworkInterface(raw: cur!)
                 }

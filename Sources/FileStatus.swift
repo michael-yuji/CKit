@@ -35,7 +35,8 @@
 
 public typealias cstat = xlibc.stat
 
-public enum FileStatusError: Error {
+public enum FileStatusError: Error
+{
     case searchPermissionDenied
     case badFileDescriptor
     case badAddress
@@ -47,54 +48,78 @@ public enum FileStatusError: Error {
     case overflow
 }
 
-public struct FileStatus {
+public struct FileStatus
+{
     public var stat_ = cstat()
 }
 
-public extension FileStatus {
-    public var deviceId: dev_t {
+public extension FileStatus
+{
+    public var deviceId: dev_t
+    {
         return stat_.st_dev
     }
-    public var inodeNumber: ino_t {
+
+    public var inodeNumber: ino_t
+    {
         return stat_.st_ino
     }
-    public var mode: mode_t {
+
+    public var mode: mode_t
+    {
         return stat_.st_mode
     }
-    public var hardlinkCount: Int {
+
+    public var hardlinkCount: Int
+    {
         return Int(stat_.st_nlink)
     }
-    public var owner: User {
+
+    public var owner: User
+    {
         return User(uid: stat_.st_uid)
     }
-    public var deviceId_s: dev_t {
+
+    public var deviceId_s: dev_t
+    {
         return stat_.st_rdev
     }
-    public var size: size_t {
+
+    public var size: size_t
+    {
         return size_t(stat_.st_size)
     }
-    public var blockSize: Int {
+
+    public var blockSize: Int
+    {
         return Int(stat_.st_blksize)
     }
-    public var blocksCount: Int {
+
+    public var blocksCount: Int
+    {
         return Int(stat_.st_blocks)
     }
 
-    public var lastAccessDate: time_t {
+    public var lastAccessDate: time_t
+    {
         #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
         return stat_.st_atimespec.tv_sec
         #elseif os(FreeBSD) || os(Linux)
         return stat_.st_atim.tv_sec
         #endif
     }
-    public var modificationDate: time_t {
+
+    public var modificationDate: time_t
+    {
         #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
             return stat_.st_mtimespec.tv_sec
         #elseif os(FreeBSD) || os(Linux)
             return stat_.st_mtim.tv_sec
         #endif
     }
-    public var lastStatusChange: time_t {
+
+    public var lastStatusChange: time_t
+    {
         #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
             return stat_.st_ctimespec.tv_sec
         #elseif os(FreeBSD) || os(Linux)
@@ -103,55 +128,77 @@ public extension FileStatus {
     }
 }
 
-public func ==(lhs: stat, rhs: stat) -> Bool {
+public func ==(lhs: stat, rhs: stat) -> Bool
+{
     var l = lhs
     var r = rhs
     return memcmp(pointer(of: &l), pointer(of: &r), MemoryLayout<stat>.size) == 0
 }
 
-public func ==(lhs: FileStatus, rhs: FileStatus) -> Bool {
+public func ==(lhs: FileStatus, rhs: FileStatus) -> Bool
+{
     return lhs.stat_ == rhs.stat_
 }
 
-public extension FileStatus {
-    public var isBlock: Bool {
+public extension FileStatus
+{
+    public var isBlock: Bool
+    {
         return (self.mode & S_IFMT) == S_IFBLK
     }
-    public var isChar: Bool {
+
+    public var isChar: Bool
+    {
         return (self.mode & S_IFMT) == S_IFCHR
     }
-    public var isDir: Bool {
+
+    public var isDir: Bool
+    {
         return (self.mode & S_IFMT) == S_IFDIR
     }
-    public var isFifo: Bool {
+
+    public var isFifo: Bool
+    {
         return (self.mode & S_IFMT) == S_IFIFO
     }
-    public var isSocket: Bool {
+
+    public var isSocket: Bool
+    {
         return (self.mode & S_IFMT) == S_IFIFO
     }
-    public var isRegularFile: Bool {
+
+    public var isRegularFile: Bool
+    {
         return (self.mode & S_IFMT) == S_IFSOCK
     }
-    public var isSymbolicLink: Bool {
+
+    public var isSymbolicLink: Bool
+    {
         return (self.mode & S_IFMT) == S_IFLNK
     }
+
     #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS) || os(FreeBSD)
-    public var isWhiteOut: Bool {
+    public var isWhiteOut: Bool
+    {
         return (self.mode & S_IFMT) == S_IFWHT
     }
     #endif
 }
 
-public extension FileStatus {
-    public init(path: String) throws {
+public extension FileStatus
+{
+    public init(path: String) throws
+    {
         try verify(err: stat(path, &stat_))
     }
 
-    public init(fd: Int32) throws {
+    public init(fd: Int32) throws
+    {
         try verify(err: fstat(fd, &stat_))
     }
 
-    internal func verify(err: Int32) throws {
+    internal func verify(err: Int32) throws
+    {
         switch err {
         case EACCES:
             throw FileStatusError.searchPermissionDenied

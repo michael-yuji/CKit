@@ -38,135 +38,157 @@ public typealias sys_conf_arg_t = Int32
 
 public typealias Sysconf = System
 
-public struct System {
-    
+public struct System
+{
     public static let maximum = Maximum()
     public static let cpus = CPUs()
     public static let sizes = Sizes()
     
-    public struct Maximum {
-        public var hostname: Int {
+    public struct Maximum
+    {
+        public var hostname: Int
+        {
             return sysconf(sys_conf_arg_t(_SC_HOST_NAME_MAX))
         }
         
-        public var ttyname: Int {
+        public var ttyname: Int
+        {
             return sysconf(sys_conf_arg_t(_SC_TTY_NAME_MAX))
         }
         
-        public var loginname: Int {
+        public var loginname: Int
+        {
             return sysconf(sys_conf_arg_t(_SC_LOGIN_NAME_MAX))
         }
         
-        public var fildescs: Int {
+        public var fildescs: Int
+        {
             return sysconf(sys_conf_arg_t(_SC_OPEN_MAX))
         }
         
-        public var childProces: Int {
+        public var childProces: Int
+        {
             return sysconf(sys_conf_arg_t(_SC_CHILD_MAX))
         }
         
-        public var args: Int {
+        public var args: Int
+        {
             return sysconf(sys_conf_arg_t(_SC_ARG_MAX))
         }
         
-        public var pathname: Int {
+        public var pathname: Int
+        {
             return Int(xlibc.PATH_MAX)
         }
     }
     
-    public struct Sizes {
-        public var page: Int {
+    public struct Sizes
+    {
+        public var page: Int
+        {
             return sysconf(sys_conf_arg_t(_SC_PAGESIZE))
         }
         
-        public var physicalPages: Int {
+        public var physicalPages: Int
+        {
             return sysconf(sys_conf_arg_t(_SC_PHYS_PAGES))
         }
         
-        public var getpwd_r_bufsize: Int {
+        public var getpwd_r_bufsize: Int
+        {
             return sysconf(sys_conf_arg_t(_SC_GETPW_R_SIZE_MAX))
         }
         
-        public var getgrp_r_bufsize: Int {
+        public var getgrp_r_bufsize: Int
+        {
             return sysconf(sys_conf_arg_t(_SC_GETGR_R_SIZE_MAX))
         }
     }
     
-    public struct CPUs {
-        public var configuared: Int {
+    public struct CPUs
+    {
+        public var configuared: Int
+        {
             return sysconf(sys_conf_arg_t(_SC_NPROCESSORS_CONF))
         }
         
-        public var onlines: Int {
+        public var onlines: Int
+        {
             return sysconf(sys_conf_arg_t(_SC_NPROCESSORS_ONLN))
         }
         
-        public var clkTricksPerSec: Int {
-            
+        public var clkTricksPerSec: Int
+        {
             return sysconf(sys_conf_arg_t(_SC_CLK_TCK))
         }
     }
 }
 
-//public extension System {
-//    /// Backward compatibility
-//    public typealias DNS = SocketAddressInfo
-//}
-
 public extension System {
     
     @available(*, deprecated, message: "use System.cpus.configuared instead")
-    public static var cpusConfigured: Int {
+    public static var cpusConfigured: Int
+    {
         return sysconf(sys_conf_arg_t(_SC_NPROCESSORS_CONF))
     }
     
     @available(*, deprecated, message: "use System.cpus.onlines instead")
-    public static var cpusOnline: Int {
+    public static var cpusOnline: Int
+    {
         return sysconf(sys_conf_arg_t(_SC_NPROCESSORS_ONLN))
     }
     
     @available(*, deprecated, message: "use System.cpus.clkTricksPerSec instead")
-    public static var clockTricks: Int {
+    public static var clockTricks: Int
+    {
         return sysconf(sys_conf_arg_t(_SC_CLK_TCK))
     }
     
     @available(*, deprecated, message: "use System.sizes.page instead")
-    public static var pagesize: Int {
+    public static var pagesize: Int
+    {
         return sysconf(sys_conf_arg_t(_SC_PAGESIZE))
     }
     
-    @available(*, deprecated, message: "se System.sizes.physicalPages instead")
-    public static var  physicalPagesize: Int {
+    @available(*, deprecated, message: "use System.sizes.physicalPages instead")
+    public static var  physicalPagesize: Int
+    {
         return sysconf(sys_conf_arg_t(_SC_PHYS_PAGES))
     }
     
     @available(*, deprecated, message: "use System.maximum.hostname instead")
-    public static var hostnameMaxLength: Int {
+    public static var hostnameMaxLength: Int
+    {
         return sysconf(sys_conf_arg_t(_SC_HOST_NAME_MAX))
     }
     
     @available(*, deprecated, message: "use System.maximum.loginname instead")
-    public static var loginnameMaxLength: Int {
+    public static var loginnameMaxLength: Int
+    {
         return sysconf(sys_conf_arg_t(_SC_LOGIN_NAME_MAX))
     }
     
     @available(*, deprecated, message: "use System.maximum.ttyname instead")
-    public static var ttynameMaxLength: Int {
+    public static var ttynameMaxLength: Int
+    {
         return sysconf(sys_conf_arg_t(_SC_TTY_NAME_MAX))
     }
     
     @available(*, deprecated, message: "use System.maximum.fildescs instead")
-    public static var maxFilesCount: Int {
+    public static var maxFilesCount: Int
+    {
         return sysconf(sys_conf_arg_t(_SC_OPEN_MAX))
     }
     
     @available(*, deprecated, message: "use System.maximum.childProcess instead")
-    public static var maxChildProcCount: Int {
+    public static var maxChildProcCount: Int
+    {
         return sysconf(sys_conf_arg_t(_SC_CHILD_MAX))
     }
     
     @available(*, deprecated, message: "use System.maximum.args instead")
-    public static var maxArgsCount: Int {
+    public static var maxArgsCount: Int
+    {
         return sysconf(sys_conf_arg_t(_SC_ARG_MAX))
     }
 }

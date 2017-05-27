@@ -40,11 +40,13 @@ let _evfilt_signal: Int16 = -6
 let _evfilt_timer: Int16 = -7
 let _evfilt_user: Int16 = -11
 
-public enum KernelEventType: Int16 {
-    
+public enum KernelEventType: Int16
+{
     public typealias RawValue = Int16
-    public var rawValue: Int16 {
-        switch self {
+    public var rawValue: Int16
+    {
+        switch self
+        {
         case .read:
             return _evfilt_read
         case .write:
@@ -62,7 +64,8 @@ public enum KernelEventType: Int16 {
         }
     }
     
-    public init(rawValue: Int16) {
+    public init(rawValue: Int16)
+    {
         self =
             rawValue == _evfilt_read ? .read :
             rawValue == _evfilt_write ? .write:

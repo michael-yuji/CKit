@@ -32,11 +32,12 @@
 @available(*, renamed: "Switch", message: "renamed to Switch")
 public typealias Trigger = Switch
 
-public struct Switch {
-    
+public struct Switch
+{
     var kq: Int32
     
-    public init() {
+    public init()
+    {
         #if os(FreeBSD) || os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
         kq = kqueue()
         var ev = KernelEvent(ident: 0,
@@ -66,11 +67,13 @@ public struct Switch {
     }
     
     @available(*, renamed: "toggle", message: "renamed to toggle()")
-    public func trigger() {
+    public func trigger()
+    {
         toggle()
     }
     
-    public func toggle() {
+    public func toggle()
+    {
         #if os(FreeBSD) || os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
         var triggerEv = KernelEventDescriptor
             .user(ident: 0, options: .trigger)
@@ -84,7 +87,8 @@ public struct Switch {
         #endif
     }
     
-    public func wait() {
+    public func wait()
+    {
         #if os(FreeBSD) || os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
         var t = KernelEvent()
         var ev = KernelEvent(ident: 0, filter: _evfilt_user,
@@ -101,7 +105,8 @@ public struct Switch {
         #endif
     }
     
-    public func close() {
+    public func close()
+    {
         _ = xlibc.close(kq)
     }
 }

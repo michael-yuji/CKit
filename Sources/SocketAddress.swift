@@ -36,19 +36,22 @@
     public let UNIX_PATH_MAX = 108
 #endif
 
-public struct SocketAddress {
+public struct SocketAddress
+{
     #if !os(Linux)
     var storage: _sockaddr_storage
     #else
     var storage: _sockaddr_storage
     #endif
-    public init(storage: _sockaddr_storage) {
+    public init(storage: _sockaddr_storage)
+    {
         self.storage = storage
     }
 }
 
 // MARK: CustomStringConvertible
-extension SocketAddress : CustomStringConvertible {
+extension SocketAddress : CustomStringConvertible
+{
     public var description: String {
         let family = "\(self.type)"
         var detail = ""
@@ -63,9 +66,10 @@ extension SocketAddress : CustomStringConvertible {
 }
 
 // MARK: Initializers
-extension SocketAddress {
-    
-    public init(addr: UnsafePointer<sockaddr>, port: in_port_t? = nil) {
+extension SocketAddress
+{
+    public init(addr: UnsafePointer<sockaddr>, port: in_port_t? = nil)
+    {
         self.storage = sockaddr_storage()
         #if !os(Linux)
             let len = Int(addr.pointee.sa_len)
@@ -89,7 +93,8 @@ extension SocketAddress {
         }
     }
 
-    public init?(domain: SocketFamilies, port: in_port_t) {
+    public init?(domain: SocketFamilies, port: in_port_t)
+    {
         switch domain {
         case .inet:
             self.storage = sockaddr_storage()
@@ -110,7 +115,8 @@ extension SocketAddress {
         }
     }
     
-    public init?(ip: String, domain: SocketFamilies, port: in_port_t = 0) {
+    public init?(ip: String, domain: SocketFamilies, port: in_port_t = 0)
+    {
         switch domain {
         case .inet:
             self.storage = sockaddr_storage()
@@ -137,7 +143,8 @@ extension SocketAddress {
         }
     }
     
-    public init?(unixPath: String) {
+    public init?(unixPath: String)
+    {
         self.storage = sockaddr_storage()
         self.storage.ss_family = sa_family_t(AF_UNIX)
         #if !os(Linux)
@@ -150,7 +157,8 @@ extension SocketAddress {
     }
     
     #if !os(Linux)
-    public init?(linkAddress: String) {
+    public init?(linkAddress: String)
+    {
         self.storage = sockaddr_storage()
         self.storage.ss_family = sa_family_t(AF_LINK)
         self.storage.ss_len = UInt8(MemoryLayout<sockaddr_un>.size)
@@ -163,60 +171,66 @@ extension SocketAddress {
     #endif
 }
 
-extension SocketAddress {
-    
+extension SocketAddress
+{
     @available(*, renamed: "socklen", deprecated, message: "use socklen instead")
-    public var len: socklen_t {
+    public var len: socklen_t
+    {
         return socklen_t(storage.ss_len)
     }
     
     @available(*, renamed: "family")
-    public var type: SocketFamilies {
+    public var type: SocketFamilies
+    {
         return SocketFamilies(rawValue: storage.ss_family)!
     }
     
-    public var family: SocketFamilies {
+    public var family: SocketFamilies
+    {
         return SocketFamilies(rawValue: storage.ss_family)!
     }
     
-    public func addr() -> sockaddr {
-        return unconditionalCast(from: self.storage,
-                                 to: sockaddr.self)
+    public func addr() -> sockaddr
+    {
+        return unconditionalCast(from: self.storage, to: sockaddr.self)
     }
     
-    public func inet() -> sockaddr_in? {
+    public func inet() -> sockaddr_in?
+    {
         if self.type != .inet {
             return nil
         }
-        return unconditionalCast(from: storage,
-                                 to: sockaddr_in.self)
+        return unconditionalCast(from: storage, to: sockaddr_in.self)
     }
     
-    public func inet6() -> sockaddr_in6? {
+    public func inet6() -> sockaddr_in6?
+    {
         if self.type != .inet6 {
             return nil
         }
-        return unconditionalCast(from: storage,
-                                 to: sockaddr_in6.self)
+        return unconditionalCast(from: storage, to: sockaddr_in6.self)
     }
     
-    public func unix() -> sockaddr_un? {
+    public func unix() -> sockaddr_un?
+    {
         if self.type != .unix {
             return nil
         }
-        return unconditionalCast(from: storage,
-                                 to: sockaddr_un.self)
+        return unconditionalCast(from: storage, to: sockaddr_un.self)
     }
     
-    public var socklen: socklen_t {
+    public var socklen: socklen_t
+    {
         return socklen_t(self.storage.ss_len)
     }
     
-    public mutating func addrptr() -> UnsafePointer<sockaddr> {
+    public mutating func addrptr() -> UnsafePointer<sockaddr>
+    {
         return pointer(of: &storage).cast(to: sockaddr.self)
     }
     
-    public var port: in_port_t? {
+    public var port: in_port_t?
+    {
         switch self.type {
         case .inet:
             return unconditionalCast(from: self.storage,
@@ -229,7 +243,8 @@ extension SocketAddress {
         }
     }
     
-    public var ip: String? {
+    public var ip: String?
+    {
         var buffer = [Int8](repeating: 0, count: Int(INET6_ADDRSTRLEN))
         var addr = self.storage
         
@@ -251,7 +266,8 @@ extension SocketAddress {
         return String(cString: buffer)
     }
     
-    public var path: String? {
+    public var path: String?
+    {
         if self.type != .unix {
             return nil
         }

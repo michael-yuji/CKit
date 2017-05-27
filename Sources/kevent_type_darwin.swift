@@ -43,10 +43,11 @@ let _evfilt_user: Int16 = -10
 let _evfilt_vm: Int16 = -12
 let _evfilt_except: Int16 = -15
 
-public enum KernelEventType: Int16 {
-
+public enum KernelEventType: Int16
+{
     public typealias RawValue = Int16
-    public var rawValue: Int16 {
+    public var rawValue: Int16
+    {
         switch self {
         case .read:
             return _evfilt_read
@@ -71,7 +72,8 @@ public enum KernelEventType: Int16 {
         }
     }
     
-    public init(rawValue: Int16) {
+    public init(rawValue: Int16)
+    {
         self =
             rawValue == _evfilt_read ? .read :
             rawValue == _evfilt_write ? .write:

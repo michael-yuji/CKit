@@ -29,13 +29,16 @@
 //  Created by yuuji on 8/27/16.
 //
 
-public protocol OpaqueBridged: RawRepresentable {
+public protocol OpaqueBridged: RawRepresentable
+{
     var opaqueObj: OpaqueObject { get set }
 }
 
-extension OpaqueBridged {
+extension OpaqueBridged
+{
     public typealias Raw = OpaquePointer
-    public var rawValue: OpaquePointer {
+    public var rawValue: OpaquePointer
+    {
         get {
             return opaqueObj.opaquePtr
         } set {
@@ -44,32 +47,40 @@ extension OpaqueBridged {
     }
 }
 
-public final class OpaqueObject {
+public final class OpaqueObject
+{
     public var opaquePtr: OpaquePointer
     public var free: (OpaquePointer) -> ()
 
-    public init(_ ptr: OpaquePointer, free: @escaping (OpaquePointer) -> ()) {
+    public init(_ ptr: OpaquePointer, free: @escaping (OpaquePointer) -> ())
+    {
         self.opaquePtr = ptr
         self.free = free
     }
 
-    public init<T>(_ ptr: UnsafePointer<T>, free: @escaping (OpaquePointer) -> ()) {
+    public init<T>(_ ptr: UnsafePointer<T>,
+                free: @escaping (OpaquePointer) -> ())
+    {
         self.opaquePtr = OpaquePointer(ptr)
         self.free = free
     }
 
-    public init<T>(_ ptr: UnsafeMutablePointer<T>, free: @escaping (OpaquePointer) -> ()) {
+    public init<T>(_ ptr: UnsafeMutablePointer<T>,
+                free: @escaping (OpaquePointer) -> ())
+    {
         self.opaquePtr = OpaquePointer(ptr)
         self.free = free
     }
 
-    deinit {
+    deinit
+    {
         free(opaquePtr)
     }
 }
 
 public extension OpaqueObject {
-    public func underlyingMemory<T>(as _: T.Type) -> T {
+    public func underlyingMemory<T>(as _: T.Type) -> T
+    {
         return UnsafeMutablePointer<T>(self.opaquePtr).pointee
     }
 }

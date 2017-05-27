@@ -90,7 +90,8 @@ public struct FileTypes : RawRepresentable, CustomStringConvertible
         
     }
 
-    public init(rawValue: DirentRawType) {
+    public init(rawValue: DirentRawType)
+    {
         self.rawValue = rawValue
     }
 }

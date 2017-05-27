@@ -1,19 +1,23 @@
 
-public struct Socket : FileDescriptorRepresentable {
+public struct Socket : FileDescriptorRepresentable
+{
     public var fileDescriptor: Int32
     
     @available(*, renamed: "init")
-    public init(domain: SocketDomains, type: SocketTypes, protocol: Int32) {
+    public init(domain: SocketDomains, type: SocketTypes, protocol: Int32)
+    {
         fileDescriptor = socket(Int32(domain.rawValue),
                                 type.rawValue, `protocol`)
     }
     
-    public init(family: SocketDomains, type: SocketTypes, protocol: Int32) {
+    public init(family: SocketDomains, type: SocketTypes, protocol: Int32)
+    {
         fileDescriptor = socket(Int32(family.rawValue),
                                 type.rawValue, `protocol`)
     }
     
-    public init(raw: Int32) {
+    public init(raw: Int32)
+    {
         assert(raw > 0)
         self.fileDescriptor = raw
     }
@@ -32,7 +36,8 @@ public struct Socket : FileDescriptorRepresentable {
         return (Socket(raw: pair[0]), Socket(raw: pair[1]))
     }
     
-    public var blocking: Bool {
+    public var blocking: Bool
+    {
         get {
             return !self.flags.contains(.nonblock)
         } set {
@@ -45,14 +50,17 @@ public struct Socket : FileDescriptorRepresentable {
     }
 }
 
-public struct RecvFlags: OptionSet {
+public struct RecvFlags: OptionSet
+{
     public typealias RawValue = Int32
     public var rawValue: Int32
-    public init(rawValue: Int32) {
+    public init(rawValue: Int32)
+    {
         self.rawValue = rawValue
     }
     
-    public init(rawValue: Int) {
+    public init(rawValue: Int)
+    {
         self.rawValue = Int32(rawValue)
     }
     
@@ -76,14 +84,17 @@ public struct RecvFlags: OptionSet {
     #endif
 }
 
-public struct SendFlags: OptionSet {
+public struct SendFlags: OptionSet
+{
     public typealias RawValue = Int32
     public var rawValue: Int32
-    public init(rawValue: Int32) {
+    public init(rawValue: Int32)
+    {
         self.rawValue = rawValue
     }
     
-    public init(rawValue: Int) {
+    public init(rawValue: Int)
+    {
         self.rawValue = Int32(rawValue)
     }
     
@@ -115,14 +126,16 @@ public struct SendFlags: OptionSet {
 
 extension Socket {
     
-    public func bind(_ addr: SocketAddress) throws {
+    public func bind(_ addr: SocketAddress) throws
+    {
         var addr = addr
         _ = try guarding("bind") {
             xlibc.bind(fileDescriptor, addr.addrptr(), addr.socklen)
         }
     }
     
-    public func bind(_ addr: SocketAddress, port: in_port_t) {
+    public func bind(_ addr: SocketAddress, port: in_port_t)
+    {
         switch addr.type {
         case .inet:
             guard var inet = addr.inet() else {
@@ -160,14 +173,16 @@ extension Socket {
         return (Socket(raw: fd), SocketAddress(storage: addr))
     }
     
-    public func connect(to addr: SocketAddress) throws {
+    public func connect(to addr: SocketAddress) throws
+    {
         var addr = addr
         _ = try guarding("connect") {
             xlibc.connect(fileDescriptor, addr.addrptr(), addr.socklen)
         }
     }
     
-    public func listen(_ backlog: Int32 = Int32(Int32.max)) throws {
+    public func listen(_ backlog: Int32 = Int32(Int32.max)) throws
+    {
         _ = try guarding("listen") {
             xlibc.listen(fileDescriptor, backlog)
         }
@@ -175,7 +190,8 @@ extension Socket {
     
     @discardableResult
     public func send(bytes: AnyPointer,
-                     length: Int, flags: SendFlags) throws -> Int {
+                     length: Int, flags: SendFlags) throws -> Int
+    {
         return try guarding("send") {
             xlibc.send(fileDescriptor, bytes.rawPointer, length, flags.rawValue)
         }
@@ -194,7 +210,8 @@ extension Socket {
     @discardableResult
     public func send(to dest: SocketAddress,
                      bytes: AnyPointer,
-                     length: Int, flags: SendFlags) throws -> Int {
+                     length: Int, flags: SendFlags) throws -> Int
+    {
         var dest = dest
         return try guarding("sendto") {
             sendto(fileDescriptor, bytes.rawPointer, length,
@@ -204,9 +221,10 @@ extension Socket {
     
     @discardableResult
     public func received(to buffer: AnyMutablePointer,
-                         length: Int, flags: RecvFlags)
-        throws -> (sender: SocketAddress, size: Int) {
-            
+                         length: Int,
+                         flags: RecvFlags)
+        throws -> (sender: SocketAddress, size: Int)
+    {
         var storage = _sockaddr_storage()
         let i = try guarding("recvfrom") {
             recvfrom(fileDescriptor,
@@ -218,16 +236,18 @@ extension Socket {
     }
 }
 
-extension Socket {
-    
-    func setsock<ArgType>(opt: SocketOptions, value: ArgType) {
+extension Socket
+{
+    func setsock<ArgType>(opt: SocketOptions, value: ArgType)
+    {
         var _val = value
         setsockopt(fileDescriptor, opt.layer, opt.rawValue,
                    pointer(of: &_val).rawPointer,
                    socklen_t(MemoryLayout<ArgType>.size))
     }
     
-    func getsock<ArgType>(opt: SocketOptions) -> ArgType {
+    func getsock<ArgType>(opt: SocketOptions) -> ArgType
+    {
         var ret: ArgType!
         var size = socklen_t(MemoryLayout<ArgType>.size)
         getsockopt(fileDescriptor, opt.layer, opt.rawValue,
@@ -236,7 +256,8 @@ extension Socket {
     }
     
     /// enables local address reuse
-    public var reuseaddr: Bool {
+    public var reuseaddr: Bool
+    {
         get {
             return getsock(opt: .reuseaddr)
         } nonmutating set {
@@ -245,7 +266,8 @@ extension Socket {
     }
     
     /// enables duplicate address and port binding
-    public var reuseport: Bool {
+    public var reuseport: Bool
+    {
         get {
             return getsock(opt: .reuseport)
         } nonmutating set {
@@ -254,7 +276,8 @@ extension Socket {
     }
     
     /// set buffer size for output
-    public var sendBufferSize: Int {
+    public var sendBufferSize: Int
+    {
         get {
             return getsock(opt: .sendBuffer)
         } nonmutating set {
@@ -263,7 +286,8 @@ extension Socket {
     }
     
     /// set buffer size for input
-    public var recvBufferSize: Int {
+    public var recvBufferSize: Int
+    {
         get {
             return getsock(opt: .recvBuffer)
         } nonmutating set {
@@ -272,7 +296,8 @@ extension Socket {
     }
     
     /// Enables recording of debugging information
-    public var debug: Bool {
+    public var debug: Bool
+    {
         get {
             return getsock(opt: .debug)
         } nonmutating set {
@@ -281,7 +306,8 @@ extension Socket {
     }
     
     /// set timeout for output
-    public var sendTimeout: timeval {
+    public var sendTimeout: timeval
+    {
         get {
             return getsock(opt: .sendTimeout)
         } nonmutating set {
@@ -290,7 +316,8 @@ extension Socket {
     }
     
     /// set timeout for input
-    public var recvTimeout: timeval {
+    public var recvTimeout: timeval
+    {
         get {
             return getsock(opt: .recvTimeout)
         } nonmutating set {
@@ -299,7 +326,8 @@ extension Socket {
     }
     
     /// enables keep connections alive
-    public var keepalive: Bool {
+    public var keepalive: Bool
+    {
         get {
             return getsock(opt: .keepalive)
         } nonmutating set {
@@ -308,7 +336,8 @@ extension Socket {
     }
     
     /// enables permission to transmit broadcast messages
-    public var broadcast: Bool {
+    public var broadcast: Bool
+    {
         get {
             return getsock(opt: .broadcast)
         } nonmutating set {
@@ -318,7 +347,8 @@ extension Socket {
     
     #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS) || os(FreeBSD)
     /// do not generate SIGPIPE, instead return EPIPE
-    public var noSigpipe: Bool {
+    public var noSigpipe: Bool
+    {
         get {
             return getsock(opt: .nosigpipe)
         } nonmutating set {
@@ -329,28 +359,32 @@ extension Socket {
     
 }
 
-public struct SocketOptions: RawRepresentable {
-    
+public struct SocketOptions: RawRepresentable
+{
     public typealias RawValue = Int32
     public var rawValue: Int32
     public var layer: Int32
     
-    public init(rawValue: Int32) {
+    public init(rawValue: Int32)
+    {
         self.rawValue = rawValue
         self.layer = SOL_SOCKET
     }
     
-    public init(_ layer: Int32, _ rawValue: Int32) {
+    public init(_ layer: Int32, _ rawValue: Int32)
+    {
         self.layer = layer
         self.rawValue = rawValue
     }
 
-    public init(_ layer: Int, _ rawValue: Int32) {
+    public init(_ layer: Int, _ rawValue: Int32)
+    {
         self.layer = Int32(layer)
         self.rawValue = rawValue
     }
 
-    public init(_ layer: UInt32, _ rawValue: Int32) {
+    public init(_ layer: UInt32, _ rawValue: Int32)
+    {
         self.layer = Int32(layer)
         self.rawValue = rawValue
     }

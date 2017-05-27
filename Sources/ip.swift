@@ -1,10 +1,15 @@
 
-public struct MulticastGroup {
-    
+public struct MulticastGroup
+{
+    /// The Multicast address
     public var address: SocketAddress
 
+    /// The Mulitcast Interface
     public var interface: Interface
     
+    /// In ipv4, we will need the real 32 bit address
+    /// In ipv6, we will need the 32 bit index
+    /// The type of this enum also indicates the ipv of the multicast group
     public enum Interface {
         case ipv4(in_addr)
         case ipv6(UInt32)

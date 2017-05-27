@@ -30,18 +30,22 @@
 //  Copyright © 2016 Yuji. All rights reserved.
 //
 
-public struct PremissionMode: OptionSet, CustomStringConvertible {
+public struct PremissionMode: OptionSet, CustomStringConvertible
+{
     public typealias RawValue = mode_t
     public var rawValue: mode_t
-    public init(rawValue: mode_t) {
+    public init(rawValue: mode_t)
+    {
         self.rawValue = rawValue
     }
     
-    public init(_ rawValue: mode_t) {
+    public init(_ rawValue: mode_t)
+    {
         self.rawValue = rawValue
     }
     
-    public var description: String {
+    public var description: String
+    {
         return
             (
                 "\(self.contains(PremissionMode.user.r) ? "r" : "-")" +
