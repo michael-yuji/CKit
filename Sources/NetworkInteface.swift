@@ -29,7 +29,7 @@ public struct NetworkInterface: CustomStringConvertible
         address = SocketAddress(addr: raw.pointee.ifa_addr)
     
         #if os(Linux)
-            let dst = raw.pointee.ifa_ifu.ifa_dstaddr
+            let dst = raw.pointee.ifa_ifu.ifu_dstaddr
         #else
             let dst = raw.pointee.ifa_dstaddr
         #endif
@@ -92,19 +92,23 @@ public struct NetworkInterface: CustomStringConvertible
         return contains(IFF_NOARP)
     }
 
-    public var promiscousMode: Bool {
+    public var promiscousMode: Bool
+    {
         return contains(IFF_PROMISC)
     }
 
-    public var AvoidTrailers: Bool {
+    public var AvoidTrailers: Bool
+    {
         return contains(IFF_NOTRAILERS)
     }
 
-    public var recvAllMulticast: Bool {
+    public var recvAllMulticast: Bool
+    {
         return contains(IFF_ALLMULTI)
     }
 
-    public var supportMulticast: Bool {
+    public var supportMulticast: Bool
+    {
         return contains(IFF_MULTICAST)
     }
 

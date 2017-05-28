@@ -1,9 +1,9 @@
 
 #if os(Linux)
     let EAI_ADDRFAMILY = EAI_FAMILY
-    let EAI_NODATA = -5
+    let EAI_NODATA: Int32 = -5
     let EAI_BADHINTS = EAI_BADFLAGS
-    let EAI_PROTOCOL = 0 // does not exist counter part in Linux
+    let EAI_PROTOCOL: Int32 = 0 // does not exist counter part in Linux
     
 #endif
 public struct SocketAddressInfo
