@@ -71,7 +71,7 @@ extension SocketAddress
 {
     public init(addr: UnsafePointer<sockaddr>, port: in_port_t? = nil)
     {
-        self.storage = sockaddr_storage()
+        self.storage = _sockaddr_storage()
         #if !os(Linux)
             let len = Int(addr.pointee.sa_len)
         #else
@@ -98,14 +98,14 @@ extension SocketAddress
     {
         switch domain {
         case .inet:
-            self.storage = sockaddr_storage()
+            self.storage = _sockaddr_storage()
             let addr = sockaddr_in(port: port)
             mutablePointer(of: &self.storage)
                 .cast(to: sockaddr_in.self)
                 .initialize(to: addr)
             
         case .inet6:
-            self.storage = sockaddr_storage()
+            self.storage = _sockaddr_storage()
             let addr = sockaddr_in6(port: port)
             mutablePointer(of: &self.storage)
                 .cast(to: sockaddr_in6.self)
@@ -120,7 +120,7 @@ extension SocketAddress
     {
         switch domain {
         case .inet:
-            self.storage = sockaddr_storage()
+            self.storage = _sockaddr_storage()
             var addr = sockaddr_in(port: port)
             _ = ip.withCString {
                 inet_pton(AF_INET, $0,mutableRawPointer(of: &(addr.sin_addr)))
@@ -130,7 +130,7 @@ extension SocketAddress
                 .initialize(to: addr)
             
         case .inet6:
-            self.storage = sockaddr_storage()
+            self.storage = _sockaddr_storage()
             var addr = sockaddr_in6(port: port)
             _ = ip.withCString {
                 inet_pton(AF_INET6, $0, mutableRawPointer(of: &(addr.sin6_addr)))
@@ -146,7 +146,7 @@ extension SocketAddress
     
     public init?(unixPath: String)
     {
-        self.storage = sockaddr_storage()
+        self.storage = _sockaddr_storage()
         self.storage.ss_family = sa_family_t(AF_UNIX)
         #if !os(Linux)
         self.storage.ss_len = UInt8(MemoryLayout<sockaddr_un>.size)
@@ -160,7 +160,7 @@ extension SocketAddress
     #if !os(Linux)
     public init?(linkAddress: String)
     {
-        self.storage = sockaddr_storage()
+        self.storage = _sockaddr_storage()
         self.storage.ss_family = sa_family_t(AF_LINK)
         self.storage.ss_len = UInt8(MemoryLayout<sockaddr_un>.size)
         linkAddress.withCString {

@@ -27,8 +27,15 @@ public struct NetworkInterface: CustomStringConvertible
     {
         name = String(cString: raw.pointee.ifa_name)
         address = SocketAddress(addr: raw.pointee.ifa_addr)
-        if (raw.pointee.ifa_dstaddr != nil) {
-            _dest = SocketAddress(addr: raw.pointee.ifa_dstaddr)
+    
+        #if os(Linux)
+            let dst = raw.pointee.ifa_ifu.ifa_dstaddr
+        #else
+            let dst = raw.pointee.ifa_dstaddr
+        #endif
+    
+        if (dst != nil) {
+            _dest = SocketAddress(addr: dst!)
         }
         if (raw.pointee.ifa_netmask != nil) {
             netmask = SocketAddress(addr: raw.pointee.ifa_netmask)

@@ -1,5 +1,11 @@
 
-
+#if os(Linux)
+    let EAI_ADDRFAMILY = EAI_FAMILY
+    let EAI_NODATA = -5
+    let EAI_BADHINTS = EAI_BADFLAGS
+    let EAI_PROTOCOL = 0 // does not exist counter part in Linux
+    
+#endif
 public struct SocketAddressInfo
 {
     /// The canon name of the host

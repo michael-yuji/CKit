@@ -117,8 +117,12 @@ public struct Directory {
         var dir: dirent = dirent()
         
         var resloved: UnsafeMutablePointer<dirent>? = nil
-        
+
+        #if os(Linux)
+        let path = path.characters[path.endIndex] == "/" ? path : (path + "/")
+        #else
         let path = path.hasSuffix("/") ? path : (path + "/")
+        #endif
         
         repeat
         {
