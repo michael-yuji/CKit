@@ -36,6 +36,7 @@
     public let UNIX_PATH_MAX = 108
 #endif
 
+//typealias _sockaddr_storage = xlibc.socket_address
 public struct SocketAddress
 {
     #if !os(Linux)

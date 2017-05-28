@@ -44,34 +44,6 @@ public protocol RawBufferRepresentable
     func rawBufferRetained(_ buffer: UnsafeRawBufferPointer)
 }
 
-public struct AccessMode: OptionSet, CustomStringConvertible
-{
-    public typealias RawValue = mode_t
-    public var rawValue: mode_t
-    
-    public init(rawValue: mode_t)
-    {
-        self.rawValue = rawValue
-    }
-    
-    public init(_ i: Int32)
-    {
-        self.rawValue = mode_t(i)
-    }
-    
-    public var description: String
-    {
-        return (self.contains(.read) ? "r" : "-")
-             + (self.contains(.write) ? "w" : "-")
-    }
-}
-
-public extension AccessMode
-{
-    public static let read = AccessMode(O_RDONLY)
-    public static let write = AccessMode(O_WRONLY)
-}
-
 public struct FileControlFlags: OptionSet
 {
     public static let nonblock = FileControlFlags(rawValue: O_NONBLOCK)

@@ -8,17 +8,20 @@ extension CKitTests {
         let cpath = path.cString(using: .ascii)!
 
         var addr = SocketAddress(unixPath: path)!
-
+        
         var caddr = sockaddr_un()
 
         caddr.sun_family = sa_family_t(AF_UNIX)
         #if !os(Linux)
         caddr.sun_len = __uint8_t(MemoryLayout<sockaddr_un>.size)
         #endif
-
+//        print(addr.storage.unix)
         _ = withUnsafeMutableBytes(of: &(caddr.sun_path)) {
             memcpy($0.baseAddress!, cpath, Int(strlen(cpath)))
         }
+        
+//        print(caddr)
+        print(addr.addrptr().cast(to: sockaddr_un.self).pointee)
 
         var cast = addr.unix()!
 

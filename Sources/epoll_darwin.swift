@@ -35,7 +35,7 @@
 #if os(OSX)
     func epoll_create(_ i: Int) -> Int32
     {
-        return 0
+        return kqueue()
     }
     
     public struct EPOLL_EVENTS: RawRepresentable

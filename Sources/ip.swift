@@ -10,11 +10,13 @@ public struct MulticastGroup
     /// In ipv4, we will need the real 32 bit address
     /// In ipv6, we will need the 32 bit index
     /// The type of this enum also indicates the ipv of the multicast group
-    public enum Interface {
+    public enum Interface
+    {
         case ipv4(in_addr)
         case ipv6(UInt32)
         
-        var _v4: in_addr! {
+        var _v4: in_addr!
+        {
             switch self {
             case let .ipv4(addr):
                 return addr
@@ -23,7 +25,8 @@ public struct MulticastGroup
             }
         }
         
-        var _v6: UInt32! {
+        var _v6: UInt32!
+        {
             switch self {
             case let .ipv6(index):
                 return index
@@ -33,22 +36,26 @@ public struct MulticastGroup
         }
     }
     
-    public init(ipv6 addr: SocketAddress, interface: UInt32) {
+    public init(ipv6 addr: SocketAddress, interface: UInt32)
+    {
         self.address = addr
         self.interface = .ipv6(interface)
     }
     
-    public init(ipv4 addr: SocketAddress, interface: in_addr) {
+    public init(ipv4 addr: SocketAddress, interface: in_addr)
+    {
         self.address = addr
         self.interface = .ipv4(interface)
     }
     
-    public var ipv4req: ip_mreq {
+    public var ipv4req: ip_mreq
+    {
         return ip_mreq(imr_multiaddr: address.inet()!.sin_addr,
                        imr_interface: interface._v4)
     }
     
-    public var ipv6req: ipv6_mreq {
+    public var ipv6req: ipv6_mreq
+    {
         return ipv6_mreq(ipv6mr_multiaddr: address.inet6()!.sin6_addr,
                          ipv6mr_interface: interface._v6)
     }
@@ -56,8 +63,8 @@ public struct MulticastGroup
 
 
 
-public struct Ipv4Ops {
-    
+public struct Ipv4Ops
+{
     public static let typeOfService = SocketOptions(IPPROTO_IP, IP_TOS)
     
     public static let time2live = SocketOptions(IPPROTO_IP, IP_TTL)
@@ -68,8 +75,8 @@ public struct Ipv4Ops {
     public static let portRange = SocketOptions(IPPROTO_IP, IP_PORTRANGE)
     #endif
     
-    public struct Multicast {
-
+    public struct Multicast
+    {
         public static let addMembership = SocketOptions(IPPROTO_IP, IP_ADD_MEMBERSHIP)
         
         public static let dropMembership = SocketOptions(IPPROTO_IP, IP_DROP_MEMBERSHIP)
@@ -80,8 +87,8 @@ public struct Ipv4Ops {
     }
 }
 
-public struct Ipv6Ops {
-    
+public struct Ipv6Ops
+{
     #if os(FreeBSD)
     public static let packetInfo = SocketOptions(IPPROTO_IPV6, IPV6_PKTINFO)
     
@@ -124,23 +131,26 @@ public struct Ipv6Ops {
     public static let v6only = SocketOptions(IPPROTO_IPV6, IPV6_V6ONLY)
     
     
-    public struct Unicast {
+    public struct Unicast
+    {
         public static let hops = SocketOptions(IPPROTO_IPV6, IPV6_UNICAST_HOPS)
     }
     
-    public struct Multicast {
+    public struct Multicast
+    {
         public static let interface = SocketOptions(IPPROTO_IPV6, IPV6_MULTICAST_IF)
         public static let hops = SocketOptions(IPPROTO_IPV6, IPV6_MULTICAST_HOPS)
         public static let loop = SocketOptions(IPPROTO_IPV6, IPV6_MULTICAST_LOOP)
         public static let joinGroup = SocketOptions(IPPROTO_IPV6, IPV6_JOIN_GROUP)
         public static let leaveGroup = SocketOptions(IPPROTO_IPV6, IPV6_LEAVE_GROUP)
-        
     }
 }
 
 
-extension Socket {
-    public func joinMulticast(group: MulticastGroup) {
+extension Socket
+{
+    public func joinMulticast(group: MulticastGroup)
+    {
         switch group.interface {
         case .ipv4:
             setsock(opt: Ipv4Ops.Multicast.addMembership, value: group.ipv4req)
@@ -149,7 +159,8 @@ extension Socket {
         }
     }
     
-    public func leaveMulticast(group: MulticastGroup) {
+    public func leaveMulticast(group: MulticastGroup)
+    {
         switch group.interface {
         case .ipv4:
             setsock(opt: Ipv4Ops.Multicast.dropMembership, value: group.ipv4req)
