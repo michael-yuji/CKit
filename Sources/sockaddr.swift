@@ -81,7 +81,6 @@ public struct _sockaddr_storage
 #else
 public typealias _sockaddr_storage = xlibc.sockaddr_storage
 #endif
-//
 
 extension sockaddr
 {
@@ -178,6 +177,4 @@ extension sockaddr_in6
     }
     #endif
 }
-
-
 

@@ -128,9 +128,11 @@ extension Socket {
     
     public func bind(_ addr: SocketAddress) throws
     {
-        var addr = addr
         _ = try guarding("bind") {
-            xlibc.bind(fileDescriptor, addr.addrptr(), addr.socklen)
+            addr.withSockAddrPointer {
+                xlibc.bind(fileDescriptor, $0, addr.socklen)
+            }
+        
         }
     }
     
@@ -175,9 +177,10 @@ extension Socket {
     
     public func connect(to addr: SocketAddress) throws
     {
-        var addr = addr
         _ = try guarding("connect") {
-            xlibc.connect(fileDescriptor, addr.addrptr(), addr.socklen)
+            addr.withSockAddrPointer {
+                xlibc.connect(fileDescriptor, $0, addr.socklen)
+            }
         }
     }
     
@@ -212,10 +215,11 @@ extension Socket {
                      bytes: AnyPointer,
                      length: Int, flags: SendFlags) throws -> Int
     {
-        var dest = dest
         return try guarding("sendto") {
-            sendto(fileDescriptor, bytes.rawPointer, length,
-                   flags.rawValue, dest.addrptr(), dest.socklen)
+            dest.withSockAddrPointer {
+                sendto(fileDescriptor, bytes.rawPointer, length,
+                       flags.rawValue, $0, dest.socklen)
+            }
         }
     }
     

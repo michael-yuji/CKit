@@ -48,10 +48,10 @@ class CKitTests: XCTestCase {
 //        ("dns", test_dns0),
 //        ("dns", test_dns1),
 //        ("dns", test_dns2),
-        ("ip4", testIpv4),
-        ("ip6", testIpv6),
-        ("unixsock", testUnixDomain),
-        ("nonblk", test_read_nonblk)
+//        ("ip4", testIpv4),
+//        ("ip6", testIpv6),
+//        ("unixsock", testUnixDomain),
+//        ("nonblk", test_read_nonblk)
     ]
   }
 }

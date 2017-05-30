@@ -1,7 +1,7 @@
 
 public struct SystemError: Error, CustomStringConvertible {
     public var errno: Int32
-    public var umsg: String?
+    public var umsg: StaticString?
 
     public var description: String
     {
@@ -10,7 +10,7 @@ public struct SystemError: Error, CustomStringConvertible {
         return "\(umsg ?? ""): " + String(cString: buf)
     }
     
-    public static func last(_ umsg: String?) -> SystemError
+    public static func last(_ umsg: StaticString?) -> SystemError
     {
         return SystemError(errno: xlibc.errno, umsg: umsg)
     }
@@ -24,7 +24,7 @@ public struct SystemError: Error, CustomStringConvertible {
 }
 
 @inline(__always)
-func guarding<I: Integer>(_ sys: String, _ blk: (Void) -> I) throws -> I
+func guarding<I: Integer>(_ sys: StaticString, _ blk: (Void) -> I) throws -> I
 {
     let ret = blk()
     if ret == -1 {

@@ -112,13 +112,13 @@ public func mutablePointer<T,R>(of obj: inout T, as r: R.Type,
 }
 
 @inline(__always)
-func unconditionalCast<T, X>(from obj: inout T, to: X.Type) -> X
+func reinterept_cast<T, X>(from obj: inout T, to: X.Type) -> X
 {
     return mutablePointer(of: &obj).cast(to: X.self).pointee
 }
 
 @inline(__always)
-func unconditionalCast<T, X>(from obj: T, to: X.Type) -> X
+func reinterept_cast<T, X>(from obj: T, to: X.Type) -> X
 {
     var obj = obj
     return mutablePointer(of: &obj).cast(to: X.self).pointee
