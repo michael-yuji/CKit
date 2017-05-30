@@ -224,12 +224,12 @@ extension SocketAddress
         }
     }
     
-//    public func addrptr() -> UnsafePointer<sockaddr>
-//    {
-//        return withSockAddrPointer {
-//            $0
-//        }
-//    }
+    public func addrptr() -> UnsafePointer<sockaddr>
+    {
+        return withSockAddrPointer {
+            $0
+        }
+    }
     
     public func withSockAddrPointer<R>(_ blk: (UnsafePointer<sockaddr>) -> R) -> R
     {
