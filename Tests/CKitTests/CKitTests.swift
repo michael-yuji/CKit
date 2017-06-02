@@ -5,27 +5,27 @@ import Foundation
 
 class CKitTests: XCTestCase {
 
-    func removeDir(path: String) {
-        let dir = try! Directory(path: path)
-        for ent in dir.contents {
-            if ent.name == "." || ent.name == ".." {
-                continue
-            }
-            let cpathname = path + "/" + ent.name
-//            print("removing \(cpathname)")
-            switch ent.type.rawValue {
-            case FileTypes.directory.rawValue:
-                removeDir(path: cpathname)
-                rmdir(cpathname)
-            default:
-                unlink(cpathname)
-            }
-        }
-    }
+//    func removeDir(path: String) {
+//        let dir = try! Directory(path: path)
+//        for ent in dir.contents {
+//            if ent.name == "." || ent.name == ".." {
+//                continue
+//            }
+//            let cpathname = path + "/" + ent.name
+////            print("removing \(cpathname)")
+//            switch ent.type.rawValue {
+//            case FileTypes.directory.rawValue:
+//                removeDir(path: cpathname)
+//                rmdir(cpathname)
+//            default:
+//                unlink(cpathname)
+//            }
+//        }
+//    }
     
-    func test_cm_dir() {
-        removeDir(path: "/Users/yuuji/Library/Caches/com.apple.bird/session/g")
-    }
+//    func test_cm_dir() {
+//        removeDir(path: "/Users/yuuji/Library/Caches/com.apple.bird/session/g")
+//    }
 //    public func test_netif() {
 //        NetworkInterface.interfaces.forEach {
 //            print($0)
@@ -44,14 +44,17 @@ class CKitTests: XCTestCase {
     
 	static var allTests : [(String, (CKitTests) -> () throws -> Void)] {
     return [
-//        ("dns", test_dns),
-//        ("dns", test_dns0),
-//        ("dns", test_dns1),
-//        ("dns", test_dns2),
-//        ("ip4", testIpv4),
-//        ("ip6", testIpv6),
-//        ("unixsock", testUnixDomain),
-//        ("nonblk", test_read_nonblk)
+        ("dns", test_dns),
+        ("dns", test_dns0),
+        ("dns", test_dns1),
+        ("dns", test_dns2),
+        ("ip4", testIpv4),
+        ("ip6", testIpv6),
+        ("initWithSockStorage", test_init_with_storage),
+        ("unix_domain_sock", testUnixDomain),
+        ("subnet", test_subnet),
+        ("unixsock", testUnixDomain),
+        ("nonblk", test_read_nonblk)
     ]
   }
 }

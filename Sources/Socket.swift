@@ -164,7 +164,7 @@ extension Socket {
     
     public func accept() throws -> (Socket, SocketAddress)
     {
-        var addr = _sockaddr_storage()
+        var addr = sockaddr_storage()
         var socklen: socklen_t = 0
         
         let fd = try guarding("accept") {
@@ -230,7 +230,7 @@ extension Socket {
                          flags: RecvFlags)
         throws -> (sender: SocketAddress, size: Int)
     {
-        var storage = _sockaddr_storage()
+        var storage = sockaddr_storage()
         let i = try guarding("recvfrom") {
             recvfrom(fileDescriptor,
                      buffer.mutableRawPointer, length, flags.rawValue,

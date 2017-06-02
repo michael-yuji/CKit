@@ -1,4 +1,3 @@
-// ###sourceLocation(file: "/Users/yuuji/Documents/Development/CKit/Sources/SocketAddress1.swift.gyb", line: 1)
 
 //  Copyright (c) 2016, Yuji
 //  All rights reserved.
@@ -27,9 +26,9 @@
 //  of the authors and should not be interpreted as representing official policies,
 //  either expressed or implied, of the FreeBSD Project.
 //
-//  Created by yuuji on 6/2/16.
-//  Copyright © 2016 yuuji. All rights reserved.
+//  Copyright © 2017 Yuji. All rights reserved.
 //
+
 
 #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
     public let UNIX_PATH_MAX = 104
@@ -53,17 +52,16 @@ extension SocketAddress : CustomStringConvertible
     }
 }
 
-
 public struct SocketAddress
 {
     enum __sockaddr {
-        case addr(sockaddr)
-        case inet(sockaddr_in)
-        case inet6(sockaddr_in6)
-        case unix(sockaddr_un)
-        case link(sockaddr_dl)
+    case addr(sockaddr)
+    case inet(sockaddr_in)
+    case inet6(sockaddr_in6)
+    case unix(sockaddr_un)
+    case link(sockaddr_dl)
     }
-    
+
     var storage: __sockaddr
 }
 
@@ -73,7 +71,6 @@ extension SocketAddress
     {
         var storage = storage
         switch storage.ss_family {
-
         case sa_family_t(AF_INET):
             self.storage = withUnsafePointer(to: &storage) {
                 .inet($0.cast(to: sockaddr_in.self).pointee)
@@ -90,18 +87,18 @@ extension SocketAddress
             self.storage = withUnsafePointer(to: &storage) {
                 .link($0.cast(to: sockaddr_dl.self).pointee)
             }
-            
+
         default:
             self.storage = withUnsafePointer(to: &storage, {
                 .addr($0.cast(to: sockaddr.self).pointee)
             })
         }
     }
-    
+
     public init(addr: UnsafePointer<sockaddr>, port: in_port_t? = nil)
     {
         switch addr.pointee.sa_family {
-            
+
         case sa_family_t(AF_UNSPEC):
             self.storage = .addr(addr.cast(to: sockaddr.self).pointee)
         case sa_family_t(AF_INET):
@@ -112,12 +109,12 @@ extension SocketAddress
             self.storage = .unix(addr.cast(to: sockaddr_un.self).pointee)
         case sa_family_t(AF_LINK):
             self.storage = .link(addr.cast(to: sockaddr_dl.self).pointee)
-            
+
         default:
             self.storage = .addr(addr.pointee)
         }
     }
-    
+
     public init?(domain: SocketFamilies, port: in_port_t)
     {
         switch domain {
@@ -129,40 +126,40 @@ extension SocketAddress
             return nil
         }
     }
-    
+
     public init?(ip: String, domain: SocketFamilies, port: in_port_t = 0)
     {
         switch domain {
         case .inet:
             var inet = sockaddr_in(port: port)
-            
+
             _ = ip.withCString {
                 inet_pton(AF_INET, $0,mutableRawPointer(of: &(inet.sin_addr)))
             }
-            
+
             self.storage = .inet(inet)
-            
+
         case .inet6:
             var inet6 = sockaddr_in6(port: port)
-            
+
             _ = ip.withCString {
                 inet_pton(AF_INET6, $0, mutableRawPointer(of: &(inet6.sin6_addr)))
             }
-            
+
             self.storage = .inet6(inet6)
-            
+
         default:
             return nil
         }
     }
-    
+
     public init(unixPath: String)
     {
         var unix = sockaddr_un()
         #if !os(Linux)
             unix.sun_len = UInt8(MemoryLayout<sockaddr_un>.size)
         #endif
-        unix.sun_family = UInt8(AF_UNIX)
+        unix.sun_family = sa_family_t(AF_UNIX)
         unixPath.withCString {
             memcpy(mutablePointer(of: &(unix.sun_path)),
                    $0,
@@ -170,7 +167,7 @@ extension SocketAddress
         }
         self.storage = .unix(unix)
     }
-    
+
     #if !os(Linux)
     public init?(linkAddress: String)
     {
@@ -193,7 +190,7 @@ extension SocketAddress
     {
         return family
     }
-    
+
     public var family: SocketFamilies
     {
         switch self.storage {
@@ -205,9 +202,15 @@ extension SocketAddress
             return .unix
         case .link:
             return .link
-        // ###sourceLocation(file: "/Users/yuuji/Documents/Development/CKit/Sources/SocketAddress1.swift.gyb", line: 234)
         case let .addr(addr):
             return SocketFamilies(rawValue: addr.sa_family)!
+        }
+    }
+
+    public func addrptr() -> UnsafePointer<sockaddr>
+    {
+        return withSockAddrPointer {
+            $0
         }
     }
 
@@ -226,7 +229,7 @@ extension SocketAddress
             return blk(pointer(of: &link).cast(to: sockaddr.self))
         }
     }
-    
+
     public func addr() -> sockaddr
     {
         switch self.storage {
@@ -270,11 +273,11 @@ extension SocketAddress
         }
         return link
     }
-    
+
     public var socklen: socklen_t
     {
         switch family {
-            
+
         case .inet:
             return socklen_t(MemoryLayout<sockaddr_in>.size)
         case .inet6:
@@ -283,52 +286,52 @@ extension SocketAddress
             return socklen_t(MemoryLayout<sockaddr_un>.size)
         case .link:
             return socklen_t(MemoryLayout<sockaddr_dl>.size)
-            
+
         default:
             return socklen_t(MemoryLayout<sockaddr>.size)
         }
     }
-    
+
     /// Get the port number of the address if available
     public var port: in_port_t?
     {
         switch self.storage {
         case let .inet(inet):
             return inet.sin_port.bigEndian
-            
+
         case let .inet6(inet6):
             return inet6.sin6_port.bigEndian
-            
+
         default:
             return nil
         }
     }
-    
+
     /// Get the ip address if availble
     public var ip: String?
     {
         var buffer = [Int8](repeating: 0, count: Int(INET6_ADDRSTRLEN))
-        
+
         switch self.storage {
         case var .inet(inet):
             inet_ntop(AF_INET, &inet.sin_addr, &buffer, UInt32(INET_ADDRSTRLEN))
-            
+
         case var .inet6(inet6):
             inet_ntop(AF_INET6, &inet6.sin6_addr, &buffer, UInt32(INET6_ADDRSTRLEN))
-            
+
         default:
             return nil
         }
         return String(cString: buffer)
     }
-    
+
     /// Get the path of the unix domain socket address if posible
     public var path: String?
     {
         guard case var .unix(unix) = self.storage else {
             return nil
         }
-        
+
         return String(cString: pointer(of: &unix.sun_path).cast(to: Int8.self))
     }
 }
@@ -391,7 +394,7 @@ extension SocketAddress: Equatable
         return memcmp(&lhs.storage, &rhs.storage,
                       MemoryLayout<__sockaddr>.size) == 0
     }
-    
+
     private func _check_masked(lhs: UInt32, rhs: UInt32, bits: UInt32) -> Bool
     {
         guard bits <= 32 else {
@@ -401,24 +404,36 @@ extension SocketAddress: Equatable
         let bitsEraser = (~((1 << (33 - bits)) - 1)).bigEndian
         return (bitsEraser & lhs) == (bitsEraser & rhs)
     }
-    
+
     @inline(__always)
     private func prefix_mask(_ first_nonzero: UInt32) -> UInt32
     {
         return ~((1 << (33 - first_nonzero)) - 1)
     }
-    
+
     private func _is_in_subnet_v4(lhs: in_addr_t,
                                   rhs: in_addr_t,
                                   mask: in_addr_t) -> Bool
     {
         return mask & lhs == mask & rhs
     }
-    
+
     private func _is_in_subnet_v6(lhs: in6_addr,
                                   rhs: in6_addr,
                                   mask: in6_addr) -> Bool
     {
+        #if os(Linux)
+        return mask.__in6_u.__u6_addr32.0 & lhs.__in6_u.__u6_addr32.0
+            == mask.__in6_u.__u6_addr32.0 & rhs.__in6_u.__u6_addr32.0
+            && mask.__in6_u.__u6_addr32.1 & lhs.__in6_u.__u6_addr32.1
+            == mask.__in6_u.__u6_addr32.1 & rhs.__in6_u.__u6_addr32.1
+            && mask.__in6_u.__u6_addr32.2 & lhs.__in6_u.__u6_addr32.2
+            == mask.__in6_u.__u6_addr32.2 & rhs.__in6_u.__u6_addr32.2
+            && mask.__in6_u.__u6_addr32.3 & lhs.__in6_u.__u6_addr32.3
+            == mask.__in6_u.__u6_addr32.3 & rhs.__in6_u.__u6_addr32.3
+        #endif
+
+        #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS) || os(FreeBSD) || os(PS4)
         return mask.__u6_addr.__u6_addr32.0 & lhs.__u6_addr.__u6_addr32.0
             == mask.__u6_addr.__u6_addr32.0 & rhs.__u6_addr.__u6_addr32.0
             && mask.__u6_addr.__u6_addr32.1 & lhs.__u6_addr.__u6_addr32.1
@@ -427,8 +442,10 @@ extension SocketAddress: Equatable
             == mask.__u6_addr.__u6_addr32.2 & rhs.__u6_addr.__u6_addr32.2
             && mask.__u6_addr.__u6_addr32.3 & lhs.__u6_addr.__u6_addr32.3
             == mask.__u6_addr.__u6_addr32.3 & rhs.__u6_addr.__u6_addr32.3
+        #endif
+
     }
-    
+
     private func _v6_make_mask(_ mask: UInt32) -> in6_addr
     {
         typealias __u6 = in6_addr.__Unnamed_union___u6_addr
@@ -439,12 +456,12 @@ extension SocketAddress: Equatable
         let _1: u32 = mask <= 32 ? 0 : mask >= 64 ? max : make_u32(64 + 1)
         let _2: u32 = mask <= 64 ? 0 : mask >= 96 ? max : make_u32(96 + 1)
         let _3: u32 = mask <= 96 ? 0 : mask >= 128 ? max : make_u32(128 + 1)
-        
+
         return in6_addr(__u6_addr: __u6(__u6_addr32:
             (_0.bigEndian, _1.bigEndian, _2.bigEndian, _3.bigEndian)
         ))
     }
-    
+
     /// Available for ip address only, check if two addresses are in the same
     /// subnet.
     ///
@@ -460,7 +477,7 @@ extension SocketAddress: Equatable
         guard family == other.family else {
             return false
         }
-        
+
         switch family {
         case .inet:
             guard
@@ -468,27 +485,27 @@ extension SocketAddress: Equatable
                 let rhs = other.inet() else {
                     return false
             }
-            
+
             return _check_masked(lhs: lhs.sin_addr.s_addr,
                                  rhs: rhs.sin_addr.s_addr,
                                  bits: prefix)
-            
+
         case .inet6:
             guard
                 let lhs = inet6(),
                 let rhs = other.inet6() else {
                     return false
             }
-            
+
             return _is_in_subnet_v6(lhs: lhs.sin6_addr,
                                     rhs: rhs.sin6_addr,
                                     mask: _v6_make_mask(prefix))
-            
+
         default:
             return false
         }
     }
-    
+
     /// Available for ip address only, check if two addresses are in the same
     /// subnet.
     ///
@@ -503,7 +520,7 @@ extension SocketAddress: Equatable
             family == mask.family else {
                 return false
         }
-        
+
         switch family {
         case .inet:
             return _is_in_subnet_v4(lhs: inet()!.sin_addr.s_addr,
