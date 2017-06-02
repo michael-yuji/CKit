@@ -448,7 +448,24 @@ extension SocketAddress: Equatable
 
     private func _v6_make_mask(_ mask: UInt32) -> in6_addr
     {
+        #if os(Linux)
+        typealias __u6 = in6_addr.__Unnamed_union___in6_u
+
+        typealias u32 = UInt32
+        let max = u32.max
+        let make_u32: (u32) -> u32 = { ~((1 << u32(($0) - mask)) - 1) }
+        let _0: u32 = mask >= 32 ? max : make_u32(32)
+        let _1: u32 = mask <= 32 ? 0 : mask >= 64 ? max : make_u32(64 + 1)
+        let _2: u32 = mask <= 64 ? 0 : mask >= 96 ? max : make_u32(96 + 1)
+        let _3: u32 = mask <= 96 ? 0 : mask >= 128 ? max : make_u32(128 + 1)
+
+        return in6_addr(__in6_u: __u6(__u6_addr32:
+            (_0.bigEndian, _1.bigEndian, _2.bigEndian, _3.bigEndian)
+        ))
+        #endif
+        #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS) || os(FreeBSD) || os(PS4)
         typealias __u6 = in6_addr.__Unnamed_union___u6_addr
+
         typealias u32 = UInt32
         let max = u32.max
         let make_u32: (u32) -> u32 = { ~((1 << u32(($0) - mask)) - 1) }
@@ -460,6 +477,7 @@ extension SocketAddress: Equatable
         return in6_addr(__u6_addr: __u6(__u6_addr32:
             (_0.bigEndian, _1.bigEndian, _2.bigEndian, _3.bigEndian)
         ))
+        #endif
     }
 
     /// Available for ip address only, check if two addresses are in the same
