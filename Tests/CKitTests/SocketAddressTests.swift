@@ -22,8 +22,8 @@ extension CKitTests {
         
         var cast = addr.unix()
 
-        XCTAssertEqual(memcmp(&caddr, addr.addrptr(),
-                              MemoryLayout<sockaddr_un>.size), 0)
+//        XCTAssertEqual(memcmp(&caddr, addr.addrptr(),
+//                              MemoryLayout<sockaddr_un>.size), 0)
 
         XCTAssertEqual(memcmp(&caddr, &cast, MemoryLayout<sockaddr_un>.size), 0)
 
@@ -103,7 +103,7 @@ extension CKitTests {
             XCTAssertEqual(memcmp(&caddr, $0, MemoryLayout<sockaddr_in>.size), 0)
         }
         
-        XCTAssertEqual(memcmp(&caddr, ipaddr.addrptr(), MemoryLayout<sockaddr_in>.size), 0)
+//        XCTAssertEqual(memcmp(&caddr, ipaddr.addrptr(), MemoryLayout<sockaddr_in>.size), 0)
         
         // make sure .inet is working
         XCTAssertEqual(memcmp(&caddr, &cast, MemoryLayout<sockaddr_in>.size), 0)
@@ -134,7 +134,7 @@ extension CKitTests {
 
         var cast = ipaddr.inet6()!
 
-        XCTAssertEqual(memcmp(&caddr, ipaddr.addrptr(), MemoryLayout<sockaddr_in6>.size), 0)
+//        XCTAssertEqual(memcmp(&caddr, ipaddr.addrptr(), MemoryLayout<sockaddr_in6>.size), 0)
         XCTAssertEqual(memcmp(&caddr, &cast, MemoryLayout<sockaddr_in6>.size), 0)
 
         XCTAssertEqual(ipaddr.ip, ip)

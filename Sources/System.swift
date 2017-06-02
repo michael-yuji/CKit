@@ -28,12 +28,11 @@
 //
 //  Created by Yuji on 7/16/16.
 //
-//
 
 #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
-public typealias sys_conf_arg_t = Int32
+    public typealias sys_conf_arg_t = Int32
 #elseif os(Linux)
-public typealias sys_conf_arg_t = Int32
+    public typealias sys_conf_arg_t = Int32
 #endif
 
 public typealias Sysconf = System
@@ -46,6 +45,7 @@ public struct System
     
     public struct Maximum
     {
+        
         public var hostname: Int
         {
             return sysconf(sys_conf_arg_t(_SC_HOST_NAME_MAX))
@@ -56,17 +56,12 @@ public struct System
             return sysconf(sys_conf_arg_t(_SC_TTY_NAME_MAX))
         }
         
-        public var loginname: Int
-        {
-            return sysconf(sys_conf_arg_t(_SC_LOGIN_NAME_MAX))
-        }
-        
         public var fildescs: Int
         {
             return sysconf(sys_conf_arg_t(_SC_OPEN_MAX))
         }
         
-        public var childProces: Int
+        public var childProcess: Int
         {
             return sysconf(sys_conf_arg_t(_SC_CHILD_MAX))
         }
@@ -88,17 +83,14 @@ public struct System
         {
             return sysconf(sys_conf_arg_t(_SC_PAGESIZE))
         }
-        
         public var physicalPages: Int
         {
             return sysconf(sys_conf_arg_t(_SC_PHYS_PAGES))
         }
-        
         public var getpwd_r_bufsize: Int
         {
             return sysconf(sys_conf_arg_t(_SC_GETPW_R_SIZE_MAX))
         }
-        
         public var getgrp_r_bufsize: Int
         {
             return sysconf(sys_conf_arg_t(_SC_GETGR_R_SIZE_MAX))

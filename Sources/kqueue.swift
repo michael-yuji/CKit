@@ -50,7 +50,8 @@ public struct KQueueToDoList
     }
 
     public mutating func add(event descriptor: KernelEventDescriptor,
-                             enable: Bool, oneshot: Bool)
+                             enable: Bool,
+                             oneshot: Bool)
     {
         var alist: KernelEventAction = .add
         
@@ -100,20 +101,23 @@ extension KernelQueue {
         var event = descriptor.makeEvent([.delete])
         __kevent(event: &event)
     }
-    
+
     public func commit(todo: KQueueToDoList) throws
     {
         var events = todo.events
-        _ = try guarding("keven") {
+        _ = try sguard("kevent") {
             __kevent(&events)
         }
     }
-    
-    public func wait(todo: KQueueToDoList?, expecting eventsCount: Int, timeout: timespec?, handler: (KernelEventResult) -> ()) throws
+
+    public func wait(todo: KQueueToDoList?,
+                     expecting eventsCount: Int,
+                     timeout: timespec?,
+                     handler: (KernelEventResult) throws -> ()) throws
     {
         var changeList = todo?.events
         
-        var eventsBuffer = [KernelEvent](repeating: KernelEvent(),
+        var elist = [KernelEvent](repeating: KernelEvent(),
                                          count: eventsCount)
         
         var timeout_pointer: UnsafePointer<timespec>!
@@ -122,17 +126,17 @@ extension KernelQueue {
             timeout_pointer = pointer(of: &timeout)
         }
         
-        let returnedEventsCount = try guarding("kevent", { () -> Int32 in
+        let returnedEventsCount = try sguard("kevent", { () -> Int32 in
             changeList == nil
-                ? __kevent(&eventsBuffer, timeout: timeout_pointer)
-                : __kevent(&changeList!, &eventsBuffer, timeout: timeout_pointer)
+                ? __kevent(&elist, timeout: timeout_pointer)
+                : __kevent(&changeList!, &elist, timeout: timeout_pointer)
         })
         
         for i in 0..<Int(returnedEventsCount) {
-            handler(unsafeBitCast(eventsBuffer[i], to: KernelEventResult.self))
+            try handler(unsafeBitCast(elist[i], to: KernelEventResult.self))
         }
     }
-    
+
     @discardableResult
     @inline(__always)
     private func __kevent(event: inout KernelEvent) -> Int32

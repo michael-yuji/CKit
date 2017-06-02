@@ -16,8 +16,13 @@ extension CKitTests {
         
 
         XCTAssertEqual(sockout.blocking, true)
-        sockout.blocking = false
+        sockout.flags.insert(.nonblock)
         XCTAssertEqual(sockout.blocking, false)
+        sockout.flags.remove(.nonblock)
+        XCTAssertEqual(sockout.blocking, true)
+        sockout.flags.insert(.nonblock)
+        XCTAssertEqual(sockout.blocking, false)
+        
         
         let buf = calloc(cstr.count + 20, 1) // make a little room
         var c: Int?

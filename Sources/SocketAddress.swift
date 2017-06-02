@@ -1,3 +1,4 @@
+// ###sourceLocation(file: "/Users/yuuji/Documents/Development/CKit/Sources/SocketAddress1.swift.gyb", line: 1)
 
 //  Copyright (c) 2016, Yuji
 //  All rights reserved.
@@ -52,6 +53,7 @@ extension SocketAddress : CustomStringConvertible
     }
 }
 
+
 public struct SocketAddress
 {
     enum __sockaddr {
@@ -67,27 +69,28 @@ public struct SocketAddress
 
 extension SocketAddress
 {
-    
     public init(storage: sockaddr_storage)
     {
         var storage = storage
         switch storage.ss_family {
+
         case sa_family_t(AF_INET):
-            self.storage = withUnsafePointer(to: &storage, {
+            self.storage = withUnsafePointer(to: &storage) {
                 .inet($0.cast(to: sockaddr_in.self).pointee)
-            })
+            }
         case sa_family_t(AF_INET6):
-            self.storage = withUnsafePointer(to: &storage, {
+            self.storage = withUnsafePointer(to: &storage) {
                 .inet6($0.cast(to: sockaddr_in6.self).pointee)
-            })
+            }
         case sa_family_t(AF_UNIX):
-            self.storage = withUnsafePointer(to: &storage, {
+            self.storage = withUnsafePointer(to: &storage) {
                 .unix($0.cast(to: sockaddr_un.self).pointee)
-            })
+            }
         case sa_family_t(AF_LINK):
-            self.storage = withUnsafePointer(to: &storage, {
+            self.storage = withUnsafePointer(to: &storage) {
                 .link($0.cast(to: sockaddr_dl.self).pointee)
-            })
+            }
+            
         default:
             self.storage = withUnsafePointer(to: &storage, {
                 .addr($0.cast(to: sockaddr.self).pointee)
@@ -98,21 +101,15 @@ extension SocketAddress
     public init(addr: UnsafePointer<sockaddr>, port: in_port_t? = nil)
     {
         switch addr.pointee.sa_family {
+            
+        case sa_family_t(AF_UNSPEC):
+            self.storage = .addr(addr.cast(to: sockaddr.self).pointee)
         case sa_family_t(AF_INET):
             self.storage = .inet(addr.cast(to: sockaddr_in.self).pointee)
-            if case var .inet(in4) = self.storage, port != nil {
-                in4.sin_port = port!
-            }
-            
         case sa_family_t(AF_INET6):
             self.storage = .inet6(addr.cast(to: sockaddr_in6.self).pointee)
-            if case var .inet6(in6) = self.storage, port != nil {
-                in6.sin6_port = port!
-            }
-            
         case sa_family_t(AF_UNIX):
             self.storage = .unix(addr.cast(to: sockaddr_un.self).pointee)
-            
         case sa_family_t(AF_LINK):
             self.storage = .link(addr.cast(to: sockaddr_dl.self).pointee)
             
@@ -194,18 +191,7 @@ extension SocketAddress
     @available(*, renamed: "family")
     public var type: SocketFamilies
     {
-        switch self.storage {
-        case .inet:
-            return .inet
-        case .inet6:
-            return .inet6
-        case .unix:
-            return .unix
-        case .link:
-            return .link
-        case let .addr(addr):
-            return SocketFamilies(rawValue: addr.sa_family)!
-        }
+        return family
     }
     
     public var family: SocketFamilies
@@ -219,40 +205,33 @@ extension SocketAddress
             return .unix
         case .link:
             return .link
+        // ###sourceLocation(file: "/Users/yuuji/Documents/Development/CKit/Sources/SocketAddress1.swift.gyb", line: 234)
         case let .addr(addr):
             return SocketFamilies(rawValue: addr.sa_family)!
         }
     }
-    
-    public func addrptr() -> UnsafePointer<sockaddr>
-    {
-        return withSockAddrPointer {
-            $0
-        }
-    }
-    
+
     public func withSockAddrPointer<R>(_ blk: (UnsafePointer<sockaddr>) -> R) -> R
     {
         switch self.storage {
-        case var .inet(inet):
-            return blk(pointer(of: &inet).cast(to: sockaddr.self))
-            
-        case var .inet6(inet6):
-            return blk(pointer(of: &inet6).cast(to: sockaddr.self))
-            
-        case var .unix(unix):
-            return blk(pointer(of: &unix).cast(to: sockaddr.self))
-            
-        case var .link(link):
-            return blk(pointer(of: &link).cast(to: sockaddr.self))
-            
         case var .addr(addr):
             return blk(pointer(of: &addr))
+        case var .inet(inet):
+            return blk(pointer(of: &inet).cast(to: sockaddr.self))
+        case var .inet6(inet6):
+            return blk(pointer(of: &inet6).cast(to: sockaddr.self))
+        case var .unix(unix):
+            return blk(pointer(of: &unix).cast(to: sockaddr.self))
+        case var .link(link):
+            return blk(pointer(of: &link).cast(to: sockaddr.self))
         }
     }
+    
     public func addr() -> sockaddr
     {
         switch self.storage {
+        case let .addr(addr):
+            return addr
         case let .inet(inet):
             return reinterept_cast(from: inet, to: sockaddr.self)
         case let .inet6(inet6):
@@ -261,71 +240,53 @@ extension SocketAddress
             return reinterept_cast(from: unix, to: sockaddr.self)
         case let .link(link):
             return reinterept_cast(from: link, to: sockaddr.self)
-        case let .addr(addr):
-            return addr
         }
     }
-    
     public func inet() -> sockaddr_in?
     {
         guard case let .inet(inet) = self.storage else {
             return nil
         }
-        
         return inet
     }
-    
     public func inet6() -> sockaddr_in6?
     {
         guard case let .inet6(inet6) = self.storage else {
             return nil
         }
-        
         return inet6
     }
-    
     public func unix() -> sockaddr_un?
     {
         guard case let .unix(unix) = self.storage else {
             return nil
         }
-        
         return unix
+    }
+    public func link() -> sockaddr_dl?
+    {
+        guard case let .link(link) = self.storage else {
+            return nil
+        }
+        return link
     }
     
     public var socklen: socklen_t
     {
-        #if os(Linux)
-            switch family {
-            case .inet:
-                return socklen_t(MemoryLayout<sockaddr_in>.size)
-                
-            case .inet6:
-                return socklen_t(MemoryLayout<sockaddr_in6>.size)
-                
-            case .unix:
-                return socklen_t(MemoryLayout<sockaddr_un>.size)
-                
-            case .link:
-                return socklen_t(MemoryLayout<sockaddr_dl>.size)
-                
-            default:
-                return socklen_t(MemoryLayout<sockaddr>.size)
-            }
-        #else
-            switch self.storage {
-            case let .inet(inet):
-                return socklen_t(inet.sin_len)
-            case let .inet6(inet6):
-                return socklen_t(inet6.sin6_len)
-            case let .unix(unix):
-                return socklen_t(unix.sun_len)
-            case let .link(link):
-                return socklen_t(link.sdl_len)
-            case let .addr(addr):
-                return socklen_t(addr.sa_len)
-            }
-        #endif
+        switch family {
+            
+        case .inet:
+            return socklen_t(MemoryLayout<sockaddr_in>.size)
+        case .inet6:
+            return socklen_t(MemoryLayout<sockaddr_in6>.size)
+        case .unix:
+            return socklen_t(MemoryLayout<sockaddr_un>.size)
+        case .link:
+            return socklen_t(MemoryLayout<sockaddr_dl>.size)
+            
+        default:
+            return socklen_t(MemoryLayout<sockaddr>.size)
+        }
     }
     
     /// Get the port number of the address if available
@@ -370,62 +331,61 @@ extension SocketAddress
         
         return String(cString: pointer(of: &unix.sun_path).cast(to: Int8.self))
     }
-    
 }
 
 extension SocketAddress: Equatable
 {
     public static func ==(lhs: SocketAddress, rhs: SocketAddress) -> Bool
     {
-//        switch lhs.storage {
-//        case let .inet(lhs):
-//            guard case let .inet(rhs) = rhs.storage else {
-//                return false
-//            }
-//            return lhs.sin_addr.s_addr == rhs.sin_addr.s_addr
-//            && lhs.sin_family == rhs.sin_family
-//            && lhs.sin_len == rhs.sin_len
-//            && lhs.sin_port == rhs.sin_port
-//            && lhs.sin_zero.0 == lhs.sin_zero.0
-//            && lhs.sin_zero.1 == lhs.sin_zero.1
-//            && lhs.sin_zero.2 == lhs.sin_zero.2
-//            && lhs.sin_zero.3 == lhs.sin_zero.3
-//            && lhs.sin_zero.4 == lhs.sin_zero.4
-//            && lhs.sin_zero.5 == lhs.sin_zero.5
-//            && lhs.sin_zero.6 == lhs.sin_zero.6
-//            && lhs.sin_zero.7 == lhs.sin_zero.7
-//            
-//        case let .inet6(lhs):
-//            guard case let .inet6(rhs) = rhs.storage else {
-//                return false
-//            }
-//            
-//            return lhs.sin6_addr.__u6_addr.__u6_addr32.0
-//                == rhs.sin6_addr.__u6_addr.__u6_addr32.0
-//                && lhs.sin6_addr.__u6_addr.__u6_addr32.1
-//                == rhs.sin6_addr.__u6_addr.__u6_addr32.1
-//                && lhs.sin6_addr.__u6_addr.__u6_addr32.2
-//                == rhs.sin6_addr.__u6_addr.__u6_addr32.2
-//                && lhs.sin6_addr.__u6_addr.__u6_addr32.3
-//                == rhs.sin6_addr.__u6_addr.__u6_addr32.3
-//            && lhs.sin6_family == rhs.sin6_family
-//            && lhs.sin6_len == rhs.sin6_len
-//            && lhs.sin6_flowinfo == rhs.sin6_flowinfo
-//            && lhs.sin6_port == rhs.sin6_port
-//            && lhs.sin6_scope_id == rhs.sin6_scope_id
-//
-//        case var .unix(lhs):
-//            guard case var .unix(rhs) = rhs.storage else {
-//                return false
-//            }
-//            
-//            return lhs.sun_family == rhs.sun_family
-//            && lhs.sun_len == rhs.sun_len
-//            && (strcmp(pointer(of: &lhs.sun_path).cast(to: Int8.self), (pointer(of: &rhs.sun_path).cast(to: Int8.self))) == 0)
-//        
-//        default:
-//            return false
-//        }
+        //        switch lhs.storage {
+        //        case let .inet(lhs):
+        //            guard case let .inet(rhs) = rhs.storage else {
+        //                return false
+        //            }
+        //            return lhs.sin_addr.s_addr == rhs.sin_addr.s_addr
+        //            && lhs.sin_family == rhs.sin_family
+        //            && lhs.sin_len == rhs.sin_len
+        //            && lhs.sin_port == rhs.sin_port
+        //            && lhs.sin_zero.0 == lhs.sin_zero.0
+        //            && lhs.sin_zero.1 == lhs.sin_zero.1
+        //            && lhs.sin_zero.2 == lhs.sin_zero.2
+        //            && lhs.sin_zero.3 == lhs.sin_zero.3
+        //            && lhs.sin_zero.4 == lhs.sin_zero.4
+        //            && lhs.sin_zero.5 == lhs.sin_zero.5
+        //            && lhs.sin_zero.6 == lhs.sin_zero.6
+        //            && lhs.sin_zero.7 == lhs.sin_zero.7
+        //
+        //        case let .inet6(lhs):
+        //            guard case let .inet6(rhs) = rhs.storage else {
+        //                return false
+        //            }
+        //
+        //            return lhs.sin6_addr.__u6_addr.__u6_addr32.0
+        //                == rhs.sin6_addr.__u6_addr.__u6_addr32.0
+        //                && lhs.sin6_addr.__u6_addr.__u6_addr32.1
+        //                == rhs.sin6_addr.__u6_addr.__u6_addr32.1
+        //                && lhs.sin6_addr.__u6_addr.__u6_addr32.2
+        //                == rhs.sin6_addr.__u6_addr.__u6_addr32.2
+        //                && lhs.sin6_addr.__u6_addr.__u6_addr32.3
+        //                == rhs.sin6_addr.__u6_addr.__u6_addr32.3
+        //            && lhs.sin6_family == rhs.sin6_family
+        //            && lhs.sin6_len == rhs.sin6_len
+        //            && lhs.sin6_flowinfo == rhs.sin6_flowinfo
+        //            && lhs.sin6_port == rhs.sin6_port
+        //            && lhs.sin6_scope_id == rhs.sin6_scope_id
+        //
+        //        case var .unix(lhs):
+        //            guard case var .unix(rhs) = rhs.storage else {
+        //                return false
+        //            }
+        //
+        //            return lhs.sun_family == rhs.sun_family
+        //            && lhs.sun_len == rhs.sun_len
+        //            && (strcmp(pointer(of: &lhs.sun_path).cast(to: Int8.self), (pointer(of: &rhs.sun_path).cast(to: Int8.self))) == 0)
+        //
+        //        default:
+        //            return false
+        //        }
         var lhs = lhs
         var rhs = rhs
         return memcmp(&lhs.storage, &rhs.storage,

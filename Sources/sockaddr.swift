@@ -39,44 +39,44 @@
 // In those cases, 6 bytes will be missing when
 // use the sockaddr_storage struct as sockaddr_un.
 // which causes the socket bind to a empty string path.
-public struct _sockaddr_storage
-{
-    public var ss_family: sa_family_t // 2 bytes
-    // 126 bytes
-    public var __ss_pad1:
-    (UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8)
-    
-    public init()
-    {
-        self.ss_family = 0
-        self.__ss_pad1 =
-            (
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        )
-    }
-}
+//public struct _sockaddr_storage
+//{
+//    public var ss_family: sa_family_t // 2 bytes
+//    // 126 bytes
+//    public var __ss_pad1:
+//    (UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
+//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
+//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
+//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
+//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
+//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
+//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
+//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
+//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
+//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
+//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
+//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
+//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
+//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
+//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
+//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8)
+//    
+//    public init()
+//    {
+//        self.ss_family = 0
+//        self.__ss_pad1 =
+//            (
+//                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+//                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+//                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+//                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+//                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+//                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+//                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+//                0,0,0,0,0,0,0,0,0,0,0,0,0,0
+//        )
+//    }
+//}
     
 #else
 public typealias _sockaddr_storage = xlibc.sockaddr_storage
@@ -114,15 +114,15 @@ func get_socklen_by_family(_ family: Int32) -> UInt8
 }
 #endif
 
-extension _sockaddr_storage
-{
-    #if os(Linux)
-    public var ss_len: UInt8
-    {
-        return get_socklen_by_family(Int32(self.ss_family))
-    }
-    #endif
-}
+//extension _sockaddr_storage
+//{
+//    #if os(Linux)
+//    public var ss_len: UInt8
+//    {
+//        return get_socklen_by_family(Int32(self.ss_family))
+//    }
+//    #endif
+//}
 
 extension sockaddr_in
 {

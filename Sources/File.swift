@@ -88,7 +88,7 @@ public struct File: FileDescriptorRepresentable
     public init(path: String, access: AccessMode, flags: FileFlags) throws
     {
         self.path = path
-        self.fileDescriptor = try guarding("open") {
+        self.fileDescriptor = try sguard("open") {
             return path.withCString {
                 open($0, flags.rawValue, access.rawValue)
             }
@@ -98,7 +98,7 @@ public struct File: FileDescriptorRepresentable
     public init(path: String, access: mode_t, flags: FileFlags) throws
     {
         self.path = path
-        self.fileDescriptor = try guarding("open") {
+        self.fileDescriptor = try sguard("open") {
             return path.withCString {
                 open($0, flags.rawValue, access)
             }
@@ -107,28 +107,28 @@ public struct File: FileDescriptorRepresentable
     
     public func chmod(permission: PremissionMode) throws
     {
-        _ = try guarding("open") {
+        _ = try sguard("open") {
             fchmod(fileDescriptor, permission.rawValue)
         }
     }
     
     public func chown(user: uid_t, group: gid_t) throws
     {
-        _ = try guarding("open") {
+        _ = try sguard("open") {
             fchown(fileDescriptor, user, group)
         }
     }
     
     public func chown(user: User) throws
     {
-        _ = try guarding("open") {
+        _ = try sguard("open") {
             fchown(fileDescriptor, user.uid, user.gid)
         }
     }
     
     public func chown(user: User, group: Group) throws
     {
-        _ = try guarding("open") {
+        _ = try sguard("open") {
             fchown(fileDescriptor, user.uid, group.gid)
         }
     }

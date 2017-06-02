@@ -26,14 +26,16 @@ public struct Socket : FileDescriptorRepresentable
                                 type: SocketTypes, `protocol`: Int32)
         throws -> (Socket, Socket)
     {
-        var pair = [Int32](repeating: 0, count: 2)
-        
+//        var pair = [Int32](repeating: 0, count: 2)
+        var pair: (Int32, Int32) = (0, 0)
         _ = try guarding("socketpair") {
-            xlibc.socketpair(Int32(domain.rawValue), type.rawValue,
-                             `protocol`, &pair)
+            xlibc.socketpair(Int32(domain.rawValue),
+                             type.rawValue,
+                             `protocol`,
+                             mutablePointer(of: &pair).cast(to: Int32.self))
         }
         
-        return (Socket(raw: pair[0]), Socket(raw: pair[1]))
+        return (Socket(raw: pair.0), Socket(raw: pair.1))
     }
     
     public var blocking: Bool
@@ -107,18 +109,17 @@ public struct SendFlags: OptionSet
     /// data completes record
     public static let eor = SendFlags(rawValue: MSG_EOR)
     
-    #if !os(Linux)
-    /// data completes transcation
-    public static let eof = SendFlags(rawValue: MSG_EOF)
-    #endif
-    
     /// do not block
     public static let dontWait = SendFlags(rawValue: MSG_DONTWAIT)
     
     public static let none = SendFlags(rawValue: 0)
     
+    #if !os(Linux)
+    /// data completes transcation
+    public static let eof = SendFlags(rawValue: MSG_EOF)
+    #endif
+
     #if os(Linux) || os(FreeBSD)
-    
     /// do not generate sigpipe
     public static let noSignal = SendFlags(rawValue: MSG_NOSIGNAL)
     #endif

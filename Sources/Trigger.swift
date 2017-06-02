@@ -41,7 +41,7 @@ public struct Switch
         #if os(FreeBSD) || os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
         kq = kqueue()
         var ev = KernelEvent(ident: 0,
-                             filter: _evfilt_user,
+                             filter: KernelEventType.user.rawValue,
                              flags: UInt16(EV_ADD | EV_ONESHOT),
                              fflags: NOTE_FFCOPY,
                              data: 0, udata: nil)
@@ -56,7 +56,7 @@ public struct Switch
         kq = fd
         #if os(FreeBSD) || os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
         var ev = KernelEvent(ident: 0,
-                             filter: _evfilt_user,
+                             filter: KernelEventType.user.rawValue,
                              flags: UInt16(EV_ADD | EV_ONESHOT),
                              fflags: NOTE_FFCOPY,
                              data: 0, udata: nil)
@@ -91,7 +91,7 @@ public struct Switch
     {
         #if os(FreeBSD) || os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
         var t = KernelEvent()
-        var ev = KernelEvent(ident: 0, filter: _evfilt_user,
+        var ev = KernelEvent(ident: 0, filter: KernelEventType.user.rawValue,
                              flags: UInt16(EV_ADD | EV_ONESHOT),
                              fflags: NOTE_FFCOPY,
                              data: 0, udata: nil)

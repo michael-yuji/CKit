@@ -135,8 +135,7 @@ public extension SocketAddressInfo
     {
             var opt = options
             opt.append(.flags(AI_NUMERICHOST))
-            return try lookup(host: ip, service: service,
-                options: options)
+            return try lookup(host: ip, service: service, options: options)
     }
     
     /// Get all address ready to `bind` to
