@@ -53,12 +53,15 @@ public struct Epoll: FileDescriptorRepresentable
         return Array(evs.dropLast(maxevs - Int(nev)))
     }
     
-    public func wait(maxevs: Int, timeout: Int = 0, handler: (epoll_event) -> ())
+    public func wait(maxevs: Int, timeout: Int = 0, handler: (epoll_event) throws -> ()) throws
     {
         var evs = [epoll_event](repeating: epoll_event(), count: maxevs)
-        let nev = epoll_wait(fileDescriptor, &evs ,Int32(maxevs), Int32(timeout))
+        let nev = try sguard("epoll_wait") {
+            epoll_wait(fileDescriptor, &evs ,Int32(maxevs), Int32(timeout))
+        }
+        
         for i in 0..<Int(nev) {
-            handler(evs[i])
+            try handler(evs[i])
         }
     }
     

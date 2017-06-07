@@ -100,9 +100,9 @@ public typealias Dirent = DirectoryEntry
 
 public struct Directory {
     
-    public fileprivate(set)var path: String
+    public fileprivate(set) var path: String
     
-    public fileprivate(set)var contents = [Dirent]()
+    public fileprivate(set) var contents = [Dirent]()
     
     public init(path: String) throws
     {
@@ -111,7 +111,7 @@ public struct Directory {
         guard let dfd = path.withCString({
             opendir($0)
         }) else {
-            throw SystemError.last("opendir")
+            throw StaticSystemError.last("opendir")
         }
         
         var dir: dirent = dirent()

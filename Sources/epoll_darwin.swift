@@ -35,7 +35,7 @@
 #if os(OSX)
     func epoll_create(_ i: Int) -> Int32
     {
-        return kqueue()
+        return 0
     }
     
     public struct EPOLL_EVENTS: RawRepresentable
@@ -89,8 +89,7 @@
     public struct epoll_data_t
     {
         var raw: Int = 0
-        public var ptr: UnsafeMutableRawPointer!
-
+        
         public var fd: Int32
         {
             get {
@@ -135,7 +134,7 @@
         
         public init(ptr: UnsafeMutableRawPointer)
         {
-            self.ptr = ptr
+            self.raw = ptr.integerValue
         }
     }
     
@@ -145,7 +144,7 @@
                            _ maxevents: Int32,
                            _ timeout: Int32) -> Int32
     {
-        return 0
+        fatalError()
     }
     
     public func epoll_ctl(_ __epfd: Int32,
@@ -153,6 +152,6 @@
                           _ __fd: Int32,
                           _ __event: UnsafePointer<epoll_event>!) -> Int32
     {
-        return 0
+        fatalError()
     }
 #endif

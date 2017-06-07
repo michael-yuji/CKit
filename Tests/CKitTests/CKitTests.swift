@@ -17,6 +17,7 @@ class CKitTests: XCTestCase
         ("unix_domain_sock", testUnixDomain),
         ("subnet", test_subnet),
         ("unixsock", testUnixDomain),
+        ("loopback interface", test_loopback),
         ("nonblk", test_read_nonblk)
     ]
   }
