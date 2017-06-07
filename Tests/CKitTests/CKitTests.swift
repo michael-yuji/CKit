@@ -3,12 +3,8 @@ import Dispatch
 import Foundation
 @testable import CKit
 
-class CKitTests: XCTestCase {
-    
-    func test_scan()
-    {
-    }
-
+class CKitTests: XCTestCase
+{
 	static var allTests : [(String, (CKitTests) -> () throws -> Void)] {
     return [
         ("dns", test_dns),

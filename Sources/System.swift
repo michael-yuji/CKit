@@ -45,7 +45,6 @@ public struct System
     
     public struct Maximum
     {
-        
         public var hostname: Int
         {
             return sysconf(sys_conf_arg_t(_SC_HOST_NAME_MAX))
@@ -116,8 +115,8 @@ public struct System
     }
 }
 
-public extension System {
-    
+public extension System
+{
     @available(*, deprecated, message: "use System.cpus.configuared instead")
     public static var cpusConfigured: Int
     {

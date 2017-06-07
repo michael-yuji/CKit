@@ -133,8 +133,7 @@ extension CKitTests {
         }
 
         var cast = ipaddr.inet6()!
-
-//        XCTAssertEqual(memcmp(&caddr, ipaddr.addrptr(), MemoryLayout<sockaddr_in6>.size), 0)
+        
         XCTAssertEqual(memcmp(&caddr, &cast, MemoryLayout<sockaddr_in6>.size), 0)
 
         XCTAssertEqual(ipaddr.ip, ip)
