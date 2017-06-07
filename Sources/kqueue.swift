@@ -42,7 +42,7 @@ public struct KernelQueue : FileDescriptorRepresentable
 public struct KQueueToDoList
 {
     var events = [KernelEvent]()
-   
+    
     public mutating func enqueue(event descriptor: KernelEventDescriptor,
                                  for actions: KernelEventAction)
     {

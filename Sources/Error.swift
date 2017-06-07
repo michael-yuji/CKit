@@ -48,7 +48,7 @@ public struct StaticSystemError: Error, CustomStringConvertible {
 }
 
 @inline(__always)
-func sguard<I: Integer>(_ sys: String, _ blk: (Void) -> I) throws -> I
+func sguard<I: SignedInteger>(_ sys: String, _ blk: () -> I) throws -> I
 {
     let ret = blk()
     if ret == -1 {
@@ -58,7 +58,7 @@ func sguard<I: Integer>(_ sys: String, _ blk: (Void) -> I) throws -> I
 }
 
 @inline(__always)
-func guarding<I: Integer>(_ sys: StaticString, _ blk: (Void) -> I) throws -> I
+func guarding<I: SignedInteger>(_ sys: StaticString, _ blk: () -> I) throws -> I
 {
     let ret = blk()
     if ret == -1 {

@@ -125,8 +125,6 @@
                 return -12
             case .except:
                 return -15
-            default:
-                return 0
             }
         }
         
@@ -599,7 +597,6 @@
         public init(rawValue: UInt32) {
             self.rawValue = rawValue
         }
-        
     }
     
     public struct KernelEventTimerFlags: KernelEventFlags, RawRepresentable

@@ -7,7 +7,7 @@ extension CKitTests {
         let path = "/path/to/socket"
         let cpath = path.cString(using: .ascii)!
 
-        var addr = SocketAddress(unixPath: path)
+        let addr = SocketAddress(unixPath: path)
         
         var caddr = sockaddr_un()
 
@@ -119,7 +119,7 @@ extension CKitTests {
         let ip = "::1"
         let port: in_port_t = 4430
 
-        var ipaddr = SocketAddress(ip: ip, domain: .inet6, port: port)!
+        let ipaddr = SocketAddress(ip: ip, domain: .inet6, port: port)!
 
         var caddr = sockaddr_in6()
         caddr.sin6_port = port.byteSwapped

@@ -4,7 +4,7 @@
 public let FIONREAD = 1074030207
 #endif
 
-public extension FileDescriptorRepresentable
+public extension FileDescriptor
 {
     /// How many bytes available in the kernel buffer
     public var bytesAvailable: Int

@@ -29,58 +29,7 @@
 //  Created by yuuji on 3/27/17.
 //
 
-#if os(Linux)
-// Have to use a custom sockaddr_storage here,
-// The default sockaddr_storage in Linux SwiftGlibc
-// "hide" the bytes between ss_family and __ss_align
-// in some implementation of the Linux Kernel
-// in that case, those "hidden" bytes are not copied
-// when the sockaddr_storage copied to the stack.
-// In those cases, 6 bytes will be missing when
-// use the sockaddr_storage struct as sockaddr_un.
-// which causes the socket bind to a empty string path.
-//public struct _sockaddr_storage
-//{
-//    public var ss_family: sa_family_t // 2 bytes
-//    // 126 bytes
-//    public var __ss_pad1:
-//    (UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-//    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8)
-//    
-//    public init()
-//    {
-//        self.ss_family = 0
-//        self.__ss_pad1 =
-//            (
-//                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-//                0,0,0,0,0,0,0,0,0,0,0,0,0,0
-//        )
-//    }
-//}
-    
-#else
 public typealias _sockaddr_storage = xlibc.sockaddr_storage
-#endif
 
 extension sockaddr
 {

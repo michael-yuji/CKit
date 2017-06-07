@@ -77,10 +77,9 @@ public struct FileFlags: OptionSet
 
 public struct File: FileDescriptorRepresentable
 {
-
     public var fileDescriptor: Int32
     public var path: String
-
+    
     public lazy var status: FileStatus = {
         return try! FileStatus(fd: self.fileDescriptor)
     }()

@@ -84,9 +84,9 @@ public extension String
 {
     public static func alignedText(strings: String..., spaces: [Int]) -> String
     {
-        let astr = strings.enumerated().map { (index, string) -> String in
+        let astr = strings.enumerated().map { (__val:(Int, String)) -> String in let (index,string) = __val; 
             var temp = string
-            let space_to_insert = max(0, spaces[index] - string.characters.count)
+            let space_to_insert = Swift.max(0, spaces[index] - string.characters.count)
             for _ in 0 ..< space_to_insert {
                 temp.append(Character(" "))
             }
@@ -101,12 +101,12 @@ public extension Strideable
     @inline(__always)
     public mutating func decrement()
     {
-        self -= 1
+        self = self.advanced(by: -1)
     }
 
     @inline(__always)
     public mutating func increment()
     {
-        self += 1
+        self = self.advanced(by: 1)
     }
 }

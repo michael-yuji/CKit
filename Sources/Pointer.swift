@@ -305,7 +305,8 @@ extension UnsafeMutableRawBufferPointer: AnyPointer, AnyMutableBufferPointer
     }
 }
 
-extension OpaquePointer {
+extension OpaquePointer
+{
     public var mutableRawPointer: UnsafeMutableRawPointer
     {
         return UnsafeMutableRawPointer(self)
@@ -317,7 +318,7 @@ extension OpaquePointer {
     }
 }
 
-func roundBytesCount<T>(_ raw: Int, _: T.Type) -> Int
+func roundedBytesCount<T>(_ raw: Int, _: T.Type) -> Int
 {
     return raw - (raw % MemoryLayout<T>.size)
 }
@@ -327,8 +328,8 @@ extension AnyMutableBufferPointer {
     @discardableResult
     public func copyContents<T>(from buf: UnsafeMutableBufferPointer<T>) -> Int
     {
-        let nbytes = min(roundBytesCount(self.mutableRawBuffer.count, T.self),
-                         roundBytesCount(buf.rawBuffer.count, T.self))
+        let nbytes = min(roundedBytesCount(self.mutableRawBuffer.count, T.self),
+                         roundedBytesCount(buf.rawBuffer.count, T.self))
         
         self.mutableRawBuffer.copyBytes(
             from: UnsafeRawBufferPointer(start: buf.rawBuffer.baseAddress!,
@@ -340,8 +341,8 @@ extension AnyMutableBufferPointer {
     @discardableResult
     public func copyContents<T>(from buffer: UnsafeBufferPointer<T>) -> Int
     {
-        let nbytes = min(roundBytesCount(self.mutableRawBuffer.count, T.self),
-                         roundBytesCount(buffer.rawBuffer.count, T.self))
+        let nbytes = min(roundedBytesCount(self.mutableRawBuffer.count, T.self),
+                         roundedBytesCount(buffer.rawBuffer.count, T.self))
         
         self.mutableRawBuffer.copyBytes(
             from: UnsafeRawBufferPointer(start: buffer.rawBuffer.baseAddress!,
@@ -383,10 +384,10 @@ extension UnsafeMutableBufferPointer {
     @discardableResult
     public func copyContents(from buffer: UnsafeRawBufferPointer) -> Int
     {
-        let nbytes = Swift.min(roundBytesCount(self.mutableRawBuffer.count,
-                                               Element.self),
-                               roundBytesCount(buffer.rawBuffer.count,
-                                               Element.self))
+        let nbytes = Swift.min(roundedBytesCount(self.mutableRawBuffer.count,
+                                                 Element.self),
+                               roundedBytesCount(buffer.rawBuffer.count,
+                                                 Element.self))
         
         self.mutableRawBuffer.copyBytes(
             from: UnsafeRawBufferPointer(start: buffer.rawBuffer.baseAddress!,
@@ -398,10 +399,10 @@ extension UnsafeMutableBufferPointer {
     @discardableResult
     public func copyContents(from buffer: UnsafeMutableRawBufferPointer) -> Int
     {
-        let nbytes = Swift.min(roundBytesCount(self.mutableRawBuffer.count,
-                                               Element.self),
-                               roundBytesCount(buffer.rawBuffer.count,
-                                               Element.self))
+        let nbytes = Swift.min(roundedBytesCount(self.mutableRawBuffer.count,
+                                                 Element.self),
+                               roundedBytesCount(buffer.rawBuffer.count,
+                                                 Element.self))
         
         self.mutableRawBuffer.copyBytes(
             from: UnsafeRawBufferPointer(start: buffer.rawBuffer.baseAddress!,

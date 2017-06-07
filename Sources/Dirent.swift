@@ -145,15 +145,15 @@ public struct Directory {
 public struct DirectoryEntry : CustomStringConvertible
 {
     /// where is this item located
-    public fileprivate(set)var basePath: String
+    public fileprivate(set) var basePath: String
     /// the name of the entry
-    public fileprivate(set)var name: String
+    public fileprivate(set) var name: String
     /// file number of this entry
-    public fileprivate(set)var ino: ino_t
+    public fileprivate(set) var ino: ino_t
     /// length of the record
-    public fileprivate(set)var size: Int
+    public fileprivate(set) var size: Int
     /// file type
-    public fileprivate(set)var type: FileTypes
+    public fileprivate(set) var type: FileTypes
     
     /// the full path of the entry
     public var fullpath: String {
