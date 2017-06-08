@@ -449,7 +449,7 @@ extension Socket
             newVaule.withCString {
                setsockopt(fileDescriptor,
                           SOL_SOCKET,
-                          SOL_BINDTODEVICE,
+                          SO_BINDTODEVICE,
                           $0,
                           $0.characters.count)
             }
