@@ -215,7 +215,7 @@ public struct SendFlags: OptionSet
 
     #if os(Linux) || os(FreeBSD)
     /// do not generate sigpipe
-    public static let noSignal = SendFlags(rawValue: MSG_NOSIGNAL)
+    public static let noSignal = SendFlags(rawValue: Int32(MSG_NOSIGNAL))
     #endif
 }
 public struct RecvFlags: OptionSet
@@ -434,7 +434,6 @@ extension Socket
 
 
     #if os(Linux)
-    public static let bindedDevice = SocketOptions(SOL_SOCKET, SO_BINDTODEVICE)
     public var bindedDevice: String
     {
         get {
@@ -443,7 +442,7 @@ extension Socket
             let fd = self.fileDescriptor
             newValue.withCString {
                setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, $0, 
-                          newValue.characters.count)
+                          socklen_t(newValue.characters.count))
             }
         }
     }
@@ -479,6 +478,10 @@ public struct SocketOptions: RawRepresentable
         self.layer = Int32(layer)
         self.rawValue = rawValue
     }
+
+    #if os(Linux)
+    public static let bindedDevice = SocketOptions(SOL_SOCKET, SO_BINDTODEVICE)
+    #endif
 
     #if os(Linux)
     public static let `protocol` = SocketOptions(SOL_SOCKET, SO_PROTOCOL)
