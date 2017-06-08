@@ -441,12 +441,13 @@ extension Socket
 
 
     #if os(Linux)
+    public static let bindedDevice = SocketOptions(SOL_SOCKET, SO_BINDTODEVICE)
     public var bindedDevice: String
     {
         get {
             return String(cString: getsock(opt: .bindedDevice))
         } set {
-            newVaule.withCString {
+            newValue.withCString {
                setsockopt(fileDescriptor,
                           SOL_SOCKET,
                           SO_BINDTODEVICE,
