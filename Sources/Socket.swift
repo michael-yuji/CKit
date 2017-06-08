@@ -215,7 +215,7 @@ public struct SendFlags: OptionSet
 
     #if os(Linux) || os(FreeBSD)
     /// do not generate sigpipe
-    public static let noSignal = SendFlags(rawValue: MSG_NOSIGNAL)
+    public static let noSignal = SendFlags(rawValue: Int32(MSG_NOSIGNAL))
     #endif
 }
 public struct RecvFlags: OptionSet
@@ -259,8 +259,6 @@ extension Socket
                    &size)
         return ret
     }
-
-    
 
     public var sendBufferSize: Int
     {
@@ -411,13 +409,6 @@ extension Socket
     #endif
 
     #if os(Linux)
-    public var attachFilter: sock_fprog
-    {
-        get {
-            return getsock(opt: .attachFilter)
-        } 
-    }
-
     public var `protocol`: Int32
     {
         get {
@@ -444,14 +435,13 @@ extension Socket
     public var bindedDevice: String
     {
         get {
-            return String(cString: getsock(opt: .bindedDevice))
+            let cstr: UnsafePointer<CChar> = getsock(opt: .bindedDevice)
+            return String(cString: cstr)
         } set {
-            newVaule.withCString {
-               setsockopt(fileDescriptor,
-                          SOL_SOCKET,
-                          SOL_BINDTODEVICE,
-                          $0,
-                          $0.characters.count)
+            let fd = self.fileDescriptor
+            newValue.withCString {
+               setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, $0, 
+                          socklen_t(newValue.characters.count))
             }
         }
     }
@@ -489,7 +479,10 @@ public struct SocketOptions: RawRepresentable
     }
 
     #if os(Linux)
-    public static let attachFilter = SocketOptions(SOL_SOCKET, SO_ATTACH_BPF)
+    public static let bindedDevice = SocketOptions(SOL_SOCKET, SO_BINDTODEVICE)
+    #endif
+
+    #if os(Linux)
     public static let `protocol` = SocketOptions(SOL_SOCKET, SO_PROTOCOL)
     #endif
     #if os(FreeBSD) || os(PS4)

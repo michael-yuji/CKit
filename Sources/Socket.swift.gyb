@@ -38,7 +38,7 @@
     ]
 
     linux_opts = [
-        ('attachFilter', 'attach_bpf', 'sock_fprog'),
+    #    ('attachFilter', 'attach_bpf', 'sock_fprog'),
     #    ('bindDevice', 'bindtodevice', 'Int8'),
         ('`protocol`', 'protocol', 'Int32')
     ]
@@ -237,7 +237,7 @@ ${OptionSetBody('public', 'Int32')}
 
     #if os(Linux) || os(FreeBSD)
     /// do not generate sigpipe
-    public static let noSignal = SendFlags(rawValue: MSG_NOSIGNAL)
+    public static let noSignal = SendFlags(rawValue: Int32(MSG_NOSIGNAL))
     #endif
     %else:
     #if os(FreeBSD)
@@ -315,14 +315,13 @@ def make_getter_setters(os):
     public var bindedDevice: String
     {
         get {
-            return String(cString: getsock(opt: .bindedDevice))
+            let cstr: UnsafePointer<CChar> = getsock(opt: .bindedDevice)
+            return String(cString: cstr)
         } set {
-            newVaule.withCString {
-               setsockopt(fileDescriptor,
-                          SOL_SOCKET,
-                          SOL_BINDTODEVICE,
-                          $0,
-                          $0.characters.count)
+            let fd = self.fileDescriptor
+            newValue.withCString {
+               setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, $0, 
+                          socklen_t(newValue.characters.count))
             }
         }
     }
@@ -358,6 +357,10 @@ public struct SocketOptions: RawRepresentable
         self.layer = Int32(layer)
         self.rawValue = rawValue
     }
+
+    #if os(Linux)
+    public static let bindedDevice = SocketOptions(SOL_SOCKET, SO_BINDTODEVICE)
+    #endif
 
     %for (os, ops) in [('os(Linux)', linux_opts), (fbsd, fbsd_opts),\
     %                (BSD, bsd_opts), ('', uni_sockopts)]:
