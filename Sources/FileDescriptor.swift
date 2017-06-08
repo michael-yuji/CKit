@@ -30,6 +30,7 @@
 //  Copyright © 2017 Yuji. All rights reserved.
 //
 
+
 public protocol FileDescriptor
 {
     var fileDescriptor: Int32 { get set }
