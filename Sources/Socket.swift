@@ -411,13 +411,6 @@ extension Socket
     #endif
 
     #if os(Linux)
-    public var attachFilter: sock_fprog
-    {
-        get {
-            return getsock(opt: .attachFilter)
-        } 
-    }
-
     public var `protocol`: Int32
     {
         get {
@@ -447,12 +440,10 @@ extension Socket
         get {
             return String(cString: getsock(opt: .bindedDevice))
         } set {
+            let fd = self.fileDescriptor
             newValue.withCString {
-               setsockopt(fileDescriptor,
-                          SOL_SOCKET,
-                          SO_BINDTODEVICE,
-                          $0,
-                          $0.characters.count)
+               setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, $0, 
+                          newValue.characters.count)
             }
         }
     }
@@ -490,7 +481,6 @@ public struct SocketOptions: RawRepresentable
     }
 
     #if os(Linux)
-    public static let attachFilter = SocketOptions(SOL_SOCKET, SO_ATTACH_BPF)
     public static let `protocol` = SocketOptions(SOL_SOCKET, SO_PROTOCOL)
     #endif
     #if os(FreeBSD) || os(PS4)

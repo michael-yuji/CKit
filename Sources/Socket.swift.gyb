@@ -38,7 +38,7 @@
     ]
 
     linux_opts = [
-        ('attachFilter', 'attach_bpf', 'sock_fprog'),
+    #    ('attachFilter', 'attach_bpf', 'sock_fprog'),
     #    ('bindDevice', 'bindtodevice', 'Int8'),
         ('`protocol`', 'protocol', 'Int32')
     ]
@@ -318,12 +318,10 @@ def make_getter_setters(os):
         get {
             return String(cString: getsock(opt: .bindedDevice))
         } set {
+            let fd = self.fileDescriptor
             newValue.withCString {
-               setsockopt(fileDescriptor,
-                          SOL_SOCKET,
-                          SO_BINDTODEVICE,
-                          $0,
-                          $0.characters.count)
+               setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE, $0, 
+                          newValue.characters.count)
             }
         }
     }
