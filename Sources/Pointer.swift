@@ -114,14 +114,20 @@ public func mutablePointer<T,R>(of obj: inout T, as r: R.Type,
 @inline(__always)
 func reinterept_cast<T, X>(from obj: inout T, to: X.Type) -> X
 {
-    return mutablePointer(of: &obj).cast(to: X.self).pointee
+    var ret: X!
+    mutableRawPointer(of: &ret).copyBytes(from: pointer(of: &obj),
+                                          count: MemoryLayout<T>.size)
+    return ret
 }
 
 @inline(__always)
 func reinterept_cast<T, X>(from obj: T, to: X.Type) -> X
 {
     var obj = obj
-    return mutablePointer(of: &obj).cast(to: X.self).pointee
+    var ret: X!
+    mutablePointer(of: &ret).mutableRawPointer.copyBytes(from: pointer(of: &obj),
+                                                         count: MemoryLayout<T>.size)
+    return ret
 }
 
 public extension UnsafeMutablePointer
@@ -323,8 +329,8 @@ func roundedBytesCount<T>(_ raw: Int, _: T.Type) -> Int
     return raw - (raw % MemoryLayout<T>.size)
 }
 
-extension AnyMutableBufferPointer {
-    
+extension AnyMutableBufferPointer
+{
     @discardableResult
     public func copyContents<T>(from buf: UnsafeMutableBufferPointer<T>) -> Int
     {
