@@ -437,7 +437,8 @@ extension Socket
     public var bindedDevice: String
     {
         get {
-            return String(cString: getsock(opt: .bindedDevice))
+            let cstr: UnsafePointer<CChar> = getsock(opt: .bindedDevice)
+            return String(cString: cstr)
         } set {
             let fd = self.fileDescriptor
             newValue.withCString {
