@@ -293,7 +293,7 @@ def make_getter_setters(os):
         '        get {\n' +\
         '            return getsock(opt: .' + name +')\n' +\
         '        } '
-        if name in immutable:
+        if name not in immutable:
             ret = ret + 'nonmutating set {\n' +\
         '            setsock(opt: .' + name + ', value: newValue)\n' +\
         '        }\n'
