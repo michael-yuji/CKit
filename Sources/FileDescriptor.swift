@@ -1,4 +1,5 @@
 
+
 //  Copyright (c) 2016, Yuji
 //  All rights reserved.
 //
@@ -26,208 +27,204 @@
 //  of the authors and should not be interpreted as representing official policies,
 //  either expressed or implied, of the FreeBSD Project.
 //
-//  Created by Yuji on 3/10/17.
-//  Copyright © 2016 Yuji. All rights reserved.
+//  Copyright © 2017 Yuji. All rights reserved.
 //
 
-public protocol FileDescriptorRepresentable {
+
+public protocol FileDescriptor
+{
     var fileDescriptor: Int32 { get set }
 }
 
 public typealias CustomRawBytesRepresentable = RawBufferRepresentable
+public typealias FileDescriptorRepresentable = FileDescriptor
 
-public protocol RawBufferRepresentable {
+public protocol RawBufferRepresentable
+{
     var rawBufferRepresentation: UnsafeRawBufferPointer { get }
     func rawBufferReleased(_ buffer: UnsafeRawBufferPointer)
     func rawBufferRetained(_ buffer: UnsafeRawBufferPointer)
 }
 
-public struct AccessMode: OptionSet, CustomStringConvertible {
-    public typealias RawValue = mode_t
-    public var rawValue: mode_t
-    public init(rawValue: mode_t) {
-        self.rawValue = rawValue
-    }
-    
-    public init(_ i: Int32) {
-        self.rawValue = mode_t(i)
-    }
-    
-    public static let read = AccessMode(O_RDONLY)
-    public static let write = AccessMode(O_WRONLY)
-    
-    public var description: String {
-        return (self.contains(.read) ? "r" : "-")
-                + (self.contains(.write) ? "w" : "-")
-    }
-}
-
-public struct FileControlFlags: OptionSet {
+public struct FileControlFlags: OptionSet
+{
     public typealias RawValue = Int32
     public var rawValue: Int32
-    public init(rawValue: RawValue) {
+    public init(rawValue: Int32) {
         self.rawValue = rawValue
     }
-    
+
     public static let nonblock = FileControlFlags(rawValue: O_NONBLOCK)
     public static let append = FileControlFlags(rawValue: O_APPEND)
     public static let async = FileControlFlags(rawValue: O_ASYNC)
 }
 
-public enum FileDescriptorOwner {
+public extension FileDescriptor
+{
+    public var flags: FileControlFlags
+    {
+        get {
+            return FileControlFlags(rawValue: fcntl(fileDescriptor, F_GETFL, 0))
+        } set {
+            _ = fcntl(fileDescriptor, F_SETFL, newValue.rawValue)
+        }
+    }
+
+    public var accessMode: AccessMode
+    {
+        return AccessMode(flags.rawValue & O_ACCMODE)
+    }
+}
+
+public enum FileDescriptorOwner
+{
     case group(pid_t)
     case process(pid_t)
     case error(SystemError)
 }
 
-public extension FileDescriptorRepresentable {
-
-    public var flags: FileControlFlags {
-        get {
-            return FileControlFlags(rawValue: xlibc.fcntl(fileDescriptor, F_GETFL, 0))
-        } set {
-            _ = xlibc.fcntl(fileDescriptor, F_SETFL, newValue.rawValue)
-        }
-    }
-    
-    public var accessMode: AccessMode {
-        return AccessMode(self.flags.rawValue & O_ACCMODE)
-    }
-    
-    public mutating func insert(flags: FileControlFlags) {
-        var flags = self.flags
-        self.flags = flags.insert(flags).memberAfterInsert
-    }
-    
-    public mutating func remove(flags: FileControlFlags) {
-        self.flags = self.flags.remove(flags) ?? self.flags
-    }
-}
-
-// MARK: Interrupt Driven IO
-public extension FileDescriptorRepresentable {
-    
-    public var signalOwner: FileDescriptorOwner {
+public extension FileDescriptor
+{
+    public var signalOwner: FileDescriptorOwner
+    {
         let pid = fcntl(fileDescriptor, F_GETOWN)
         return pid == -1 ? .error(SystemError.last("fcntl:FL_GETOWN"))
             : pid < 0 ? .group(abs(pid)) : .process(pid)
     }
-    
-    public func setSignalOwner(pid: pid_t) throws {
-        _ = try guarding("fcntl:F_SETOWN") {
+
+    public func setSignalOwner(pid: pid_t) throws
+    {
+        _ = try sguard("fcntl:F_SETOWN") {
             fcntl(fileDescriptor, F_SETOWN, pid)
         }
     }
 }
 
-public extension FileDescriptorRepresentable {
+public extension FileDescriptor
+{
     @discardableResult
-    public func close() -> Int32 {
+    public func close() -> Int32
+    {
         return xlibc.close(fileDescriptor)
     }
-    
+}
+
+
+extension FileDescriptor
+{
+
     @discardableResult
-    public func write(bytes: Pointer, length: Int) throws -> Int {
-        return try guarding("write") {
-            xlibc.write(fileDescriptor, bytes.rawPointer, length)
-        }
-    }
-    
-    @discardableResult
-    public func write(buffer: BufferPointer) throws -> Int {
-        return try guarding("write") {
-            xlibc.write(fileDescriptor,
-                        buffer.rawBuffer.baseAddress!,
-                        buffer.rawBuffer.count)
-        }
-    }
-    
-    @discardableResult
-    public func pread(bytes: MutablePointer, length: Int, at offset: off_t) throws -> Int {
-        return try guarding("pread") {
+    public func pread(to bytes: AnyMutablePointer, length: Int, at offset: off_t) throws -> Int
+    {
+        return try sguard("pread") {
             xlibc.pread(fileDescriptor, bytes.mutableRawPointer, length, offset)
-        }
-    }
-    
-    @discardableResult
-    public func pread(buffer: MutableBufferPointer, at offset: off_t) throws -> Int {
-        return try guarding("pread") {
-            xlibc.pread(fileDescriptor,
-                         buffer.mutableRawBuffer.mutableRawPointer,
-                         buffer.mutableRawBuffer.count, offset)
-        }
-    }
-    
-    @available(*, deprecated, message: "use read instead")
-    @discardableResult
-    public func readBytes(to address: MutablePointer, length: Int) throws -> Int {
-        return try read(to: address, length: length)
-    }
-    
-    @discardableResult
-    public func read(to address: MutablePointer, length: Int) throws -> Int {
-        return try guarding("read") {
-            xlibc.read(fileDescriptor, address.mutableRawPointer, length)
-        }
-    }
-    
-    @discardableResult
-    public func read(to buffer: MutableBufferPointer) throws -> Int {
-        return try guarding("read") {
-            xlibc.read(fileDescriptor,
-                       buffer.mutableRawBuffer.baseAddress!,
-                       buffer.mutableRawBuffer.count)
         }
     }
 
     @discardableResult
-    public func vectorWrite(_ vectors: [xlibc.iovec]) throws -> Int {
-        return try guarding("writev") {
-            xlibc.writev(fileDescriptor, vectors, Int32(vectors.count))
+    public func pread(to buffer: AnyMutableBufferPointer, at offset: off_t) throws -> Int
+    {
+        return try sguard("pread") {
+            xlibc.pread(fileDescriptor, buffer.mutableRawBuffer.baseAddress, buffer.mutableRawBuffer.count, offset)
         }
     }
-    
+
     @discardableResult
-    public func vectorWrite(_ vector: [BufferPointer]) throws -> Int {
-        return try guarding("writev") {
-            xlibc.writev(fileDescriptor,
-                         vector.map{$0.rawBuffer.iovec},
-                         Int32(vector.count))
-        }
-    }
-    
-    @discardableResult
-    public func pwrite(bytes: Pointer, length: Int, at offset: off_t) throws -> Int {
-        return try guarding("pwrite") {
+    public func pwrite(bytes: AnyPointer, length: Int, at offset: off_t) throws -> Int
+    {
+        return try sguard("pwrite") {
             xlibc.pwrite(fileDescriptor, bytes.rawPointer, length, offset)
         }
     }
-    
+
     @discardableResult
-    public func pwrite(buffer: BufferPointer, at offset: off_t) throws -> Int {
-        return try guarding("pwrite") {
-            xlibc.pwrite(fileDescriptor,
-                         buffer.rawBuffer.rawPointer,
-                         buffer.rawBuffer.count, offset)
+    public func pwrite(buffer: AnyBufferPointer, at offset: off_t) throws -> Int
+    {
+        return try sguard("pwrite") {
+            xlibc.pwrite(fileDescriptor, buffer.rawBuffer.baseAddress, buffer.rawBuffer.count, offset)
         }
     }
-    
+
     @discardableResult
-    public func write(collection: AnyCollection<RawBufferRepresentable>) throws -> Int {
+    public func read(to bytes: AnyMutablePointer, length: Int) throws -> Int
+    {
+        return try sguard("read") {
+            xlibc.read(fileDescriptor, bytes.mutableRawPointer, length)
+        }
+    }
+
+    @discardableResult
+    public func read(to buffer: AnyMutableBufferPointer) throws -> Int
+    {
+        return try sguard("read") {
+            xlibc.read(fileDescriptor, buffer.mutableRawBuffer.baseAddress, buffer.mutableRawBuffer.count)
+        }
+    }
+
+    @discardableResult
+    public func write(bytes: AnyPointer, length: Int) throws -> Int
+    {
+        return try sguard("write") {
+            xlibc.write(fileDescriptor, bytes.rawPointer, length)
+        }
+    }
+
+    @discardableResult
+    public func write(buffer: AnyBufferPointer) throws -> Int
+    {
+        return try sguard("write") {
+            xlibc.write(fileDescriptor, buffer.rawBuffer.baseAddress, buffer.rawBuffer.count)
+        }
+    }
+
+    @discardableResult
+    public func writev(vector : [xlibc.iovec]) throws -> Int
+    {
+        return try sguard("writev") {
+            xlibc.writev(fileDescriptor, vector, Int32(vector.count))
+        }
+    }
+
+    @discardableResult
+    public func writev(vector : [AnyBufferPointer]) throws -> Int
+    {
+        return try sguard("writev") {
+            xlibc.writev(fileDescriptor, vector.map{$0.rawBuffer.iovec}, Int32(vector.count))
+        }
+    }
+
+    @discardableResult
+    public func readv(to vector : [xlibc.iovec]) throws -> Int
+    {
+        return try sguard("readv") {
+            xlibc.readv(fileDescriptor, vector, Int32(vector.count))
+        }
+    }
+
+    @discardableResult
+    public func readv(to vector : [AnyMutableBufferPointer]) throws -> Int
+    {
+        return try sguard("readv") {
+            xlibc.readv(fileDescriptor, vector.map{$0.rawBuffer.iovec}, Int32(vector.count))
+        }
+    }
+
+    @discardableResult
+    public func write(collection: AnyCollection<RawBufferRepresentable>) throws -> Int
+    {
         let vectors = collection.map{ (buffer) -> iovec in
             let rawBuffer = buffer.rawBufferRepresentation
             buffer.rawBufferRetained(rawBuffer)
             return rawBuffer.iovec
         }
-
-        return try guarding("writev")
+                                                            
+        return try sguard("writev")
         {
             let ret = xlibc.writev(fileDescriptor, vectors, Int32(vectors.count))
-            
+                                                                                                        
             zip(collection, vectors).forEach {
                 $0.0.rawBufferReleased($0.1.buffer)
-            }
-    
+            } 
             return ret
         }
     }

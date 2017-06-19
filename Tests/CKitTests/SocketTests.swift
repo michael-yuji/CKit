@@ -3,8 +3,10 @@ import XCTest
 
 extension CKitTests {
     func test_read_nonblk() {
-        var (sockin, sockout) = try! Socket.makePair(domain: .unix, type: .stream,
-                                                protocol: 0)
+
+        var (sockin, sockout) = try! Socket.makePair(domain: .unix,
+                                                     type: .stream,
+                                                     protocol: 0)
         
         let longStr = "This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;This is a long str;;"
         
@@ -14,8 +16,13 @@ extension CKitTests {
         
 
         XCTAssertEqual(sockout.blocking, true)
-        sockout.blocking = false
+        sockout.flags.insert(.nonblock)
         XCTAssertEqual(sockout.blocking, false)
+        sockout.flags.remove(.nonblock)
+        XCTAssertEqual(sockout.blocking, true)
+        sockout.flags.insert(.nonblock)
+        XCTAssertEqual(sockout.blocking, false)
+        
         
         let buf = calloc(cstr.count + 20, 1) // make a little room
         var c: Int?
@@ -23,7 +30,7 @@ extension CKitTests {
 
         repeat {
             do {
-                c = try sockout.readBytes(to: buf!.advanced(by: idx), length: 20)
+                c = try sockout.read(to: buf!.advanced(by: idx), length: 20)
                 idx += 20
             } catch let error as SystemError {
                 
@@ -44,11 +51,5 @@ extension CKitTests {
         
         XCTAssertEqual(longStr, String(cString: buf!.assumingMemoryBound(to: CChar.self)))
         
-    }
-    
-    
-    func test_user() {
-        print(geteuid())
-        print(getuid())
     }
 }

@@ -18,7 +18,7 @@
 //  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 //  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 //  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-//  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//  ON ANY THEORY OF L;IABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 //  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
@@ -30,51 +30,63 @@
 //  Copyright © 2016 yuuji. All rights reserved.
 //
 
-public extension Character {
-    public static var null: Character {
+public extension Character
+{
+    public static var null: Character
+    {
         return Character(UnicodeScalar.init(0))
     }
 
-    public static var digits: [Character] {
+    public static var digits: [Character]
+    {
         return "0123456789".characters.sorted()
     }
 
-    public static var lowercase: [Character] {
+    public static var lowercase: [Character]
+    {
         return "abcdefghijklmnopqrstuvwxyz".characters.sorted()
     }
 
-    public static var uppercase: [Character] {
+    public static var uppercase: [Character]
+    {
         return "ABCDEFGHIJKLMNOPQRSTUVWXYZ".characters.sorted()
     }
 
-    public var isAlphabit: Bool {
+    public var isAlphabit: Bool
+    {
         return self.isLowercase || self.isUppercase
     }
 
-    public var isUppercase: Bool {
+    public var isUppercase: Bool
+    {
         return Character.uppercase.contains(self)
     }
 
-    public var isLowercase: Bool {
+    public var isLowercase: Bool
+    {
         return Character.lowercase.contains(self)
     }
 
-    public var isdigits: Bool {
+    public var isdigits: Bool
+    {
         return Character.digits.contains(self)
     }
 }
 
 @inline(__always)
-public func stderr(_ string: String) {
+public func stderr(_ string: String)
+{
     var msg = string
     write(STDERR_FILENO, &msg, msg.characters.count)
 }
 
-public extension String {
-    public static func alignedText(strings: String..., spaces: [Int]) -> String {
-        let astr = strings.enumerated().map { (index, string) -> String in
+public extension String
+{
+    public static func alignedText(strings: String..., spaces: [Int]) -> String
+    {
+        let astr = strings.enumerated().map { (__val:(Int, String)) -> String in let (index,string) = __val; 
             var temp = string
-            let space_to_insert = max(0, spaces[index] - string.characters.count)
+            let space_to_insert = Swift.max(0, spaces[index] - string.characters.count)
             for _ in 0 ..< space_to_insert {
                 temp.append(Character(" "))
             }
@@ -84,14 +96,17 @@ public extension String {
     }
 }
 
-public extension Strideable {
+public extension Strideable
+{
     @inline(__always)
-    public mutating func decrement() {
-        self -= 1
+    public mutating func decrement()
+    {
+        self = self.advanced(by: -1)
     }
 
     @inline(__always)
-    public mutating func increment() {
-        self += 1
+    public mutating func increment()
+    {
+        self = self.advanced(by: 1)
     }
 }

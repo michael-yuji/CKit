@@ -30,199 +30,410 @@
 //  Copyright © 2016 yuuji. All rights reserved.
 //
 
-public typealias PointerType = Pointer
-public typealias MutablePointerType = MutablePointer
-public protocol Pointer : IntegerValueConvertiable {
-    var rawPointer: UnsafeRawPointer {get}
+public typealias PointerType = AnyPointer
+public typealias MutablePointerType = AnyMutablePointer
+
+public protocol AnyPointer
+{
+    var rawPointer: UnsafeRawPointer { get }
 }
 
-public protocol MutablePointer : Pointer {
-    var mutableRawPointer: UnsafeMutableRawPointer {get}
+public protocol AnyMutablePointer : AnyPointer
+{
+    var mutableRawPointer: UnsafeMutableRawPointer { get }
 }
 
-public protocol BufferPointer {
-    var rawBuffer: UnsafeRawBufferPointer {get}
+public protocol AnyBufferPointer
+{
+    var rawBuffer: UnsafeRawBufferPointer { get }
 }
 
-public protocol MutableBufferPointer : BufferPointer {
+public protocol AnyMutableBufferPointer : AnyBufferPointer, AnyMutablePointer
+{
     var mutableRawBuffer: UnsafeMutableRawBufferPointer { get }
 }
 
 @inline(__always)
-public func pointer<T>(of obj: inout T, advancedBy distance: Int = 0) -> UnsafePointer<T> {
+public func rawPointer<T>(of obj: inout T,
+                    advancedBy count: Int = 0) -> UnsafeRawPointer
+{
     let ghost: (UnsafePointer<T>) -> UnsafePointer<T> = {$0}
-    return withUnsafePointer(to: &obj, {ghost($0)}).advanced(by: distance)
+    return withUnsafePointer(to: &obj, {
+        ghost($0)
+    }).advanced(by: count).rawPointer
 }
 
 @inline(__always)
-public func mutablePointer<T>(of obj: inout T, advancedBy distance: Int = 0) -> UnsafeMutablePointer<T> {
+public func mutableRawPointer<T>(of obj: inout T,
+                           advancedBy count: Int = 0) -> UnsafeMutableRawPointer
+{
     let ghost: (UnsafeMutablePointer<T>) -> UnsafeMutablePointer<T> = {$0}
-    return withUnsafeMutablePointer(to: &obj, {ghost($0)}).advanced(by: distance)
+    return withUnsafeMutablePointer(to: &obj, {
+        ghost($0)
+    }).advanced(by: count).mutableRawPointer
 }
 
 @inline(__always)
-func unsafeCast<T, X>(of obj: inout T, cast: X.Type) -> X {
-    return mutablePointer(of: &obj).cast(to: X.self).pointee
+public func pointer<T>(of obj: inout T,
+                    advancedBy count: Int = 0) -> UnsafePointer<T>
+{
+    let ghost: (UnsafePointer<T>) -> UnsafePointer<T> = {$0}
+    return withUnsafePointer(to: &obj, {ghost($0)}).advanced(by: count)
 }
 
 @inline(__always)
-func unsafeCast<T, X>(of obj: T, cast: X.Type) -> X {
+public func mutablePointer<T>(of obj: inout T,
+                           advancedBy count: Int = 0) -> UnsafeMutablePointer<T>
+{
+    let ghost: (UnsafeMutablePointer<T>) -> UnsafeMutablePointer<T> = {$0}
+    return withUnsafeMutablePointer(to: &obj, {
+        ghost($0)
+    }).advanced(by: count)
+}
+
+@inline(__always)
+public func pointer<T, R>(of obj: inout T, as r: R.Type,
+                    advancedBy count: Int = 0) -> UnsafePointer<R>
+{
+    let ghost: (UnsafePointer<T>) -> UnsafePointer<T> = {$0}
+    return withUnsafePointer(to: &obj, {
+        ghost($0)
+    }).advanced(by: count).cast(to: r)
+}
+
+@inline(__always)
+public func mutablePointer<T,R>(of obj: inout T, as r: R.Type,
+                           advancedBy count: Int = 0) -> UnsafeMutablePointer<R>
+{
+    let ghost: (UnsafeMutablePointer<T>) -> UnsafeMutablePointer<T> = {$0}
+    return withUnsafeMutablePointer(to: &obj, {
+        ghost($0)
+    }).advanced(by: count).cast(to: r)
+}
+
+@inline(__always)
+func reinterept_cast<T, X>(from obj: inout T, to: X.Type) -> X
+{
+    var ret: X!
+    withUnsafeMutableBytes(of: &ret) { dest -> () in
+        withUnsafeBytes(of: &obj) {
+            dest.copyContents(from: $0)
+        }
+    }
+    
+    return ret
+}
+
+@inline(__always)
+func reinterept_cast<T, X>(from obj: T, to: X.Type) -> X
+{
     var obj = obj
-    return mutablePointer(of: &obj).cast(to: X.self).pointee
+    var ret: X!
+    
+    withUnsafeMutableBytes(of: &ret) { dest -> () in
+        withUnsafeBytes(of: &obj) {
+            dest.copyContents(from: $0)
+        }
+    }
+    
+    return ret
 }
 
-@inline(__always)
-func mCast<T, X>(of obj: inout T, cast: X.Type) -> UnsafeMutablePointer<X> {
-    return mutablePointer(of: &obj).cast(to: X.self)
-}
-
-public extension UnsafeMutablePointer {
+public extension UnsafeMutablePointer
+{
     @inline(__always)
-    func cast<T>(to type: T.Type, NItems count: Int = 1) -> UnsafeMutablePointer<T> {
+    func cast<T>(to type: T.Type) -> UnsafeMutablePointer<T>
+    {
         return UnsafeMutableRawPointer(self).assumingMemoryBound(to: type)
     }
 }
 
-public extension UnsafePointer {
+public extension UnsafePointer
+{
     @inline(__always)
-    func cast<T>(to type: T.Type) -> UnsafePointer<T> {
+    func cast<T>(to type: T.Type) -> UnsafePointer<T>
+    {
         return UnsafeRawPointer(self).assumingMemoryBound(to: type)
     }
 }
 
-public extension UnsafeMutableRawPointer {
+public extension UnsafeMutableRawPointer
+{
     @inline(__always)
-    func cast<T>(to type: T.Type) -> UnsafeMutablePointer<T> {
+    func cast<T>(to type: T.Type) -> UnsafeMutablePointer<T>
+    {
         return self.assumingMemoryBound(to: type)
     }
 }
 
-extension Int {
-    public func asPointer() -> UnsafeMutableRawPointer {
-        return UnsafeMutableRawPointer(bitPattern: self)!
-    }
-}
-
-extension Pointer {
-    
-    public var description: String {
-        return "\(self)"
-    }
-    
-    public var integerValue: Int {
+extension AnyPointer
+{
+    public var integerValue: Int
+    {
         return numerialValue
     }
     
-    public var numerialValue: Int {
+    public var numerialValue: Int
+    {
         var s = self
         return pointer(of: &s).cast(to: Int.self).pointee
     }
 }
 
-extension Array: Pointer {
-    private static func toPointer<T>(_ p: UnsafePointer<T>) -> UnsafePointer<T> {
+extension Array: AnyPointer
+{
+    @inline(__always)
+    private static func toPointer<T>(_ p: UnsafePointer<T>) -> UnsafePointer<T>
+    {
         return p
     }
 
-    public var rawPointer: UnsafeRawPointer {
+    public var rawPointer: UnsafeRawPointer
+    {
         return Array.toPointer(self).rawPointer
     }
 }
 
-extension UnsafePointer: Pointer {
-    public var rawPointer: UnsafeRawPointer {
+extension UnsafePointer: AnyPointer
+{
+    public var rawPointer: UnsafeRawPointer
+    {
         return UnsafeRawPointer(self)
     }
 }
 
-extension UnsafeRawPointer: Pointer {
-    public var rawPointer: UnsafeRawPointer {
+extension UnsafeRawPointer: AnyPointer
+{
+    public var rawPointer: UnsafeRawPointer
+    {
         return self
     }
 }
 
-extension UnsafeBufferPointer: Pointer, BufferPointer {
-    public var rawPointer: UnsafeRawPointer {
+extension UnsafeBufferPointer: AnyPointer, AnyBufferPointer
+{
+    public var rawPointer: UnsafeRawPointer
+    {
         return self.baseAddress!.rawPointer
     }
     
-    public var rawBuffer: UnsafeRawBufferPointer{
+    public var rawBuffer: UnsafeRawBufferPointer
+    {
         return UnsafeRawBufferPointer(self)
     }
 }
 
-extension UnsafeRawBufferPointer: Pointer, BufferPointer {
-    public var rawPointer: UnsafeRawPointer {
+extension UnsafeRawBufferPointer: AnyPointer, AnyBufferPointer
+{
+    public var rawPointer: UnsafeRawPointer
+    {
         return self.baseAddress!
     }
     
-    public var rawBuffer: UnsafeRawBufferPointer {
+    public var rawBuffer: UnsafeRawBufferPointer
+    {
         return self
     }
 }
 
-extension UnsafeMutablePointer: MutablePointer {
-    public var mutableRawPointer: UnsafeMutableRawPointer {
+extension UnsafeMutablePointer: AnyMutablePointer
+{
+    public var mutableRawPointer: UnsafeMutableRawPointer
+    {
         return UnsafeMutableRawPointer(self)
     }
 
-    public var rawPointer: UnsafeRawPointer {
+    public var rawPointer: UnsafeRawPointer
+    {
         return UnsafeRawPointer(self)
     }
 }
 
-extension UnsafeMutableRawPointer: MutablePointer {
-    public var mutableRawPointer: UnsafeMutableRawPointer {
+extension UnsafeMutableRawPointer: AnyMutablePointer
+{
+    public var mutableRawPointer: UnsafeMutableRawPointer
+    {
         return self
     }
 
-    public var rawPointer: UnsafeRawPointer {
+    public var rawPointer: UnsafeRawPointer
+    {
         return UnsafeRawPointer(self)
     }
 }
 
-extension UnsafeMutableBufferPointer: MutablePointer, MutableBufferPointer {
-    public var mutableRawPointer: UnsafeMutableRawPointer {
+extension UnsafeMutableBufferPointer: AnyMutablePointer, AnyMutableBufferPointer
+{
+    public var mutableRawPointer: UnsafeMutableRawPointer
+    {
         return self.baseAddress!.mutableRawPointer
     }
 
-    public var rawPointer: UnsafeRawPointer {
+    public var rawPointer: UnsafeRawPointer
+    {
         return self.baseAddress!.rawPointer
     }
     
-    public var rawBuffer: UnsafeRawBufferPointer {
+    public var rawBuffer: UnsafeRawBufferPointer
+    {
         return UnsafeRawBufferPointer(self)
     }
     
-    public var mutableRawBuffer: UnsafeMutableRawBufferPointer {
+    public var mutableRawBuffer: UnsafeMutableRawBufferPointer
+    {
         return UnsafeMutableRawBufferPointer(self)
     }
 }
 
-extension UnsafeMutableRawBufferPointer: Pointer, MutableBufferPointer {
-    public var rawPointer: UnsafeRawPointer {
+extension UnsafeMutableRawBufferPointer: AnyPointer, AnyMutableBufferPointer
+{
+    public var rawPointer: UnsafeRawPointer
+    {
         return UnsafeRawPointer(self.baseAddress!)
     }
     
-    public var mutableRawPointer: UnsafeMutableRawPointer {
+    public var mutableRawPointer: UnsafeMutableRawPointer
+    {
         return self.baseAddress!
     }
     
-    public var mutableRawBuffer: UnsafeMutableRawBufferPointer {
+    public var mutableRawBuffer: UnsafeMutableRawBufferPointer
+    {
         return self
     }
     
-    public var rawBuffer: UnsafeRawBufferPointer {
+    public var rawBuffer: UnsafeRawBufferPointer
+    {
         return UnsafeRawBufferPointer(self)
     }
 }
 
-extension OpaquePointer {
-    public var mutableRawPointer: UnsafeMutableRawPointer {
+extension OpaquePointer
+{
+    public var mutableRawPointer: UnsafeMutableRawPointer
+    {
         return UnsafeMutableRawPointer(self)
     }
     
-    public var rawPointer: UnsafeRawPointer {
+    public var rawPointer: UnsafeRawPointer
+    {
         return UnsafeRawPointer(self)
+    }
+}
+
+@inline(__always)
+private func roundedBytesCount<T>(_ raw: Int, _: T.Type) -> Int
+{
+    return raw - (raw % MemoryLayout<T>.size)
+}
+
+extension AnyMutableBufferPointer
+{
+    @discardableResult
+    public func copyContents<T>(from buf: UnsafeMutableBufferPointer<T>) -> Int
+    {
+        let nbytes = min(roundedBytesCount(self.mutableRawBuffer.count, T.self),
+                         roundedBytesCount(buf.rawBuffer.count, T.self))
+        
+        self.mutableRawBuffer.copyBytes(
+            from: UnsafeRawBufferPointer(start: buf.rawBuffer.baseAddress!,
+                                         count: nbytes)
+        )
+        return nbytes/MemoryLayout<T>.size
+    }
+    
+    @discardableResult
+    public func copyContents<T>(from buffer: UnsafeBufferPointer<T>) -> Int
+    {
+        let nbytes = min(roundedBytesCount(self.mutableRawBuffer.count, T.self),
+                         roundedBytesCount(buffer.rawBuffer.count, T.self))
+        
+        self.mutableRawBuffer.copyBytes(
+            from: UnsafeRawBufferPointer(start: buffer.rawBuffer.baseAddress!,
+                                         count: nbytes)
+        )
+        return nbytes/MemoryLayout<T>.size
+    }
+    
+}
+
+extension UnsafeMutableRawBufferPointer {
+    
+    /// Copy bytes from other buffer. If the other buffer is bigger than the
+    /// current buffer, only the bytes current buffer can hold will be copied
+    ///
+    /// - Parameter source: the source buffer to copy from
+    /// - Returns: number of bytes copied
+    @discardableResult
+    public func copyContents(from source: UnsafeRawBufferPointer) -> Int
+    {
+        let nbytes = Swift.min(self.count, source.count)
+        
+        self.mutableRawBuffer.copyBytes(
+            from: UnsafeRawBufferPointer(start: source.rawBuffer.baseAddress!,
+                                         count: nbytes)
+        )
+        return nbytes
+    }
+    
+    /// Copy bytes from other buffer. If the other buffer is bigger than the
+    /// current buffer, only the bytes current buffer can hold will be copied
+    ///
+    /// - Parameter source: the source buffer to copy from
+    /// - Returns: number of bytes copied
+    @discardableResult
+    public func copyContents(from source: UnsafeMutableRawBufferPointer) -> Int
+    {
+        let nbytes = Swift.min(self.mutableRawBuffer.count,
+                               source.rawBuffer.count)
+        
+        self.mutableRawBuffer.copyBytes(
+            from: UnsafeRawBufferPointer(start: source.rawBuffer.baseAddress!,
+                                         count: nbytes)
+        )
+        return nbytes
+    }
+}
+
+extension UnsafeMutableBufferPointer
+{
+    /// Copy bytes from other buffer. If the other buffer is bigger than the
+    /// current buffer, only the bytes current buffer can hold will be copied
+    ///
+    /// - Parameter source: the source buffer to copy from
+    /// - Returns: number of elements copied
+    @discardableResult
+    public func copyContents(from source: UnsafeRawBufferPointer) -> Int
+    {
+        let nbytes = Swift.min(roundedBytesCount(self.mutableRawBuffer.count,
+                                                 Element.self),
+                               roundedBytesCount(source.rawBuffer.count,
+                                                 Element.self))
+        
+        self.mutableRawBuffer.copyBytes(
+            from: UnsafeRawBufferPointer(start: source.rawBuffer.baseAddress!,
+                                         count: nbytes)
+        )
+        return nbytes/MemoryLayout<Element>.size
+    }
+    
+    /// Copy bytes from other buffer. If the other buffer is bigger than the
+    /// current buffer, only the bytes current buffer can hold will be copied
+    ///
+    /// - Parameter source: the source buffer to copy from
+    /// - Returns: number of elements copied
+    @discardableResult
+    public func copyContents(from source: UnsafeMutableRawBufferPointer) -> Int
+    {
+        let nbytes = Swift.min(roundedBytesCount(self.mutableRawBuffer.count,
+                                                 Element.self),
+                               roundedBytesCount(source.rawBuffer.count,
+                                                 Element.self))
+        
+        self.mutableRawBuffer.copyBytes(
+            from: UnsafeRawBufferPointer(start: source.rawBuffer.baseAddress!,
+                                         count: nbytes)
+        )
+        return nbytes/MemoryLayout<Element>.size
     }
 }

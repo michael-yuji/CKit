@@ -33,15 +33,18 @@
 // The following section is just to make coding with epoll api in Xcode
 // easier, will not have any effect when build on Darwin platform
 #if os(OSX)
-    func epoll_create(_ i: Int) -> Int32 {
+    func epoll_create(_ i: Int) -> Int32
+    {
         return 0
     }
     
-    public struct EPOLL_EVENTS: RawRepresentable {
+    public struct EPOLL_EVENTS: RawRepresentable
+    {
         public typealias RawValue = UInt32
         public var rawValue: UInt32
         
-        public init(rawValue: UInt32) {
+        public init(rawValue: UInt32)
+        {
             self.rawValue = rawValue
         }
     }
@@ -65,24 +68,30 @@
     public let EPOLL_CTL_DEL: Int32 = 2
     public let EPOLL_CTL_MOD: Int32 = 3
     
-    public struct epoll_event {
+    public struct epoll_event
+    {
         public var events: UInt32
         public var data: epoll_data_t
         
-        public init(events: UInt32, data: epoll_data_t) {
+        public init(events: UInt32, data: epoll_data_t)
+        {
             self.events = events
             self.data = data
         }
         
-        public init() {
+        public init()
+        {
             events = 0
             data = epoll_data_t(fd: 0)
         }
     }
     
-    public struct epoll_data_t {
+    public struct epoll_data_t
+    {
         var raw: Int = 0
-        public var fd: Int32 {
+        
+        public var fd: Int32
+        {
             get {
                 return Int32(raw)
             } set {
@@ -90,7 +99,8 @@
             }
         }
         
-        public var u32: UInt32 {
+        public var u32: UInt32
+        {
             get {
                 return UInt32(raw)
             } set {
@@ -98,7 +108,8 @@
             }
         }
         
-        public var u64: UInt64 {
+        public var u64: UInt64
+        {
             get {
                 return UInt64(raw)
             } set {
@@ -106,30 +117,41 @@
             }
         }
         
-        public var ptr: UnsafeMutableRawPointer!
-        
-        public init(fd: Int32) {
+        public init(fd: Int32)
+        {
             self.fd = fd
         }
         
-        public init(u32: UInt32) {
+        public init(u32: UInt32)
+        {
             self.u32 = u32
         }
         
-        public init(u64: UInt64) {
+        public init(u64: UInt64)
+        {
             self.u64 = u64
         }
         
-        public init(ptr: UnsafeMutableRawPointer) {
-            self.ptr = ptr
+        public init(ptr: UnsafeMutableRawPointer)
+        {
+            self.raw = ptr.integerValue
         }
     }
     
-    public func epoll_wait(_ epfd: Int32, _ events: UnsafeMutablePointer<epoll_event>, _ maxevents: Int32, _ timeout: Int32) -> Int32 {
-        return 0
+    // emulating epoll_wait
+    public func epoll_wait(_ epfd: Int32,
+                           _ events: UnsafeMutablePointer<epoll_event>,
+                           _ maxevents: Int32,
+                           _ timeout: Int32) -> Int32
+    {
+        fatalError()
     }
     
-    public func epoll_ctl(_ __epfd: Int32, _ __op: Int32, _ __fd: Int32, _ __event: UnsafePointer<epoll_event>!) -> Int32 {
-        return 0
+    public func epoll_ctl(_ __epfd: Int32,
+                          _ __op: Int32,
+                          _ __fd: Int32,
+                          _ __event: UnsafePointer<epoll_event>!) -> Int32
+    {
+        fatalError()
     }
 #endif

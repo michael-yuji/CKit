@@ -30,10 +30,12 @@
 //  Copyright © 2017 Yuji. All rights reserved.
 //
 
-public struct FileFlags: OptionSet {
+public struct FileFlags: OptionSet
+{
     public typealias RawValue = Int32
     public var rawValue: Int32
-    public init(rawValue: RawValue) {
+    public init(rawValue: RawValue)
+    {
         self.rawValue = rawValue
     }
 
@@ -73,42 +75,59 @@ public struct FileFlags: OptionSet {
     public static let ensureCreation = FileFlags(rawValue: O_EXCL)
 }
 
-public struct File: FileDescriptorRepresentable {
+public struct File: FileDescriptorRepresentable
+{
     public var fileDescriptor: Int32
     public var path: String
+    
     public lazy var status: FileStatus = {
         return try! FileStatus(fd: self.fileDescriptor)
     }()
     
-    public init(path: String, access: AccessMode, flags: FileFlags) throws {
+    public init(path: String, access: AccessMode, flags: FileFlags) throws
+    {
         self.path = path
-        self.fileDescriptor = try guarding("open") {
+        self.fileDescriptor = try sguard("open") {
             return path.withCString {
                 open($0, flags.rawValue, access.rawValue)
             }
         }
     }
     
-    public func chmod(permission: PremissionMode) throws {
-        _ = try guarding("open") {
+    public init(path: String, access: mode_t, flags: FileFlags) throws
+    {
+        self.path = path
+        self.fileDescriptor = try sguard("open") {
+            return path.withCString {
+                open($0, flags.rawValue, access)
+            }
+        }
+    }
+    
+    public func chmod(permission: PremissionMode) throws
+    {
+        _ = try sguard("open") {
             fchmod(fileDescriptor, permission.rawValue)
         }
     }
     
-    public func chown(user: uid_t, group: gid_t) throws {
-        _ = try guarding("open") {
+    public func chown(user: uid_t, group: gid_t) throws
+    {
+        _ = try sguard("open") {
             fchown(fileDescriptor, user, group)
         }
     }
     
-    public func chown(user: User) throws {
-        _ = try guarding("open") {
+    public func chown(user: User) throws
+    {
+        _ = try sguard("open") {
             fchown(fileDescriptor, user.uid, user.gid)
         }
     }
     
-    public func chown(user: User, group: Group) throws {
-        _ = try guarding("open") {
+    public func chown(user: User, group: Group) throws
+    {
+        _ = try sguard("open") {
             fchown(fileDescriptor, user.uid, group.gid)
         }
     }
@@ -117,7 +136,8 @@ public struct File: FileDescriptorRepresentable {
         case share
         case exclusive
         
-        var value: Int32 {
+        var value: Int32
+        {
             switch self {
             case .share:
                 return LOCK_SH
@@ -127,21 +147,25 @@ public struct File: FileDescriptorRepresentable {
         }
     }
     
-    public func lock(_ type: Lock) {
+    public func lock(_ type: Lock)
+    {
         _ = xlibc.flock(fileDescriptor, type.value)
     }
     
-    public func unlock() {
+    public func unlock()
+    {
         _ = xlibc.flock(fileDescriptor, LOCK_UN)
     }
     
-    public func withSharedLock(_ block: (File) -> ()) {
+    public func withSharedLock(_ block: (File) -> ())
+    {
         self.lock(.share)
         block(self)
         self.unlock()
     }
     
-    public func withExclusiveLock(_ block: (File) -> ()) {
+    public func withExclusiveLock(_ block: (File) -> ())
+    {
         self.lock(.exclusive)
         block(self)
         self.unlock()

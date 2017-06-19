@@ -1,5 +1,6 @@
 
-public enum SocketTypes: Int32 {
+public enum SocketTypes: Int32
+{
     case stream    = 1
     case dgram     = 2
     case raw       = 3

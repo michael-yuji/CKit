@@ -29,90 +29,54 @@
 //  Created by yuuji on 3/27/17.
 //
 
-#if os(Linux)
-// Have to use a custom sockaddr_storage here,
-// The default sockaddr_storage in Linux SwiftGlibc
-// "hide" the bytes between ss_family and __ss_align
-// in some implementation of the Linux Kernel
-// in that case, those "hidden" bytes are not copied
-// when the sockaddr_storage copied to the stack.
-// In those cases, 6 bytes will be missing when
-// use the sockaddr_storage struct as sockaddr_un.
-// which causes the socket bind to a empty string path.
-public struct _sockaddr_storage {
-    public var ss_family: sa_family_t // 2 bytes
-    // 126 bytes
-    public var __ss_pad1:
-    (UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,
-    UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8,UInt8)
-    
-    public init() {
-        self.ss_family = 0
-        self.__ss_pad1 =
-            (
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                0,0,0,0,0,0,0,0,0,0,0,0,0,0
-        )
-    }
-}
-#else
 public typealias _sockaddr_storage = xlibc.sockaddr_storage
-#endif
 
-
-extension sockaddr {
+extension sockaddr
+{
     #if os(Linux)
-    public var sa_len: UInt8 {
+    public var sa_len: UInt8
+    {
         return UInt8(MemoryLayout<sockaddr_in6>.size)
     }
     #endif
 }
 
-extension _sockaddr_storage {
-    #if os(Linux)
-    public var ss_len: UInt8 {
-        switch self.ss_family {
-            case sa_family_t(AF_INET):
-                return UInt8(MemoryLayout<sockaddr_in>.size)
-            
-            case sa_family_t(AF_INET6):
-                return UInt8(MemoryLayout<sockaddr_in6>.size)
-            
-            case sa_family_t(AF_UNIX):
-                return UInt8(MemoryLayout<sockaddr_un>.size)
-            
-            case sa_family_t(AF_LINK):
-                return UInt8(MemoryLayout<sockaddr_dl>.size)
-            
-            default:
-                return UInt8(MemoryLayout<sockaddr>.size)
-        }
-    }
-    #endif
-}
+#if os(Linux)
+func get_socklen_by_family(_ family: Int32) -> UInt8
+{
+    switch family {
+    case AF_INET:
+        return UInt8(MemoryLayout<sockaddr_in>.size)
+        
+    case AF_INET6:
+        return UInt8(MemoryLayout<sockaddr_in6>.size)
+        
+    case AF_UNIX:
+        return UInt8(MemoryLayout<sockaddr_un>.size)
+        
+    case AF_LINK:
+        return UInt8(MemoryLayout<sockaddr_dl>.size)
 
-extension sockaddr_in {
-    init(port: in_port_t, addr: in_addr = in_addr(s_addr: 0)) {
+    default:
+        return UInt8(MemoryLayout<sockaddr>.size)
+    }
+}
+#endif
+
+//extension _sockaddr_storage
+//{
+//    #if os(Linux)
+//    public var ss_len: UInt8
+//    {
+//        return get_socklen_by_family(Int32(self.ss_family))
+//    }
+//    #endif
+//}
+
+extension sockaddr_in
+{
+    init(port: in_port_t, addr: in_addr = in_addr(s_addr: 0))
+    {
         #if os(Linux)
             self = sockaddr_in(sin_family: sa_family_t(AF_INET),
                                sin_port: port.bigEndian,
@@ -128,14 +92,17 @@ extension sockaddr_in {
     }
     
     #if os(Linux)
-    public var sin_len: UInt8 {
-    return UInt8(MemoryLayout<sockaddr_in>.size)
+    public var sin_len: UInt8
+    {
+        return UInt8(MemoryLayout<sockaddr_in>.size)
     }
     #endif
 }
 
-extension sockaddr_in6 {
-    init(port: in_port_t, addr: in6_addr = in6addr_any) {
+extension sockaddr_in6
+{
+    init(port: in_port_t, addr: in6_addr = in6addr_any)
+    {
         #if os(Linux)
             self = sockaddr_in6(sin6_family: sa_family_t(AF_INET6),
                                 sin6_port: port.bigEndian,
@@ -153,11 +120,10 @@ extension sockaddr_in6 {
     }
     
     #if os(Linux)
-    public var sin6_len: UInt8 {
+    public var sin6_len: UInt8
+    {
         return UInt8(MemoryLayout<sockaddr_in6>.size)
     }
     #endif
 }
-
-
 

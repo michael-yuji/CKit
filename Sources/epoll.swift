@@ -30,48 +30,59 @@
 //  Copyright © 2016 Yuji. All rights reserved.
 //
 
-public struct Epoll: FileDescriptorRepresentable {
+public struct Epoll: FileDescriptorRepresentable
+{
     public var fileDescriptor: Int32
-    
-    
-    public func add(fd: Int32, for events: EpollEvents) {
+
+    public func add(fd: Int32, for events: EpollEvents)
+    {
         var ev = epoll_event(events: events.rawValue,
                              data: epoll_data_t(fd: fd)) // to use pointer
         _ = epoll_ctl(self.fileDescriptor, EPOLL_CTL_ADD, fd, &ev)
     }
     
-    public func remove(fd: Int32) {
+    public func remove(fd: Int32)
+    {
         _ = epoll_ctl(self.fileDescriptor, EPOLL_CTL_DEL, fd, nil)
     }
     
-    public func wait(maxevs: Int, timeout: Int = 0) -> [epoll_event] {
+    public func wait(maxevs: Int, timeout: Int = 0) -> [epoll_event]
+    {
         var evs = [epoll_event](repeating: epoll_event(), count: maxevs)
         let nev = epoll_wait(fileDescriptor, &evs ,Int32(maxevs), Int32(timeout))
         return Array(evs.dropLast(maxevs - Int(nev)))
     }
     
-    public func wait(maxevs: Int, timeout: Int = 0, handler: (epoll_event) -> ()) {
+    public func wait(maxevs: Int, timeout: Int = 0, handler: (epoll_event) throws -> ()) throws
+    {
         var evs = [epoll_event](repeating: epoll_event(), count: maxevs)
-        let nev = epoll_wait(fileDescriptor, &evs ,Int32(maxevs), Int32(timeout))
+        let nev = try sguard("epoll_wait") {
+            epoll_wait(fileDescriptor, &evs ,Int32(maxevs), Int32(timeout))
+        }
+        
         for i in 0..<Int(nev) {
-            handler(evs[i])
+            try handler(evs[i])
         }
     }
     
-    public init() {
+    public init()
+    {
         fileDescriptor = epoll_create(1024)
     }
 }
 
-public struct EpollEvents : OptionSet {
+public struct EpollEvents : OptionSet
+{
     public typealias RawValue = UInt32
     public var rawValue: UInt32
     
-    public init(rawValue: UInt32) {
+    public init(rawValue: UInt32)
+    {
         self.rawValue = rawValue
     }
     
-    public init(rawValue: Int32) {
+    public init(rawValue: Int32)
+    {
         self.rawValue = UInt32(rawValue)
     }
     

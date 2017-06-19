@@ -33,7 +33,8 @@
 public typealias SocketDomains = SocketFamilies
 
 #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
-    public enum SocketFamilies: sa_family_t {
+    public enum SocketFamilies: sa_family_t
+    {
         case unspec     = 0
         case unix       = 1
         case inet       = 2
@@ -75,7 +76,8 @@ public typealias SocketDomains = SocketFamilies
         case max        = 40
     }
 #elseif os(FreeBSD)
-    public enum SocketFamilies: UInt8 {
+    public enum SocketFamilies: UInt8
+    {
         case unspec     = 0
         case unix       = 1
         case inet       = 2
@@ -120,7 +122,8 @@ public typealias SocketDomains = SocketFamilies
     }
 #else
     
-    public enum SocketFamilies: sa_family_t {
+    public enum SocketFamilies: sa_family_t
+    {
         case unspec     = 0
         case unix       = 1
         case inet       = 2

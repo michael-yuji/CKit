@@ -1,5 +1,7 @@
-
-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+LICENSE = \
+'''
 //  Copyright (c) 2016, Yuji
 //  All rights reserved.
 //
@@ -27,26 +29,29 @@
 //  of the authors and should not be interpreted as representing official policies,
 //  either expressed or implied, of the FreeBSD Project.
 //
-//  Created by Yuji on 7/16/16.
-//  Copyright © 2016 Yuji. All rights reserved.
+//  Copyright © 2017 Yuji. All rights reserved.
 //
+'''
+
+Darwin = 'os(OSX) || os(iOS) || os(watchOS) || os(tvOS)'
+fbsd = 'os(FreeBSD) || os(PS4)'
+
+BSD = Darwin + ' || ' + fbsd
+
+_32bit = 'arch(arm) || arch(i386)'
+_64bit = 'arch(x86_64)'
+
+def capitalize(str):
+    if str == '':
+        return ''
+    return str[0].upper() + str[1:]
 
 
-#if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
-import Darwin
-#else
-import Glibc
-#endif
-
-extension String {
-    public static var lastErrnoString: String {
-        return errnoString(errno)
-    }
-
-    public static func errnoString(_ n: Int32) -> String {
-        guard let cErrStr = strerror(n) else {
-            return "Cannot get error string from errno"
-        }
-        return String(cString: cErrStr)
-    }
-}
+def camel(list):
+    ret = ''
+    for item in list:
+        if ret == '':
+            ret = item
+        else:
+            ret = ret + capitalize(item)
+    return ret

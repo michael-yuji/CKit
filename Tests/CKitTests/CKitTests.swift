@@ -3,31 +3,22 @@ import Dispatch
 import Foundation
 @testable import CKit
 
-class CKitTests: XCTestCase {
-//    func test_aligned_text() {
-//        XCTAssertEqual("hi        world     ",
-//                       String.alignedText(strings: "hi", "world",
-//                                          spaces: [10, 10])
-//        )
-//    }
-//
-//    func test_dirent() {
-//        print(DirectoryEntry.files(at: "/"))
-//    }
-//
-//    func test_interfaces() {
-//        let interfaces = NetworkInterface.interfaces
-//        let inetIfx = interfaces.filter{$0.address?.type == .inet}
-//        
-//        for interface in inetIfx {
-//            XCTAssertEqual(interface.address?.type, .inet)
-//        }
-//    }
-
+class CKitTests: XCTestCase
+{
 	static var allTests : [(String, (CKitTests) -> () throws -> Void)] {
     return [
-//      ("init ipv4 SocketAddress", testIPv4Init),
-//      ("init ipv6 SocketAddress", testIPv6Init),
+        ("dns", test_dns),
+        ("dns", test_dns0),
+        ("dns", test_dns1),
+        ("dns", test_dns2),
+        ("ip4", testIpv4),
+        ("ip6", testIpv6),
+        ("initWithSockStorage", test_init_with_storage),
+        ("unix_domain_sock", testUnixDomain),
+        ("subnet", test_subnet),
+        ("unixsock", testUnixDomain),
+        ("loopback interface", test_loopback),
+        ("nonblk", test_read_nonblk)
     ]
   }
 }

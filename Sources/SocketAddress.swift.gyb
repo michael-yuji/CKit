@@ -1,34 +1,16 @@
-
-//  Copyright (c) 2016, Yuji
-//  All rights reserved.
-//
-//  Redistribution and use in source and binary forms, with or without
-//  modification, are permitted provided that the following conditions are met:
-//
-//  1. Redistributions of source code must retain the above copyright notice, this
-//  list of conditions and the following disclaimer.
-//  2. Redistributions in binary form must reproduce the above copyright notice,
-//  this list of conditions and the following disclaimer in the documentation
-//  and/or other materials provided with the distribution.
-//
-//  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-//  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-//  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-//  DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-//  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-//  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-//  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-//  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-//  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-//  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-//  The views and conclusions contained in the software and documentation are those
-//  of the authors and should not be interpreted as representing official policies,
-//  either expressed or implied, of the FreeBSD Project.
-//
-//  Copyright © 2017 Yuji. All rights reserved.
-//
-
+%{
+    from Common import *
+    from collections import namedtuple
+    sockaddr = namedtuple('sockaddr', ['name', 'type', 'code'])
+    addrs = [
+                sockaddr('addr',    'sockaddr',     'AF_UNSPEC'),
+                sockaddr('inet',    'sockaddr_in',  'AF_INET'),
+                sockaddr('inet6',   'sockaddr_in6', 'AF_INET6'),
+                sockaddr('unix',    'sockaddr_un',  'AF_UNIX'),
+                sockaddr('link',    'sockaddr_dl',  'AF_LINK'),
+            ]
+}%
+${LICENSE}
 
 #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
     public let UNIX_PATH_MAX = 104
@@ -55,11 +37,9 @@ extension SocketAddress : CustomStringConvertible
 public struct SocketAddress
 {
     enum __sockaddr {
-    case addr(sockaddr)
-    case inet(sockaddr_in)
-    case inet6(sockaddr_in6)
-    case unix(sockaddr_un)
-    case link(sockaddr_dl)
+    % for (name, type, code) in addrs:
+    case ${name}(${type})
+    %end
     }
 
     var storage: __sockaddr
@@ -71,22 +51,14 @@ extension SocketAddress
     {
         var storage = storage
         switch storage.ss_family {
-        case sa_family_t(AF_INET):
+        % for (name, type, code) in addrs:
+        % if name != 'addr':
+        case sa_family_t(${code}):
             self.storage = withUnsafePointer(to: &storage) {
-                .inet($0.cast(to: sockaddr_in.self).pointee)
+                .${name}($0.cast(to: ${type}.self).pointee)
             }
-        case sa_family_t(AF_INET6):
-            self.storage = withUnsafePointer(to: &storage) {
-                .inet6($0.cast(to: sockaddr_in6.self).pointee)
-            }
-        case sa_family_t(AF_UNIX):
-            self.storage = withUnsafePointer(to: &storage) {
-                .unix($0.cast(to: sockaddr_un.self).pointee)
-            }
-        case sa_family_t(AF_LINK):
-            self.storage = withUnsafePointer(to: &storage) {
-                .link($0.cast(to: sockaddr_dl.self).pointee)
-            }
+        %end
+        %end
 
         default:
             self.storage = withUnsafePointer(to: &storage, {
@@ -99,16 +71,10 @@ extension SocketAddress
     {
         switch addr.pointee.sa_family {
 
-        case sa_family_t(AF_UNSPEC):
-            self.storage = .addr(addr.cast(to: sockaddr.self).pointee)
-        case sa_family_t(AF_INET):
-            self.storage = .inet(addr.cast(to: sockaddr_in.self).pointee)
-        case sa_family_t(AF_INET6):
-            self.storage = .inet6(addr.cast(to: sockaddr_in6.self).pointee)
-        case sa_family_t(AF_UNIX):
-            self.storage = .unix(addr.cast(to: sockaddr_un.self).pointee)
-        case sa_family_t(AF_LINK):
-            self.storage = .link(addr.cast(to: sockaddr_dl.self).pointee)
+        % for (name, type, code) in addrs:
+        case sa_family_t(${code}):
+            self.storage = .${name}(addr.cast(to: ${type}.self).pointee)
+        %end
 
         default:
             self.storage = .addr(addr.pointee)
@@ -194,14 +160,12 @@ extension SocketAddress
     public var family: SocketFamilies
     {
         switch self.storage {
-        case .inet:
-            return .inet
-        case .inet6:
-            return .inet6
-        case .unix:
-            return .unix
-        case .link:
-            return .link
+        %for (name, type, code) in addrs:
+        % if name != 'addr':
+        case .${name}:
+            return .${name}
+        %end
+        %end
         case let .addr(addr):
             return SocketFamilies(rawValue: addr.sa_family)!
         }
@@ -217,75 +181,50 @@ extension SocketAddress
     public func withSockAddrPointer<R>(_ blk: (UnsafePointer<sockaddr>) -> R) -> R
     {
         switch self.storage {
-        case var .addr(addr):
-            return blk(pointer(of: &addr))
-        case var .inet(inet):
-            return blk(pointer(of: &inet).cast(to: sockaddr.self))
-        case var .inet6(inet6):
-            return blk(pointer(of: &inet6).cast(to: sockaddr.self))
-        case var .unix(unix):
-            return blk(pointer(of: &unix).cast(to: sockaddr.self))
-        case var .link(link):
-            return blk(pointer(of: &link).cast(to: sockaddr.self))
+        %for (name, type, code) in addrs:
+        case var .${name}(${name}):
+        %if name != 'addr':
+            return blk(pointer(of: &${name}).cast(to: sockaddr.self))
+        %else:
+            return blk(pointer(of: &${name}))
+        %end
+        %end
         }
     }
 
-    public func addr() -> sockaddr
+    %for (name, type, code) in addrs:
+    public func ${name}() -> ${type}${'' if name == 'addr' else '?'}
     {
+    %if name != 'addr':
+        guard case let .${name}(${name}) = self.storage else {
+            return nil
+        }
+        return ${name}
+    %else:
         switch self.storage {
-        case let .addr(addr):
-            return addr
-        case let .inet(inet):
-            return reinterept_cast(from: inet, to: sockaddr.self)
-        case let .inet6(inet6):
-            return reinterept_cast(from: inet6, to: sockaddr.self)
-        case let .unix(unix):
-            return reinterept_cast(from: unix, to: sockaddr.self)
-        case let .link(link):
-            return reinterept_cast(from: link, to: sockaddr.self)
+        %for (name0, type0, code0) in addrs:
+        case let .${name0}(${name0}):
+        %if name0 != 'addr':
+            return reinterept_cast(from: ${name0}, to: sockaddr.self)
+        %else:
+            return ${name0}
+        %end
+        %end
         }
+    %end
     }
-    public func inet() -> sockaddr_in?
-    {
-        guard case let .inet(inet) = self.storage else {
-            return nil
-        }
-        return inet
-    }
-    public func inet6() -> sockaddr_in6?
-    {
-        guard case let .inet6(inet6) = self.storage else {
-            return nil
-        }
-        return inet6
-    }
-    public func unix() -> sockaddr_un?
-    {
-        guard case let .unix(unix) = self.storage else {
-            return nil
-        }
-        return unix
-    }
-    public func link() -> sockaddr_dl?
-    {
-        guard case let .link(link) = self.storage else {
-            return nil
-        }
-        return link
-    }
+    %end
 
     public var socklen: socklen_t
     {
         switch family {
 
-        case .inet:
-            return socklen_t(MemoryLayout<sockaddr_in>.size)
-        case .inet6:
-            return socklen_t(MemoryLayout<sockaddr_in6>.size)
-        case .unix:
-            return socklen_t(MemoryLayout<sockaddr_un>.size)
-        case .link:
-            return socklen_t(MemoryLayout<sockaddr_dl>.size)
+        %for (name, type, code) in addrs:
+        %if name != 'addr':
+        case .${name}:
+            return socklen_t(MemoryLayout<${type}>.size)
+        %end
+        %end
 
         default:
             return socklen_t(MemoryLayout<sockaddr>.size)
@@ -422,34 +361,29 @@ extension SocketAddress: Equatable
                                   rhs: in6_addr,
                                   mask: in6_addr) -> Bool
     {
-        #if os(Linux)
-        return mask.__in6_u.__u6_addr32.0 & lhs.__in6_u.__u6_addr32.0
-            == mask.__in6_u.__u6_addr32.0 & rhs.__in6_u.__u6_addr32.0
-            && mask.__in6_u.__u6_addr32.1 & lhs.__in6_u.__u6_addr32.1
-            == mask.__in6_u.__u6_addr32.1 & rhs.__in6_u.__u6_addr32.1
-            && mask.__in6_u.__u6_addr32.2 & lhs.__in6_u.__u6_addr32.2
-            == mask.__in6_u.__u6_addr32.2 & rhs.__in6_u.__u6_addr32.2
-            && mask.__in6_u.__u6_addr32.3 & lhs.__in6_u.__u6_addr32.3
-            == mask.__in6_u.__u6_addr32.3 & rhs.__in6_u.__u6_addr32.3
+        % _linux_ = ('os(Linux)', '__in6_u.__u6_addr32')
+        % _bsd_ = (BSD, '__u6_addr.__u6_addr32')
+        % for platform in [_linux_, _bsd_]:
+        #if ${platform[0]}
+        %   for i in ('0', '1', '2', '3'):
+        %        if i == '0':
+        return mask.${platform[1]}.${i} & lhs.${platform[1]}.${i}
+            == mask.${platform[1]}.${i} & rhs.${platform[1]}.${i}
+        %       else:
+            && mask.${platform[1]}.${i} & lhs.${platform[1]}.${i}
+            == mask.${platform[1]}.${i} & rhs.${platform[1]}.${i}
+        %       end
+        %   end
         #endif
 
-        #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS) || os(FreeBSD) || os(PS4)
-        return mask.__u6_addr.__u6_addr32.0 & lhs.__u6_addr.__u6_addr32.0
-            == mask.__u6_addr.__u6_addr32.0 & rhs.__u6_addr.__u6_addr32.0
-            && mask.__u6_addr.__u6_addr32.1 & lhs.__u6_addr.__u6_addr32.1
-            == mask.__u6_addr.__u6_addr32.1 & rhs.__u6_addr.__u6_addr32.1
-            && mask.__u6_addr.__u6_addr32.2 & lhs.__u6_addr.__u6_addr32.2
-            == mask.__u6_addr.__u6_addr32.2 & rhs.__u6_addr.__u6_addr32.2
-            && mask.__u6_addr.__u6_addr32.3 & lhs.__u6_addr.__u6_addr32.3
-            == mask.__u6_addr.__u6_addr32.3 & rhs.__u6_addr.__u6_addr32.3
-        #endif
-
+        %end
     }
 
     private func _v6_make_mask(_ mask: UInt32) -> in6_addr
     {
-        #if os(Linux)
-        typealias __u6 = in6_addr.__Unnamed_union___in6_u
+        %for pl in[('os(Linux)', '__in6_u'), (BSD, '__u6_addr')]:
+        #if ${pl[0]}
+        typealias __u6 = in6_addr.__Unnamed_union_${pl[1]}
 
         typealias u32 = UInt32
         let max = u32.max
@@ -459,25 +393,11 @@ extension SocketAddress: Equatable
         let _2: u32 = mask <= 64 ? 0 : mask >= 96 ? max : make_u32(96 + 1)
         let _3: u32 = mask <= 96 ? 0 : mask >= 128 ? max : make_u32(128 + 1)
 
-        return in6_addr(__in6_u: __u6(__u6_addr32:
+        return in6_addr(${pl[1]}: __u6(__u6_addr32:
             (_0.bigEndian, _1.bigEndian, _2.bigEndian, _3.bigEndian)
         ))
         #endif
-        #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS) || os(FreeBSD) || os(PS4)
-        typealias __u6 = in6_addr.__Unnamed_union___u6_addr
-
-        typealias u32 = UInt32
-        let max = u32.max
-        let make_u32: (u32) -> u32 = { ~((1 << u32(($0) - mask)) - 1) }
-        let _0: u32 = mask >= 32 ? max : make_u32(32)
-        let _1: u32 = mask <= 32 ? 0 : mask >= 64 ? max : make_u32(64 + 1)
-        let _2: u32 = mask <= 64 ? 0 : mask >= 96 ? max : make_u32(96 + 1)
-        let _3: u32 = mask <= 96 ? 0 : mask >= 128 ? max : make_u32(128 + 1)
-
-        return in6_addr(__u6_addr: __u6(__u6_addr32:
-            (_0.bigEndian, _1.bigEndian, _2.bigEndian, _3.bigEndian)
-        ))
-        #endif
+        %end
     }
 
     /// Available for ip address only, check if two addresses are in the same

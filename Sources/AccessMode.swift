@@ -18,7 +18,7 @@
 //  ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 //  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 //  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-//  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//  ON ANY THEORY OF L;IABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 //  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 //  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
@@ -26,52 +26,34 @@
 //  of the authors and should not be interpreted as representing official policies,
 //  either expressed or implied, of the FreeBSD Project.
 //
-//  Created by Yuji on 3/11/17.
-//  Copyright © 2016 Yuji. All rights reserved.
+//  Created by Yuji on 5/27/17.
+//  Copyright © 2016 yuuji. All rights reserved.
 //
 
-public struct PremissionMode: OptionSet, CustomStringConvertible
+public struct AccessMode: OptionSet, CustomStringConvertible
 {
     public typealias RawValue = mode_t
     public var rawValue: mode_t
+    
     public init(rawValue: mode_t)
     {
         self.rawValue = rawValue
     }
     
-    public init(_ rawValue: mode_t)
+    public init(_ i: Int32)
     {
-        self.rawValue = rawValue
+        self.rawValue = mode_t(i)
     }
     
     public var description: String
     {
-        return
-            (
-                "\(self.contains(PremissionMode.user.r) ? "r" : "-")" +
-                "\(self.contains(PremissionMode.user.w) ? "w" : "-")" +
-                "\(self.contains(PremissionMode.user.x) ? "x" : "-")" +
-                "\(self.contains(PremissionMode.group.r) ? "r" : "-")" +
-                "\(self.contains(PremissionMode.group.w) ? "w" : "-")" +
-                "\(self.contains(PremissionMode.group.x) ? "x" : "-")" +
-                "\(self.contains(PremissionMode.other.r) ? "r" : "-")" +
-                "\(self.contains(PremissionMode.other.w) ? "w" : "-")" +
-                "\(self.contains(PremissionMode.other.x) ? "x" : "-")"
-        )
+        return (self.contains(.read) ? "r" : "-")
+            + (self.contains(.write) ? "w" : "-")
     }
-    
-    public static let user =
-        (r: PremissionMode(mode_t(S_IREAD)),
-         w: PremissionMode(mode_t(S_IWRITE)),
-         x: PremissionMode(mode_t(S_IEXEC)))
-    
-    public static let group =
-        (r: PremissionMode(mode_t(S_IRGRP)),
-         w: PremissionMode(mode_t(S_IWGRP)),
-         x: PremissionMode(mode_t(S_IXGRP)))
-    
-    public static let other =
-        (r: PremissionMode(mode_t(S_IROTH)),
-         w: PremissionMode(mode_t(S_IWOTH)),
-         x: PremissionMode(mode_t(S_IXOTH)))
+}
+
+public extension AccessMode
+{
+    public static let read = AccessMode(O_RDONLY)
+    public static let write = AccessMode(O_WRONLY)
 }

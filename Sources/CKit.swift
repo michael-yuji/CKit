@@ -32,54 +32,8 @@
 
 @_exported import xlibc
 
-public protocol IntegerValueConvertiable {
-    var integerValue: Int { get }
-}
-
-extension Int : IntegerValueConvertiable {
-    public var integerValue: Int {
-        return self
-    }
-}
-
-extension UInt : IntegerValueConvertiable {
-    public var integerValue: Int {
-        return Int(self)
-    }
-}
-
-extension Int32 : IntegerValueConvertiable {
-    public var integerValue: Int {
-        return Int(self)
-    }
-}
-
-extension UInt32 : IntegerValueConvertiable {
-    public var integerValue: Int {
-        return Int(self)
-    }
-}
-
-extension Int16 : IntegerValueConvertiable {
-    public var integerValue: Int {
-        return Int(self)
-    }
-}
-
-extension UInt16 : IntegerValueConvertiable {
-    public var integerValue: Int {
-        return Int(self)
-    }
-}
-
-extension Int64 : IntegerValueConvertiable {
-    public var integerValue: Int {
-        return Int(self)
-    }
-}
-
-extension UInt64 : IntegerValueConvertiable {
-    public var integerValue: Int {
-        return Int(self)
-    }
+@inline(__always)
+public func memcpy(_ dst: AnyMutablePointer, _ src: AnyPointer, _ bytes: Int)
+{
+    dst.mutableRawPointer.copyBytes(from: src.rawPointer, count: bytes)
 }

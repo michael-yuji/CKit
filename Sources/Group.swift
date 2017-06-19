@@ -30,79 +30,100 @@
 //  Copyright © 2017 Yuji. All rights reserved.
 //
 
-public struct Group {
-    
+public struct Group
+{
+    /// the current group of the current user we're acting upon
     public static var current = Group(gid: User.currentUser.gid)
     
+    /// the underlying group class
     var group: _group
 
+    /// get the c group struct
     var cGroup: group {
         return group.cGroup
     }
     
+    /// get the group id
     public var gid: gid_t {
         return cGroup.gr_gid
     }
     
+    /// get the name of the group
     public var name: String {
         return String(cString: cGroup.gr_name)
     }
     
+    /// the encrypted password
     public var password: String {
         return String(cString: cGroup.gr_passwd)
     }
     
+    /// members of the group
     public var members: [String] {
         var mem = [String]()
         var ptr = cGroup.gr_mem
         while (ptr != nil && ptr!.pointee != nil && ptr!.pointee!.numerialValue > 0) {
-            let string = String(cString: ptr!.pointee!, encoding: .ascii)
-            guard let str = string else {
-                break
-            }
-            mem.append(str)
+            let string = String(cString: ptr!.pointee!)
+            mem.append(string)
             ptr = ptr!.advanced(by: 1)
             
         }
         return mem
     }
     
+    
+    /// Initialize the struct with group id
+    ///
+    /// - Parameter gid: The group id
     public init(gid: gid_t) {
         self.group = _group(gid: gid)
     }
-    
+
+    /// Initialize the struct with group name
+    ///
+    /// - Parameter name: The group name
     public init(name: String) {
         self.group = _group(name: name)
     }
 }
 
-extension Group {
-    class _group {
+extension Group
+{
+    /// The underly group class
+    class _group
+    {
+        /// The c group struct
         var cGroup: group = xlibc.group()
         
+        /// The buffer to store the group informations
         var bufferptr: UnsafeMutablePointer<Int8>
         
-        init(gid: gid_t) {
+        /// Initialize with group id
+        init(gid: gid_t)
+        {
             bufferptr = UnsafeMutablePointer<Int8>
                 .allocate(capacity: System.sizes.getgrp_r_bufsize)
+            
             var ptr: UnsafeMutablePointer<group>? = nil
-            getgrgid_r(gid, &self.cGroup,
-                       bufferptr,
-                       System.sizes.getgrp_r_bufsize,
-                       &ptr)
+            
+            getgrgid_r(gid, &self.cGroup, bufferptr,
+                       System.sizes.getgrp_r_bufsize, &ptr)
         }
         
-        init(name: String) {
+        /// Initialize with group name
+        init(name: String)
+        {
             bufferptr = UnsafeMutablePointer<Int8>
                 .allocate(capacity: System.sizes.getgrp_r_bufsize)
+
             var ptr: UnsafeMutablePointer<group>? = nil
-            getgrnam_r(name, &self.cGroup,
-                       bufferptr,
-                       System.sizes.getgrp_r_bufsize,
-                       &ptr)
+
+            getgrnam_r(name, &self.cGroup, bufferptr,
+                       System.sizes.getgrp_r_bufsize, &ptr)
         }
         
-        deinit {
+        deinit
+        {
             bufferptr.deallocate(capacity: System.sizes.getgrp_r_bufsize)
         }
     }

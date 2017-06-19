@@ -29,15 +29,19 @@
 //  Created by yuuji on 3/27/17.
 //
 
-public struct Trigger {
-    
+@available(*, renamed: "Switch", message: "renamed to Switch")
+public typealias Trigger = Switch
+
+public struct Switch
+{
     var kq: Int32
     
-    public init() {
+    public init()
+    {
         #if os(FreeBSD) || os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
         kq = kqueue()
         var ev = KernelEvent(ident: 0,
-                             filter: _evfilt_user,
+                             filter: KernelEventType.user.rawValue,
                              flags: UInt16(EV_ADD | EV_ONESHOT),
                              fflags: NOTE_FFCOPY,
                              data: 0, udata: nil)
@@ -47,7 +51,29 @@ public struct Trigger {
         #endif
     }
     
-    public func trigger() {
+    public init(_ fd: Int32)
+    {
+        kq = fd
+        #if os(FreeBSD) || os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
+        var ev = KernelEvent(ident: 0,
+                             filter: KernelEventType.user.rawValue,
+                             flags: UInt16(EV_ADD | EV_ONESHOT),
+                             fflags: NOTE_FFCOPY,
+                             data: 0, udata: nil)
+        kevent(kq, &ev, 1, nil, 0, nil)
+        #elseif os(Linux) || os(Android)
+        kq = eventfd(0,0)
+        #endif
+    }
+    
+    @available(*, renamed: "toggle", message: "renamed to toggle()")
+    public func trigger()
+    {
+        toggle()
+    }
+    
+    public func toggle()
+    {
         #if os(FreeBSD) || os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
         var triggerEv = KernelEventDescriptor
             .user(ident: 0, options: .trigger)
@@ -61,10 +87,11 @@ public struct Trigger {
         #endif
     }
     
-    public func wait() {
+    public func wait()
+    {
         #if os(FreeBSD) || os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
         var t = KernelEvent()
-        var ev = KernelEvent(ident: 0, filter: _evfilt_user,
+        var ev = KernelEvent(ident: 0, filter: KernelEventType.user.rawValue,
                              flags: UInt16(EV_ADD | EV_ONESHOT),
                              fflags: NOTE_FFCOPY,
                              data: 0, udata: nil)
@@ -78,7 +105,8 @@ public struct Trigger {
         #endif
     }
     
-    public func close() {
+    public func close()
+    {
         _ = xlibc.close(kq)
     }
 }
