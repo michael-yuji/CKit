@@ -33,7 +33,7 @@
 public typealias PointerType = AnyPointer
 public typealias MutablePointerType = AnyMutablePointer
 
-public protocol AnyPointer : IntegerValueConvertiable
+public protocol AnyPointer
 {
     var rawPointer: UnsafeRawPointer { get }
 }
@@ -48,7 +48,7 @@ public protocol AnyBufferPointer
     var rawBuffer: UnsafeRawBufferPointer { get }
 }
 
-public protocol AnyMutableBufferPointer : AnyBufferPointer
+public protocol AnyMutableBufferPointer : AnyBufferPointer, AnyMutablePointer
 {
     var mutableRawBuffer: UnsafeMutableRawBufferPointer { get }
 }
@@ -115,8 +115,13 @@ public func mutablePointer<T,R>(of obj: inout T, as r: R.Type,
 func reinterept_cast<T, X>(from obj: inout T, to: X.Type) -> X
 {
     var ret: X!
-    mutableRawPointer(of: &ret).copyBytes(from: pointer(of: &obj),
-                                          count: MemoryLayout<T>.size)
+
+    withUnsafeMutableBytes(of: &ret) { dest -> () in
+        withUnsafeBytes(of: &obj) {
+            dest.copyContents(from: $0)
+        }
+    }
+
     return ret
 }
 
@@ -125,8 +130,13 @@ func reinterept_cast<T, X>(from obj: T, to: X.Type) -> X
 {
     var obj = obj
     var ret: X!
-    mutablePointer(of: &ret).mutableRawPointer.copyBytes(from: pointer(of: &obj),
-                                                         count: MemoryLayout<T>.size)
+
+    withUnsafeMutableBytes(of: &ret) { dest -> () in
+        withUnsafeBytes(of: &obj) {
+            dest.copyContents(from: $0)
+        }
+    }
+    
     return ret
 }
 
@@ -157,21 +167,8 @@ public extension UnsafeMutableRawPointer
     }
 }
 
-extension Int
-{
-    public func asPointer() -> UnsafeMutableRawPointer
-    {
-        return UnsafeMutableRawPointer(bitPattern: self)!
-    }
-}
-
 extension AnyPointer
 {
-    public var description: String
-    {
-        return "\(self)"
-    }
-    
     public var integerValue: Int
     {
         return numerialValue
@@ -186,6 +183,7 @@ extension AnyPointer
 
 extension Array: AnyPointer
 {
+    @inline(__always)
     private static func toPointer<T>(_ p: UnsafePointer<T>) -> UnsafePointer<T>
     {
         return p
@@ -324,7 +322,8 @@ extension OpaquePointer
     }
 }
 
-func roundedBytesCount<T>(_ raw: Int, _: T.Type) -> Int
+@inline(__always)
+private func roundedBytesCount<T>(_ raw: Int, _: T.Type) -> Int
 {
     return raw - (raw % MemoryLayout<T>.size)
 }
@@ -360,58 +359,80 @@ extension AnyMutableBufferPointer
 }
 
 extension UnsafeMutableRawBufferPointer {
+    
+    /// Copy bytes from other buffer. If the other buffer is bigger than the
+    /// current buffer, only the bytes current buffer can hold will be copied
+    ///
+    /// - Parameter source: the source buffer to copy from
+    /// - Returns: number of bytes copied
     @discardableResult
-    public func copyContents(from buffer: UnsafeRawBufferPointer) -> Int
+    public func copyContents(from source: UnsafeRawBufferPointer) -> Int
     {
-        let nbytes = Swift.min(self.count, buffer.count)
+        let nbytes = Swift.min(self.count, source.count)
         
         self.mutableRawBuffer.copyBytes(
-            from: UnsafeRawBufferPointer(start: buffer.rawBuffer.baseAddress!,
+            from: UnsafeRawBufferPointer(start: source.rawBuffer.baseAddress!,
                                          count: nbytes)
         )
         return nbytes
     }
     
+    /// Copy bytes from other buffer. If the other buffer is bigger than the
+    /// current buffer, only the bytes current buffer can hold will be copied
+    ///
+    /// - Parameter source: the source buffer to copy from
+    /// - Returns: number of bytes copied
     @discardableResult
-    public func copyContents(from buffer: UnsafeMutableRawBufferPointer) -> Int
+    public func copyContents(from source: UnsafeMutableRawBufferPointer) -> Int
     {
         let nbytes = Swift.min(self.mutableRawBuffer.count,
-                               buffer.rawBuffer.count)
+                               source.rawBuffer.count)
         
         self.mutableRawBuffer.copyBytes(
-            from: UnsafeRawBufferPointer(start: buffer.rawBuffer.baseAddress!,
+            from: UnsafeRawBufferPointer(start: source.rawBuffer.baseAddress!,
                                          count: nbytes)
         )
         return nbytes
     }
 }
 
-extension UnsafeMutableBufferPointer {
+extension UnsafeMutableBufferPointer
+{
+    /// Copy bytes from other buffer. If the other buffer is bigger than the
+    /// current buffer, only the bytes current buffer can hold will be copied
+    ///
+    /// - Parameter source: the source buffer to copy from
+    /// - Returns: number of elements copied
     @discardableResult
-    public func copyContents(from buffer: UnsafeRawBufferPointer) -> Int
+    public func copyContents(from source: UnsafeRawBufferPointer) -> Int
     {
         let nbytes = Swift.min(roundedBytesCount(self.mutableRawBuffer.count,
                                                  Element.self),
-                               roundedBytesCount(buffer.rawBuffer.count,
+                               roundedBytesCount(source.rawBuffer.count,
                                                  Element.self))
         
         self.mutableRawBuffer.copyBytes(
-            from: UnsafeRawBufferPointer(start: buffer.rawBuffer.baseAddress!,
+            from: UnsafeRawBufferPointer(start: source.rawBuffer.baseAddress!,
                                          count: nbytes)
         )
         return nbytes/MemoryLayout<Element>.size
     }
     
+    /// Copy bytes from other buffer. If the other buffer is bigger than the
+    /// current buffer, only the bytes current buffer can hold will be copied
+    ///
+    /// - Parameter source: the source buffer to copy from
+    /// - Returns: number of elements copied
     @discardableResult
-    public func copyContents(from buffer: UnsafeMutableRawBufferPointer) -> Int
+    public func copyContents(from source: UnsafeMutableRawBufferPointer) -> Int
     {
         let nbytes = Swift.min(roundedBytesCount(self.mutableRawBuffer.count,
                                                  Element.self),
-                               roundedBytesCount(buffer.rawBuffer.count,
+                               roundedBytesCount(source.rawBuffer.count,
                                                  Element.self))
         
         self.mutableRawBuffer.copyBytes(
-            from: UnsafeRawBufferPointer(start: buffer.rawBuffer.baseAddress!,
+            from: UnsafeRawBufferPointer(start: source.rawBuffer.baseAddress!,
                                          count: nbytes)
         )
         return nbytes/MemoryLayout<Element>.size

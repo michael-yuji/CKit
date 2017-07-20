@@ -37,8 +37,3 @@ public func memcpy(_ dst: AnyMutablePointer, _ src: AnyPointer, _ bytes: Int)
 {
     dst.mutableRawPointer.copyBytes(from: src.rawPointer, count: bytes)
 }
-
-public protocol IntegerValueConvertiable
-{
-    var integerValue: Int { get }
-}

@@ -266,130 +266,158 @@ extension Socket
     {
         get {
             return getsock(opt: .sendBufferSize)
-        } 
+        } nonmutating set {
+            setsock(opt: .sendBufferSize, value: newValue)
+        }
     }
 
     public var recvBufferSize: Int
     {
         get {
             return getsock(opt: .recvBufferSize)
-        } 
+        } nonmutating set {
+            setsock(opt: .recvBufferSize, value: newValue)
+        }
     }
 
     public var sendLowAt: Int
     {
         get {
             return getsock(opt: .sendLowAt)
-        } 
+        } nonmutating set {
+            setsock(opt: .sendLowAt, value: newValue)
+        }
     }
 
     public var recvLowAt: Int
     {
         get {
             return getsock(opt: .recvLowAt)
-        } 
+        } nonmutating set {
+            setsock(opt: .recvLowAt, value: newValue)
+        }
     }
 
     public var recvTimeout: timeval
     {
         get {
             return getsock(opt: .recvTimeout)
-        } 
+        } nonmutating set {
+            setsock(opt: .recvTimeout, value: newValue)
+        }
     }
 
     public var sendTimeout: timeval
     {
         get {
             return getsock(opt: .sendTimeout)
-        } 
+        } nonmutating set {
+            setsock(opt: .sendTimeout, value: newValue)
+        }
     }
 
     public var timestampEnabled: Bool
     {
         get {
             return getsock(opt: .timestampEnabled)
-        } 
+        } nonmutating set {
+            setsock(opt: .timestampEnabled, value: newValue)
+        }
     }
 
     public var socktype: Int32
     {
         get {
             return getsock(opt: .socktype)
-        } 
+        } nonmutating set {
+            setsock(opt: .socktype, value: newValue)
+        }
     }
 
     public var geterror: Int32
     {
         get {
             return getsock(opt: .geterror)
-        } nonmutating set {
-            setsock(opt: .geterror, value: newValue)
-        }
+        } 
     }
 
     public var listenStatus: Bool
     {
         get {
             return getsock(opt: .listenStatus)
-        } nonmutating set {
-            setsock(opt: .listenStatus, value: newValue)
-        }
+        } 
     }
 
     public var broadcast: Bool
     {
         get {
             return getsock(opt: .broadcast)
-        } 
+        } nonmutating set {
+            setsock(opt: .broadcast, value: newValue)
+        }
     }
 
     public var debug: Bool
     {
         get {
             return getsock(opt: .debug)
-        } 
+        } nonmutating set {
+            setsock(opt: .debug, value: newValue)
+        }
     }
 
     public var dontRoute: Bool
     {
         get {
             return getsock(opt: .dontRoute)
-        } 
+        } nonmutating set {
+            setsock(opt: .dontRoute, value: newValue)
+        }
     }
 
     public var reuseaddr: Bool
     {
         get {
             return getsock(opt: .reuseaddr)
-        } 
+        } nonmutating set {
+            setsock(opt: .reuseaddr, value: newValue)
+        }
     }
 
     public var reuseport: Bool
     {
         get {
             return getsock(opt: .reuseport)
-        } 
+        } nonmutating set {
+            setsock(opt: .reuseport, value: newValue)
+        }
     }
 
     public var keepalive: Bool
     {
         get {
             return getsock(opt: .keepalive)
-        } 
+        } nonmutating set {
+            setsock(opt: .keepalive, value: newValue)
+        }
     }
 
     public var linger: Int
     {
         get {
             return getsock(opt: .linger)
-        } 
+        } nonmutating set {
+            setsock(opt: .linger, value: newValue)
+        }
     }
 
     public var oobInline: Bool
     {
         get {
             return getsock(opt: .oobInline)
-        } 
+        } nonmutating set {
+            setsock(opt: .oobInline, value: newValue)
+        }
     }
 
     #if os(FreeBSD) || os(PS4)
@@ -397,16 +425,16 @@ extension Socket
     {
         get {
             return getsock(opt: .acceptedFilter)
-        } 
+        } nonmutating set {
+            setsock(opt: .acceptedFilter, value: newValue)
+        }
     }
 
     public var `protocol`: Int32
     {
         get {
             return getsock(opt: .`protocol`)
-        } nonmutating set {
-            setsock(opt: .`protocol`, value: newValue)
-        }
+        } 
     }
     #endif
 
@@ -415,9 +443,7 @@ extension Socket
     {
         get {
             return getsock(opt: .`protocol`)
-        } nonmutating set {
-            setsock(opt: .`protocol`, value: newValue)
-        }
+        } 
     }
     #endif
 
@@ -426,9 +452,7 @@ extension Socket
     {
         get {
             return getsock(opt: .noSigpipe)
-        } nonmutating set {
-            setsock(opt: .noSigpipe, value: newValue)
-        }
+        } 
     }
     #endif
 
