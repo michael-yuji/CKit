@@ -32,7 +32,7 @@
 
 // The following section is just to make coding with epoll api in Xcode
 // easier, will not have any effect when build on Darwin platform
-#if os(OSX)
+#if os(OSX) || os(iOS) || os(watchOS) || os(tvOS) || os(FreeBSD)
     func epoll_create(_ i: Int) -> Int32
     {
         return 0
