@@ -149,12 +149,20 @@ public struct File: FileDescriptorRepresentable
     
     public func lock(_ type: Lock)
     {
+        #if swift(>=3.2)
+        _ = flock(fileDescriptor, type.value)
+        #else
         _ = xlibc.flock(fileDescriptor, type.value)
+        #endif
     }
     
     public func unlock()
     {
+        #if swift(>=3.2)
+        _ = flock(fileDescriptor, LOCK_UN)
+        #else
         _ = xlibc.flock(fileDescriptor, LOCK_UN)
+        #endif
     }
     
     public func withSharedLock(_ block: (File) -> ())

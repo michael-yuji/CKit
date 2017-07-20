@@ -141,15 +141,23 @@ extension KernelQueue {
     @inline(__always)
     private func __kevent(event: inout KernelEvent) -> Int32
     {
+        #if swift(>=3.2)
+        return kevent(fileDescriptor, &event, 1, nil, 0, nil)
+        #else
         return xlibc.kevent(fileDescriptor, &event, 1, nil, 0, nil)
+        #endif
     }
     
     @discardableResult
     @inline(__always)
     private func __kevent(_ changelist: inout [KernelEvent]) -> Int32
     {
-        return xlibc.kevent(fileDescriptor, changelist,
-                            Int32(changelist.count), nil, 0, nil)
+        let count = Int32(changelist.count)
+        #if swift(>=3.2)
+        return kevent(fileDescriptor, changelist, count, nil, 0, nil)
+        #else
+        return xlibc.kevent(fileDescriptor, changelist, count, nil, 0, nil)
+        #endif
     }
     
     @discardableResult
@@ -158,17 +166,29 @@ extension KernelQueue {
                           _ eventlist: inout [KernelEvent],
                           timeout: UnsafePointer<timespec>!) -> Int32
     {
-        return xlibc.kevent(fileDescriptor, changelist,
-                            Int32(changelist.count), &eventlist,
-                            Int32(eventlist.count), timeout)
+        #if swift(>=3.2)
+        return kevent(fileDescriptor,
+                      changelist, Int32(changelist.count),
+                      &eventlist, Int32(eventlist.count),
+                      timeout)
+        #else
+        return xlibc.kevent(fileDescriptor,
+                            changelist, Int32(changelist.count),
+                            &eventlist, Int32(eventlist.count),
+                            timeout)
+        #endif
     }
     
     @inline(__always)
     private func __kevent(_ eventlist: inout [KernelEvent],
                           timeout: UnsafePointer<timespec>!) -> Int32
     {
-        return xlibc.kevent(fileDescriptor, nil, 0,
-                            &eventlist, Int32(eventlist.count), timeout)
+        let count = Int32(eventlist.count)
+        #if swift(>=3.2)
+        return kevent(fileDescriptor, nil, 0, &eventlist, count, timeout)
+        #else
+        return xlibc.kevent(fileDescriptor, nil, 0, &eventlist, count, timeout)
+        #endif
     }
 }
 

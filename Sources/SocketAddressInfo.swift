@@ -52,6 +52,7 @@ public struct SocketAddressInfo
         case `protocol`
         case other(Int32)
         
+        @_versioned
         init(_ i: Int32)
         {
             switch i {
@@ -85,6 +86,7 @@ public struct SocketAddressInfo
         }
     }
 
+    @_versioned
     init(name: String? = nil, results: [SocketAddress])
     {
         self.officialHostname = name
