@@ -8,7 +8,7 @@ let package = Package(
       .iOS(.v8)
     ],
     dependencies: [
-        .package(url: "../xlibc", from: "0.0.3")
+        .package(url: "https://github.com/michael-yuji/xlibc", from: "0.0.3")
     ],
     targets: [
       .target(name: "CKit", dependencies: ["xlibc"])
