@@ -82,7 +82,7 @@ public enum KernelEventType: Int16
 }
 #endif
 
-#if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
+#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
 public enum KernelEventType: Int16
 {
   case read = -1
@@ -146,7 +146,7 @@ public enum KernelEventType: Int16
 #endif
 
 
-#if os(OSX) || os(iOS) || os(watchOS) || os(tvOS) || os(FreeBSD) || os(PS4)
+#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(FreeBSD) || os(PS4)
 
 public typealias KernelEvent = kevent
 
@@ -186,9 +186,9 @@ public struct KernelEventDescriptor {
 }
 
 // -MARK: Initialization
-extension KernelEventDescriptor
+public extension KernelEventDescriptor
 {
-  public init(event: KernelEvent)
+  init(event: KernelEvent)
   {
     self.identifier = event.ident
     self.type = KernelEventType(rawValue: event.filter)
@@ -206,7 +206,7 @@ extension KernelEventDescriptor
     }
   }
 
-  public init(ident: UInt,
+  init(ident: UInt,
         type: KernelEventType,
         flags: KernelEventFlags,
         userData: KernelEventUserData? = nil)
@@ -218,9 +218,9 @@ extension KernelEventDescriptor
   }
 }
 
-extension KernelEventDescriptor
+public extension KernelEventDescriptor
 {
-  public static func read(ident: Int32,
+  static func read(ident: Int32,
               userData: KernelEventUserData? = nil
     ) -> KernelEventDescriptor
   {
@@ -230,7 +230,7 @@ extension KernelEventDescriptor
                    userData: userData)
   }
 
-  public static func write(ident: Int32,
+  static func write(ident: Int32,
                userData: KernelEventUserData? = nil
     ) -> KernelEventDescriptor
   {
@@ -240,7 +240,7 @@ extension KernelEventDescriptor
                    userData: userData)
   }
 
-  public static func file(fd: Int32,
+  static func file(fd: Int32,
               for evs: KernelEventFlags.Vnode,
               userData: KernelEventUserData? = nil
     ) -> KernelEventDescriptor
@@ -251,7 +251,7 @@ extension KernelEventDescriptor
                    userData: userData)
   }
 
-  public static func timer(ident: UInt,
+  static func timer(ident: UInt,
                unit: KernelEventFlags.Timer,
                userData: KernelEventUserData? = nil
     ) -> KernelEventDescriptor
@@ -262,7 +262,7 @@ extension KernelEventDescriptor
                    userData: userData)
   }
 
-  public static func process(pid: pid_t,
+  static func process(pid: pid_t,
                  for evs: KernelEventFlags.Process,
                  userData: KernelEventUserData? = nil
     ) -> KernelEventDescriptor
@@ -273,7 +273,7 @@ extension KernelEventDescriptor
                    userData: userData)
   }
 
-  public static func signal(sig: Int32,
+  static func signal(sig: Int32,
                 userData: KernelEventUserData? = nil
     ) -> KernelEventDescriptor
   {
@@ -283,7 +283,7 @@ extension KernelEventDescriptor
                    userData: userData)
   }
 
-  public static func user(ident: UInt,
+  static func user(ident: UInt,
               options: KernelEventFlags.User,
               userData: KernelEventUserData? = nil
     ) -> KernelEventDescriptor
@@ -294,7 +294,7 @@ extension KernelEventDescriptor
                    userData: userData)
   }
 
-  public func makeEvent(_ action: KernelEventAction) -> KernelEvent
+  func makeEvent(_ action: KernelEventAction) -> KernelEvent
   {
     return KernelEvent(ident: identifier,
                filter: type.rawValue,
@@ -316,7 +316,7 @@ extension KernelEventDescriptor: Equatable
 
 public extension xlibc.kevent
 {
-  public static func readEvent(_ ident: Int32,
+  static func readEvent(_ ident: Int32,
                  action: KernelEventAction,
                  udata: UnsafeMutableRawPointer? = nil
     ) -> kevent
@@ -328,7 +328,7 @@ public extension xlibc.kevent
           udata: udata)
   }
 
-  public static func writeEvent(_ ident: Int32,
+  static func writeEvent(_ ident: Int32,
                   action: KernelEventAction,
                   udata: UnsafeMutableRawPointer? = nil
     ) -> kevent
@@ -340,7 +340,7 @@ public extension xlibc.kevent
           udata: udata)
   }
 
-  public static func fileEvent(_ ident: Int32,
+  static func fileEvent(_ ident: Int32,
                  action: KernelEventAction,
                  filter: KernelEventFlags.Vnode,
                  udata: UnsafeMutableRawPointer? = nil
@@ -353,7 +353,7 @@ public extension xlibc.kevent
           data: 0, udata: udata)
   }
 
-  public static func processEvent(_ pid: pid_t,
+  static func processEvent(_ pid: pid_t,
                   action: KernelEventAction,
                   filter: KernelEventFlags.Process,
                   udata: UnsafeMutableRawPointer? = nil
@@ -366,7 +366,7 @@ public extension xlibc.kevent
           udata: udata)
   }
 
-  public static func signalEvent(_ signal: Int32,
+  static func signalEvent(_ signal: Int32,
                    action: KernelEventAction,
                    udata: UnsafeMutableRawPointer? = nil
     ) -> kevent
@@ -378,7 +378,7 @@ public extension xlibc.kevent
           udata: udata)
   }
 
-  public static func timerEvent(id: UInt,
+  static func timerEvent(id: UInt,
                   action: KernelEventAction,
                   timeout: Int,
                   unit: KernelEventFlags.Timer,
@@ -504,25 +504,25 @@ public struct KernelEventAction: OptionSet
     self.rawValue = rawValue
   }
 
-  public static let add
+  static let add
     = KernelEventAction(rawValue: UInt16(EV_ADD))
-  public static let delete
+  static let delete
     = KernelEventAction(rawValue: UInt16(EV_DELETE))
-  public static let enable
+  static let enable
     = KernelEventAction(rawValue: UInt16(EV_ENABLE))
-  public static let disable
+  static let disable
     = KernelEventAction(rawValue: UInt16(EV_DISABLE))
-  public static let dispatch
+  static let dispatch
     = KernelEventAction(rawValue: UInt16(EV_DISPATCH))
-  public static let receipt
+  static let receipt
     = KernelEventAction(rawValue: UInt16(EV_RECEIPT))
-  public static let oneshot
+  static let oneshot
     = KernelEventAction(rawValue: UInt16(EV_ONESHOT))
-  public static let clear
+  static let clear
     = KernelEventAction(rawValue: UInt16(EV_CLEAR))
-  public static let error
+  static let error
     = KernelEventAction(rawValue: UInt16(EV_ERROR))
-  public static let eof
+  static let eof
     = KernelEventAction(rawValue: UInt16(EV_EOF))
 }
 
@@ -554,19 +554,19 @@ public struct KernelEventVnodeFlags: KernelEventFlags, RawRepresentable
     self.rawValue = rawValue
   }
 
-  public static let attributesChanged
+  static let attributesChanged
     = KernelEventVnodeFlags(rawValue: UInt32(NOTE_ATTRIB))
-  public static let delete
+  static let delete
     = KernelEventVnodeFlags(rawValue: UInt32(NOTE_DELETE))
-  public static let extend
+  static let extend
     = KernelEventVnodeFlags(rawValue: UInt32(NOTE_EXTEND))
-  public static let link
+  static let link
     = KernelEventVnodeFlags(rawValue: UInt32(NOTE_LINK))
-  public static let rename
+  static let rename
     = KernelEventVnodeFlags(rawValue: UInt32(NOTE_RENAME))
-  public static let revoke
+  static let revoke
     = KernelEventVnodeFlags(rawValue: UInt32(NOTE_REVOKE))
-  public static let write
+  static let write
     = KernelEventVnodeFlags(rawValue: UInt32(NOTE_WRITE))
 }
 
@@ -578,13 +578,13 @@ public struct KernelEventProcessFlags: KernelEventFlags, RawRepresentable
     self.rawValue = rawValue
   }
 
-  public static let exit
+  static let exit
     = KernelEventProcessFlags(rawValue: UInt32(NOTE_EXIT))
-  public static let fork
+  static let fork
     = KernelEventProcessFlags(rawValue: UInt32(NOTE_FORK))
-  public static let exec
+  static let exec
     = KernelEventProcessFlags(rawValue: UInt32(NOTE_EXEC))
-  public static let track
+  static let track
     = KernelEventProcessFlags(rawValue: UInt32(NOTE_TRACK))
 }
 
@@ -606,11 +606,11 @@ public struct KernelEventTimerFlags: KernelEventFlags, RawRepresentable
     self.rawValue = rawValue
   }
 
-  public static let seconds
+  static let seconds
     = KernelEventTimerFlags(rawValue: UInt32(NOTE_SECONDS))
-  public static let macroseconds
+  static let macroseconds
     = KernelEventTimerFlags(rawValue: UInt32(NOTE_USECONDS))
-  public static let nanoseconds
+  static let nanoseconds
     = KernelEventTimerFlags(rawValue: UInt32(NOTE_NSECONDS))
 }
 
@@ -622,13 +622,13 @@ public struct KernelEventUserFlags: KernelEventFlags, RawRepresentable
     self.rawValue = rawValue
   }
 
-  public static let none
+  static let none
     = KernelEventUserFlags(rawValue: UInt32(NOTE_FFNOP))
-  public static let ignore
+  static let ignore
     = KernelEventUserFlags(rawValue: UInt32(NOTE_FFNOP))
-  public static let trigger
+  static let trigger
     = KernelEventUserFlags(rawValue: UInt32(NOTE_TRIGGER))
-  public static let copy
+  static let copy
     = KernelEventUserFlags(rawValue: UInt32(NOTE_FFNOP))
 }
 
@@ -646,14 +646,14 @@ public struct KernelEventFlagsNone: KernelEventFlags, RawRepresentable
 
 public extension KernelEventFlags
 {
-  public typealias Read = KernelEventReadFlags
-  public typealias Write = KernelEventWriteFlags
-  public typealias Vnode = KernelEventVnodeFlags
-  public typealias Process = KernelEventProcessFlags
-  public typealias Signal = KernelEventSignalFlags
-  public typealias Timer = KernelEventTimerFlags
-  public typealias User = KernelEventUserFlags
-  public typealias None = KernelEventFlagsNone
+  typealias Read = KernelEventReadFlags
+  typealias Write = KernelEventWriteFlags
+  typealias Vnode = KernelEventVnodeFlags
+  typealias Process = KernelEventProcessFlags
+  typealias Signal = KernelEventSignalFlags
+  typealias Timer = KernelEventTimerFlags
+  typealias User = KernelEventUserFlags
+  typealias None = KernelEventFlagsNone
 }
 
 #endif

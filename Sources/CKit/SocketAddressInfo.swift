@@ -102,7 +102,7 @@ public extension SocketAddressInfo
   ///   - options: Query options
   /// - Returns: a `SocketAddressInfo` that contains all SocketAddress, and canon name of the host if .fetchOriginalName is set in Options
   /// - Throws: Fail if `getaddrinfo` fails
-  public static func lookup(host: String,
+  static func lookup(host: String,
                 service: String,
                 options: LookupOptions...)
     throws -> SocketAddressInfo
@@ -118,7 +118,7 @@ public extension SocketAddressInfo
   ///   - options: Query options
   /// - Returns: a `SocketAddressInfo` that contains all SocketAddress, and canon name of the host if .fetchOriginalName is set in Options
   /// - Throws: Fail if `getaddrinfo` fails
-  public static func lookup(host: String,
+  static func lookup(host: String,
                 port: in_port_t,
                 options: LookupOptions...)
     throws -> SocketAddressInfo
@@ -129,7 +129,7 @@ public extension SocketAddressInfo
             options: opt)
   }
 
-  public static func lookup(ip: String, service: String,
+  static func lookup(ip: String, service: String,
                 options: LookupOptions...)
     throws -> SocketAddressInfo
   {
@@ -143,7 +143,7 @@ public extension SocketAddressInfo
   /// - Parameters:
   ///   - port: Which port
   ///   - options: Query options
-  public static func bindable(port: in_port_t, options: LookupOptions...)
+  static func bindable(port: in_port_t, options: LookupOptions...)
     throws -> SocketAddressInfo
   {
       var opt = options
@@ -157,7 +157,7 @@ public extension SocketAddressInfo
   /// - Parameters:
   ///   - service: Which service port
   ///   - options: Query options
-  public static func bindable(service: String, options: LookupOptions...)
+  static func bindable(service: String, options: LookupOptions...)
     throws -> SocketAddressInfo
   {
       var opt = options

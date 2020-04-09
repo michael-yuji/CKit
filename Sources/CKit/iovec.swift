@@ -7,7 +7,7 @@ public extension iovec
   /// - Parameters:
   ///   - base: The pointer to the buffer
   ///   - len: The size of the buffer
-  public init(base: AnyPointer, len: Int)
+  init(base: AnyPointer, len: Int)
   {
     self.init()
     self.iov_base = UnsafeMutableRawPointer(mutating: base.rawPointer)
@@ -15,13 +15,13 @@ public extension iovec
   }
 
   /// Get the `UnsafeRawBufferPointer` representation
-  public var buffer: UnsafeRawBufferPointer
+  var buffer: UnsafeRawBufferPointer
   {
     return UnsafeRawBufferPointer(start: iov_base, count: iov_len)
   }
 
   /// Get the `UnsafeMutableRawBufferPointer` representation
-  public var mutableBuffer: UnsafeMutableRawBufferPointer
+  var mutableBuffer: UnsafeMutableRawBufferPointer
   {
     return UnsafeMutableRawBufferPointer(start: iov_base, count: iov_len)
   }
@@ -29,7 +29,7 @@ public extension iovec
 
 public extension AnyBufferPointer
 {
-  public var iovec: xlibc.iovec
+  var iovec: xlibc.iovec
   {
     let rawBuffer = self.rawBuffer
     return xlibc.iovec(base: rawBuffer.baseAddress!, len: rawBuffer.count)
@@ -39,7 +39,7 @@ public extension AnyBufferPointer
 public extension UnsafeBufferPointer
 {
   /// Get the io vector representation of the Buffer
-  public var iovec: xlibc.iovec
+  var iovec: xlibc.iovec
   {
     guard let baseAddress = self.baseAddress else {
       return xlibc.iovec(iov_base: nil, iov_len: 0)
@@ -54,7 +54,7 @@ public extension UnsafeBufferPointer
 
 public extension UnsafeMutableBufferPointer
 {
-  public var iovec: xlibc.iovec
+  var iovec: xlibc.iovec
   {
     guard let baseAddress = self.baseAddress else {
       return xlibc.iovec(iov_base: nil, iov_len: 0)
@@ -67,7 +67,7 @@ public extension UnsafeMutableBufferPointer
 
 public extension UnsafeRawBufferPointer
 {
-  public var iovec: xlibc.iovec
+  var iovec: xlibc.iovec
   {
     guard let baseAddress = self.baseAddress else {
       return xlibc.iovec(iov_base: nil, iov_len: 0)
@@ -81,7 +81,7 @@ public extension UnsafeRawBufferPointer
 
 public extension UnsafeMutableRawBufferPointer
 {
-  public var iovec: xlibc.iovec
+  var iovec: xlibc.iovec
   {
     guard let baseAddress = self.baseAddress else {
       return xlibc.iovec(iov_base: nil, iov_len: 0)

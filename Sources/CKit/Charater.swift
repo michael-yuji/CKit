@@ -32,42 +32,42 @@
 
 public extension Character
 {
-  public static var null: Character
+  static var null: Character
   {
     return Character(UnicodeScalar.init(0))
   }
 
-  public static var digits: [Character]
+  static var digits: [Character]
   {
     return "0123456789".sorted()
   }
 
-  public static var lowercase: [Character]
+  static var lowercase: [Character]
   {
     return "abcdefghijklmnopqrstuvwxyz".sorted()
   }
 
-  public static var uppercase: [Character]
+  static var uppercase: [Character]
   {
     return "ABCDEFGHIJKLMNOPQRSTUVWXYZ".sorted()
   }
 
-  public var isAlphabit: Bool
+  var isAlphabit: Bool
   {
     return self.isLowercase || self.isUppercase
   }
 
-  public var isUppercase: Bool
+  var isUppercase: Bool
   {
     return Character.uppercase.contains(self)
   }
 
-  public var isLowercase: Bool
+  var isLowercase: Bool
   {
     return Character.lowercase.contains(self)
   }
 
-  public var isdigits: Bool
+  var isdigits: Bool
   {
     return Character.digits.contains(self)
   }
@@ -82,7 +82,7 @@ public func stderr(_ string: String)
 
 public extension String
 {
-  public static func alignedText(strings: String..., spaces: [Int]) -> String
+  static func alignedText(strings: String..., spaces: [Int]) -> String
   {
     let astr = strings.enumerated().map
     { (__val:(Int, String)) -> String in let (index,string) = __val;
@@ -100,13 +100,13 @@ public extension String
 public extension Strideable
 {
   @inline(__always)
-  public mutating func decrement()
+  mutating func decrement()
   {
     self = self.advanced(by: -1)
   }
 
   @inline(__always)
-  public mutating func increment()
+  mutating func increment()
   {
     self = self.advanced(by: 1)
   }

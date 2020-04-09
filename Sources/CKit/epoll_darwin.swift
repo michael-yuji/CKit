@@ -32,7 +32,7 @@
 
 // The following section is just to make coding with epoll api in Xcode
 // easier, will not have any effect when build on Darwin platform
-#if os(OSX)
+#if os(macOS) || os(iOS)
   func epoll_create(_ i: Int) -> Int32
   {
     return 0
@@ -104,7 +104,7 @@
       get {
         return UInt32(raw)
       } set {
-        raw = Int(u32)
+        raw = Int(newValue)
       }
     }
 

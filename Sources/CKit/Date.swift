@@ -40,7 +40,7 @@ extension timespec : Hashable, Equatable, Comparable
   public static func now() -> timespec
   {
     var time = timespec()
-    #if os(OSX) || os(iOS) || os(tvOS) || os(watchOS)
+    #if os(macOS) || os(iOS) || os(tvOS) || os(watchOS)
       if #available(OSX 10.12, iOS 10, *) {
         clock_gettime(CLOCK_REALTIME, &time)
       } else {
@@ -63,9 +63,9 @@ extension timespec : Hashable, Equatable, Comparable
     return time
   }
 
-  public var hashValue: Int
-  {
-    return self.tv_nsec + self.tv_sec * 1_000_000_000
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(tv_sec)
+    hasher.combine(tv_nsec)
   }
 }
 

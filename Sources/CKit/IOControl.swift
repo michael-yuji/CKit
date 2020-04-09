@@ -7,7 +7,7 @@ public let FIONREAD = 1074030207
 public extension FileDescriptor
 {
   /// How many bytes available in the kernel buffer
-  public var bytesAvailable: Int
+  var bytesAvailable: Int
   {
     var bytes = 0
     _ = ioctl(self.fileDescriptor, UInt(FIONREAD), mutablePointer(of: &bytes).mutableRawPointer)

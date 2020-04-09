@@ -118,67 +118,67 @@ public struct System
 public extension System
 {
   @available(*, deprecated, message: "use System.cpus.configuared instead")
-  public static var cpusConfigured: Int
+  static var cpusConfigured: Int
   {
     return sysconf(sys_conf_arg_t(_SC_NPROCESSORS_CONF))
   }
 
   @available(*, deprecated, message: "use System.cpus.onlines instead")
-  public static var cpusOnline: Int
+  static var cpusOnline: Int
   {
     return sysconf(sys_conf_arg_t(_SC_NPROCESSORS_ONLN))
   }
 
   @available(*, deprecated, message: "use System.cpus.clkTricksPerSec instead")
-  public static var clockTricks: Int
+  static var clockTricks: Int
   {
     return sysconf(sys_conf_arg_t(_SC_CLK_TCK))
   }
 
   @available(*, deprecated, message: "use System.sizes.page instead")
-  public static var pagesize: Int
+  static var pagesize: Int
   {
     return sysconf(sys_conf_arg_t(_SC_PAGESIZE))
   }
 
   @available(*, deprecated, message: "use System.sizes.physicalPages instead")
-  public static var  physicalPagesize: Int
+  static var  physicalPagesize: Int
   {
     return sysconf(sys_conf_arg_t(_SC_PHYS_PAGES))
   }
 
   @available(*, deprecated, message: "use System.maximum.hostname instead")
-  public static var hostnameMaxLength: Int
+  static var hostnameMaxLength: Int
   {
     return sysconf(sys_conf_arg_t(_SC_HOST_NAME_MAX))
   }
 
   @available(*, deprecated, message: "use System.maximum.loginname instead")
-  public static var loginnameMaxLength: Int
+  static var loginnameMaxLength: Int
   {
     return sysconf(sys_conf_arg_t(_SC_LOGIN_NAME_MAX))
   }
 
   @available(*, deprecated, message: "use System.maximum.ttyname instead")
-  public static var ttynameMaxLength: Int
+  static var ttynameMaxLength: Int
   {
     return sysconf(sys_conf_arg_t(_SC_TTY_NAME_MAX))
   }
 
   @available(*, deprecated, message: "use System.maximum.fildescs instead")
-  public static var maxFilesCount: Int
+  static var maxFilesCount: Int
   {
     return sysconf(sys_conf_arg_t(_SC_OPEN_MAX))
   }
 
   @available(*, deprecated, message: "use System.maximum.childProcess instead")
-  public static var maxChildProcCount: Int
+  static var maxChildProcCount: Int
   {
     return sysconf(sys_conf_arg_t(_SC_CHILD_MAX))
   }
 
   @available(*, deprecated, message: "use System.maximum.args instead")
-  public static var maxArgsCount: Int
+  static var maxArgsCount: Int
   {
     return sysconf(sys_conf_arg_t(_SC_ARG_MAX))
   }

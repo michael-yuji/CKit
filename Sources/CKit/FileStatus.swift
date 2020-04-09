@@ -55,52 +55,52 @@ public struct FileStatus
 
 public extension FileStatus
 {
-  public var deviceId: dev_t
+  var deviceId: dev_t
   {
     return stat_.st_dev
   }
 
-  public var inodeNumber: ino_t
+  var inodeNumber: ino_t
   {
     return stat_.st_ino
   }
 
-  public var mode: mode_t
+  var mode: mode_t
   {
     return stat_.st_mode
   }
 
-  public var hardlinkCount: Int
+  var hardlinkCount: Int
   {
     return Int(stat_.st_nlink)
   }
 
-  public var owner: User
+  var owner: User
   {
     return User(uid: stat_.st_uid)
   }
 
-  public var deviceId_s: dev_t
+  var deviceId_s: dev_t
   {
     return stat_.st_rdev
   }
 
-  public var size: size_t
+  var size: size_t
   {
     return size_t(stat_.st_size)
   }
 
-  public var blockSize: Int
+  var blockSize: Int
   {
     return Int(stat_.st_blksize)
   }
 
-  public var blocksCount: Int
+  var blocksCount: Int
   {
     return Int(stat_.st_blocks)
   }
 
-  public var lastAccessDate: time_t
+  var lastAccessDate: time_t
   {
     #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
     return stat_.st_atimespec.tv_sec
@@ -109,7 +109,7 @@ public extension FileStatus
     #endif
   }
 
-  public var modificationDate: time_t
+  var modificationDate: time_t
   {
     #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
       return stat_.st_mtimespec.tv_sec
@@ -118,7 +118,7 @@ public extension FileStatus
     #endif
   }
 
-  public var lastStatusChange: time_t
+  var lastStatusChange: time_t
   {
     #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS)
       return stat_.st_ctimespec.tv_sec
@@ -142,43 +142,43 @@ public func ==(lhs: FileStatus, rhs: FileStatus) -> Bool
 
 public extension FileStatus
 {
-  public var isBlock: Bool
+  var isBlock: Bool
   {
     return (self.mode & S_IFMT) == S_IFBLK
   }
 
-  public var isChar: Bool
+  var isChar: Bool
   {
     return (self.mode & S_IFMT) == S_IFCHR
   }
 
-  public var isDir: Bool
+  var isDir: Bool
   {
     return (self.mode & S_IFMT) == S_IFDIR
   }
 
-  public var isFifo: Bool
+  var isFifo: Bool
   {
     return (self.mode & S_IFMT) == S_IFIFO
   }
 
-  public var isSocket: Bool
+  var isSocket: Bool
   {
     return (self.mode & S_IFMT) == S_IFIFO
   }
 
-  public var isRegularFile: Bool
+  var isRegularFile: Bool
   {
     return (self.mode & S_IFMT) == S_IFSOCK
   }
 
-  public var isSymbolicLink: Bool
+  var isSymbolicLink: Bool
   {
     return (self.mode & S_IFMT) == S_IFLNK
   }
 
-  #if os(OSX) || os(iOS) || os(watchOS) || os(tvOS) || os(FreeBSD)
-  public var isWhiteOut: Bool
+  #if os(macOS) || os(iOS) || os(watchOS) || os(tvOS) || os(FreeBSD)
+  var isWhiteOut: Bool
   {
     return (self.mode & S_IFMT) == S_IFWHT
   }
@@ -187,12 +187,12 @@ public extension FileStatus
 
 public extension FileStatus
 {
-  public init(path: String) throws
+  init(path: String) throws
   {
     try verify(err: stat(path, &stat_))
   }
 
-  public init(fd: Int32) throws
+  init(fd: Int32) throws
   {
     try verify(err: fstat(fd, &stat_))
   }

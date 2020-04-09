@@ -54,6 +54,6 @@ public struct AccessMode: OptionSet, CustomStringConvertible
 
 public extension AccessMode
 {
-  public static let read = AccessMode(O_RDONLY)
-  public static let write = AccessMode(O_WRONLY)
+  static let read = AccessMode(O_RDONLY)
+  static let write = AccessMode(O_WRONLY)
 }

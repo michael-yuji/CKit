@@ -57,7 +57,7 @@ public struct FileTypes : RawRepresentable, CustomStringConvertible
 
   public static let socket = FileTypes(rawValue: DT_SOCK)
 
-  #if os(OSX) || os(FreeBSD)
+  #if os(macOS) || os(iOS) || os(FreeBSD)
   public static let whiteOut = FileTypes(rawValue: DT_WHT)
   #endif
 
