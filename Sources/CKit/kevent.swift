@@ -504,25 +504,25 @@ public struct KernelEventAction: OptionSet
     self.rawValue = rawValue
   }
 
-  static let add
+  public static let add
     = KernelEventAction(rawValue: UInt16(EV_ADD))
-  static let delete
+  public static let delete
     = KernelEventAction(rawValue: UInt16(EV_DELETE))
-  static let enable
+  public static let enable
     = KernelEventAction(rawValue: UInt16(EV_ENABLE))
-  static let disable
+  public static let disable
     = KernelEventAction(rawValue: UInt16(EV_DISABLE))
-  static let dispatch
+  public static let dispatch
     = KernelEventAction(rawValue: UInt16(EV_DISPATCH))
-  static let receipt
+  public static let receipt
     = KernelEventAction(rawValue: UInt16(EV_RECEIPT))
-  static let oneshot
+  public static let oneshot
     = KernelEventAction(rawValue: UInt16(EV_ONESHOT))
-  static let clear
+  public static let clear
     = KernelEventAction(rawValue: UInt16(EV_CLEAR))
-  static let error
+  public static let error
     = KernelEventAction(rawValue: UInt16(EV_ERROR))
-  static let eof
+  public static let eof
     = KernelEventAction(rawValue: UInt16(EV_EOF))
 }
 
