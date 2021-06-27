@@ -402,7 +402,7 @@ extension SocketAddress: Equatable
     }
     // use this to erase the host part
     let bitsEraser = (~((1 << (33 - bits)) - 1)).bigEndian
-    return (bitsEraser & lhs) == (bitsEraser & rhs)
+    return (UInt32(bitsEraser) & lhs) == (UInt32(bitsEraser) & rhs)
   }
 
   @inline(__always)

@@ -452,6 +452,8 @@ extension Socket
   {
     get {
       return getsock(opt: .noSigpipe)
+    } nonmutating set {
+      setsock(opt: .noSigpipe, value: newValue)
     }
   }
   #endif
