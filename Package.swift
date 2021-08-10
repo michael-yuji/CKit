@@ -5,7 +5,7 @@ let package = Package(
     name: "CKit",
     platforms: [
       .macOS(.v10_10),
-      .iOS(.v8)
+      .iOS(.v9)
     ],
     products: [ .library(name: "CKit", type: .dynamic, targets: ["CKit"]) ],
     dependencies: [
